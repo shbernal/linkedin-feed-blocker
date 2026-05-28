@@ -92,14 +92,14 @@ export const normalizeSettings = (
   if (!hasPageSectionSettings(value)) {
     return syncActiveWithPages({
       ...fallback,
-    active: legacyActive,
-    feed: legacyActive ? fallback.feed : false,
-    rightFeed: legacyActive ? fallback.rightFeed : false,
-    networkPuzzle: legacyActive ? fallback.networkPuzzle : false,
-    networkPeople: legacyActive ? fallback.networkPeople : false,
-    networkLeftAd: legacyActive ? fallback.networkLeftAd : false,
-  })
-}
+      active: legacyActive,
+      feed: legacyActive ? fallback.feed : false,
+      rightFeed: legacyActive ? fallback.rightFeed : false,
+      networkPuzzle: legacyActive ? fallback.networkPuzzle : false,
+      networkPeople: legacyActive ? fallback.networkPeople : false,
+      networkLeftAd: legacyActive ? fallback.networkLeftAd : false,
+    })
+  }
 
   return syncActiveWithPages({
     active: legacyActive,

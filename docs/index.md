@@ -11,6 +11,8 @@ this directory unless the task explicitly calls for it.
 - [Experimental Status](./experimental-status.md) records what already exists,
   why the current approach is rough, and what needs hardening before treating
   the extension as maintained.
+- [Testing](./testing.md) explains the local real-site Playwright smoke-test
+  lane, persistent profile setup, and generated inspection artifacts.
 
 When behavior, settings shape, Chrome API usage, selector strategy, validation,
 or publishing assumptions change, check whether these docs should be updated in

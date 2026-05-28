@@ -7,6 +7,10 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "typecheck": "tsc -b",
+    "typecheck:e2e": "tsc -p tsconfig.e2e.json",
+    "e2e:real:setup": "pnpm run typecheck:e2e && pnpm exec playwright test -c playwright.real.config.ts --grep @setup --headed",
+    "e2e:real:login": "pnpm run e2e:real:setup",
+    "e2e:real": "pnpm run typecheck:e2e && pnpm build && RUN_REAL_LINKEDIN_E2E=1 pnpm exec playwright test -c playwright.real.config.ts --grep-invert @setup --headed",
     "format": "prettier --check .",
     "preview": "vite preview"
   },
@@ -28,6 +32,7 @@
   },
   "devDependencies": {
     "@crxjs/vite-plugin": "^2.4.0",
+    "@playwright/test": "^1.60.0",
     "@types/chrome": "^0.1.38",
     "@types/node": "^25.5.0",
     "@types/react": "^19.2.14",

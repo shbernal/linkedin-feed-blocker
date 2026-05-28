@@ -124,7 +124,17 @@ Available commands:
 - `pnpm typecheck`
 - `pnpm build`
 - `pnpm format`
+- `pnpm typecheck:e2e`
+- `pnpm e2e:real:setup`
+- `pnpm e2e:real:login`
+- `pnpm e2e:real`
 
-There are no unit tests, fixture tests, or Playwright checks in this repo yet.
-Runtime behavior still needs manual validation by loading `dist/` as an
-unpacked extension.
+The current Playwright coverage is an opt-in real LinkedIn smoke check rather
+than a deterministic default suite. It uses a copied persistent Chromium
+profile under `.e2e/linkedin-real-profile`, loads the built extension, and
+captures screenshots/video/trace artifacts under ignored Playwright output
+directories.
+
+There are still no unit tests or fixture tests in this repo. Runtime behavior
+outside the real smoke path still needs manual validation by loading `dist/` as
+an unpacked extension.

@@ -158,15 +158,11 @@ const applySectionBlocking = (section: PageSection) => {
 }
 
 const clearAllBlocking = () => {
-  ;(
-    Object.keys(HIDDEN_ATTR_BY_SECTION) as PageSection[]
-  ).forEach(showSection)
+  ;(Object.keys(HIDDEN_ATTR_BY_SECTION) as PageSection[]).forEach(showSection)
 }
 
 const applyCurrentSettings = () => {
-  ;(
-    Object.keys(HIDDEN_ATTR_BY_SECTION) as PageSection[]
-  ).forEach(section => {
+  ;(Object.keys(HIDDEN_ATTR_BY_SECTION) as PageSection[]).forEach(section => {
     if (settings[section]) {
       applySectionBlocking(section)
       return
