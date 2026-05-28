@@ -41,12 +41,6 @@ The current blocking approach is deliberately simple and not very efficient.
 - The repo has no remote, CI, release process, or Chrome Web Store publishing
   flow.
 
-Known correctness gap:
-
-- The current master-toggle helper should be reviewed before release hardening.
-  It updates most section keys but leaves `networkLeftAd` dependent on its
-  previous value.
-
 ## Hardening Direction
 
 Before treating this as maintained, prefer these steps:

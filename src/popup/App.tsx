@@ -102,86 +102,86 @@ function App() {
 
       <div className="popup-content">
         <div className="switch-list">
-          <div className="switch-row">
+          <label className="switch-row">
             <span className="switch-label switch-label-master">
               Block all sections
             </span>
-            <label className="switch">
+            <span className="switch">
               <input
                 type="checkbox"
                 checked={isAllPagesActive(settings)}
                 onChange={toggleAllPages}
               />
               <span className="slider"></span>
-            </label>
-          </div>
+            </span>
+          </label>
 
           <div className="section-group">
             <h3 className="section-title">Home</h3>
 
-            <div className="switch-row switch-row-child">
+            <label className="switch-row switch-row-child">
               <span className="switch-label">Block feed</span>
-              <label className="switch switch-small">
+              <span className="switch switch-small">
                 <input
                   type="checkbox"
                   checked={settings.feed}
                   onChange={() => toggleSection('feed')}
                 />
                 <span className="slider"></span>
-              </label>
-            </div>
+              </span>
+            </label>
 
-            <div className="switch-row switch-row-child">
+            <label className="switch-row switch-row-child">
               <span className="switch-label">Block right feed</span>
-              <label className="switch switch-small">
+              <span className="switch switch-small">
                 <input
                   type="checkbox"
                   checked={settings.rightFeed}
                   onChange={() => toggleSection('rightFeed')}
                 />
                 <span className="slider"></span>
-              </label>
-            </div>
+              </span>
+            </label>
           </div>
 
           <div className="section-group">
             <h3 className="section-title">My Network</h3>
 
-            <div className="switch-row switch-row-child">
+            <label className="switch-row switch-row-child">
               <span className="switch-label">Block puzzle</span>
-              <label className="switch switch-small">
+              <span className="switch switch-small">
                 <input
                   type="checkbox"
                   checked={settings.networkPuzzle}
                   onChange={() => toggleSection('networkPuzzle')}
                 />
                 <span className="slider"></span>
-              </label>
-            </div>
+              </span>
+            </label>
 
-            <div className="switch-row switch-row-child">
+            <label className="switch-row switch-row-child">
               <span className="switch-label">Block people sections</span>
-              <label className="switch switch-small">
+              <span className="switch switch-small">
                 <input
                   type="checkbox"
                   checked={settings.networkPeople}
                   onChange={() => toggleSection('networkPeople')}
                 />
                 <span className="slider"></span>
-              </label>
-            </div>
+              </span>
+            </label>
 
-            <div className="switch-row switch-row-child">
+            <label className="switch-row switch-row-child">
               <span className="switch-label">Block left ad</span>
-              <label className="switch switch-small">
+              <span className="switch switch-small">
                 <input
                   type="checkbox"
                   checked={settings.networkLeftAd}
                   onChange={() => toggleSection('networkLeftAd')}
                 />
                 <span className="slider"></span>
-              </label>
-            </div>
+              </span>
+            </label>
           </div>
         </div>
       </div>

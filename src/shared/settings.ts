@@ -76,6 +76,7 @@ export const setAllPages = (
     rightFeed: enabled,
     networkPuzzle: enabled,
     networkPeople: enabled,
+    networkLeftAd: enabled,
   })
 }
 

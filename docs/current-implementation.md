@@ -108,11 +108,11 @@ Current examples:
 - Home feed targets a `mainFeed` lazy-column container.
 - Home right rail targets game links, discover-hub links, ad images, and a feed
   advertisement iframe.
-- My Network puzzle targets sections with game links, excluding pending
-  invitations.
-- My Network people sections target later non-invitation sections that do not
-  contain game links.
-- My Network left ad targets an advertisement iframe in the left rail.
+- My Network puzzle targets game-link sections while excluding the top-level
+  main content region and pending invitations.
+- My Network people sections target LinkedIn auto-component recommendation
+  sections while keeping invitations, tabs, and puzzle content separate.
+- My Network left ad targets the ad iframe component key in the left rail.
 
 This works as an experiment, but it should be treated as brittle until covered
 by fixtures or real-browser smoke checks.

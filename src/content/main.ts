@@ -26,19 +26,17 @@ const SECTION_SELECTORS: Record<PageSection, readonly string[]> = {
     'div:has(> div > div > a[href^="/games/"])',
     'div:has(> div > a[href="/mynetwork/discover-hub/"])',
     'img[alt="Advertise on LinkedIn"]',
-    'iframe[title="advertisement"][componentkey="MainFeedDesktopNav_feed_ad"]',
+    'iframe[componentkey="MainFeedDesktopNav_feed_ad"]',
   ],
   // On My Network, the puzzle is a standalone section after invitations.
   networkPuzzle: [
-    'section:not([componentkey="pending-invitations-preview"]):has(a[href^="/games/"])',
+    'section:not([aria-label="Contenu principal"]):not([componentkey="pending-invitations-preview"]):has(a[href^="/games/"])',
   ],
-  // Hide every later recommendation section while keeping invitations and,
-  // when desired, the puzzle section separate.
-  networkPeople: [
-    'section:not([componentkey="pending-invitations-preview"]):not(:has(a[href^="/games/"]))',
-  ],
+  // Hide recommendation sections while keeping invitations, tabs, and the
+  // puzzle section separate.
+  networkPeople: ['section[componentkey^="auto-component-"]'],
   networkLeftAd: [
-    'div:has(> div > iframe[title="advertisement"][componentkey="MynetworkDesktopNav_mynetwork_desktop_nav_ad"])',
+    'div:has(> div > iframe[componentkey="MynetworkDesktopNav_mynetwork_desktop_nav_ad"])',
   ],
 }
 

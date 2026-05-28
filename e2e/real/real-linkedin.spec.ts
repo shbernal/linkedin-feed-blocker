@@ -1,6 +1,9 @@
 import type { Page, TestInfo } from '@playwright/test'
 import { test, expect } from '../fixtures/realExtension'
-import type { ExtensionSettings } from '../../src/shared/settings'
+import {
+  DEFAULT_SETTINGS,
+  type ExtensionSettings,
+} from '../../src/shared/settings'
 
 const smokeTimeout = 45_000
 
@@ -23,6 +26,8 @@ const onlyFeedOn = (): ExtensionSettings => ({
   feed: true,
 })
 
+const loginUrlPattern = /\/login|checkpoint|uas\/login/
+
 const gotoRealLinkedInPage = async (page: Page, url: string) => {
   await page.goto(url, {
     waitUntil: 'domcontentloaded',
@@ -31,7 +36,9 @@ const gotoRealLinkedInPage = async (page: Page, url: string) => {
 }
 
 const assertSignedIn = async (page: Page) => {
-  expect(page.url()).not.toMatch(/\/login|checkpoint|uas\/login/)
+  await expect
+    .poll(() => page.url(), { timeout: smokeTimeout })
+    .not.toMatch(loginUrlPattern)
   await expect(
     page.locator('input[name="session_key"], input[name="session_password"]'),
   ).toHaveCount(0)
@@ -53,6 +60,10 @@ test.describe('real LinkedIn selector smoke', () => {
     process.env.RUN_REAL_LINKEDIN_E2E !== '1',
     'Set RUN_REAL_LINKEDIN_E2E=1 to run real LinkedIn smoke tests.',
   )
+
+  test.afterEach(async ({ seedSettings }) => {
+    await seedSettings(DEFAULT_SETTINGS)
+  })
 
   test('blocks and restores the real home feed', async ({
     clearSettings,
