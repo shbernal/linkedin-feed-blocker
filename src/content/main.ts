@@ -14,6 +14,7 @@ const HIDDEN_ATTR_BY_SECTION: Record<PageSection, string> = {
   rightFeed: 'data-ltfb-right-feed-hidden',
   networkPuzzle: 'data-ltfb-network-puzzle-hidden',
   networkPeople: 'data-ltfb-network-people-hidden',
+  networkLeftAd: 'data-ltfb-network-left-ad-hidden',
 }
 
 const SECTION_SELECTORS: Record<PageSection, readonly string[]> = {
@@ -27,8 +28,18 @@ const SECTION_SELECTORS: Record<PageSection, readonly string[]> = {
     'img[alt="Advertise on LinkedIn"]',
     'iframe[title="advertisement"][componentkey="MainFeedDesktopNav_feed_ad"]',
   ],
-  networkPuzzle: [],
-  networkPeople: [],
+  // On My Network, the puzzle is a standalone section after invitations.
+  networkPuzzle: [
+    'section:not([componentkey="pending-invitations-preview"]):has(a[href^="/games/"])',
+  ],
+  // Hide every later recommendation section while keeping invitations and,
+  // when desired, the puzzle section separate.
+  networkPeople: [
+    'section:not([componentkey="pending-invitations-preview"]):not(:has(a[href^="/games/"]))',
+  ],
+  networkLeftAd: [
+    'div:has(> div > iframe[title="advertisement"][componentkey="MynetworkDesktopNav_mynetwork_desktop_nav_ad"])',
+  ],
 }
 
 type UpdateSettingsMessage = {
@@ -46,6 +57,7 @@ let settings: ExtensionSettings = {
   rightFeed: true,
   networkPuzzle: true,
   networkPeople: true,
+  networkLeftAd: true,
 }
 let observer: MutationObserver | null = null
 let intervalId: number | null = null
@@ -93,7 +105,7 @@ const getCurrentRouteSections = (): PageSection[] => {
   }
 
   if (isNetworkGrowRoute()) {
-    return ['networkPuzzle', 'networkPeople']
+    return ['networkPuzzle', 'networkPeople', 'networkLeftAd']
   }
 
   return []

@@ -116,52 +116,72 @@ function App() {
             </label>
           </div>
 
-          <div className="switch-row switch-row-child">
-            <span className="switch-label">Block feed</span>
-            <label className="switch switch-small">
-              <input
-                type="checkbox"
-                checked={settings.feed}
-                onChange={() => toggleSection('feed')}
-              />
-              <span className="slider"></span>
-            </label>
+          <div className="section-group">
+            <h3 className="section-title">Home</h3>
+
+            <div className="switch-row switch-row-child">
+              <span className="switch-label">Block feed</span>
+              <label className="switch switch-small">
+                <input
+                  type="checkbox"
+                  checked={settings.feed}
+                  onChange={() => toggleSection('feed')}
+                />
+                <span className="slider"></span>
+              </label>
+            </div>
+
+            <div className="switch-row switch-row-child">
+              <span className="switch-label">Block right feed</span>
+              <label className="switch switch-small">
+                <input
+                  type="checkbox"
+                  checked={settings.rightFeed}
+                  onChange={() => toggleSection('rightFeed')}
+                />
+                <span className="slider"></span>
+              </label>
+            </div>
           </div>
 
-          <div className="switch-row switch-row-child">
-            <span className="switch-label">Block right feed</span>
-            <label className="switch switch-small">
-              <input
-                type="checkbox"
-                checked={settings.rightFeed}
-                onChange={() => toggleSection('rightFeed')}
-              />
-              <span className="slider"></span>
-            </label>
-          </div>
+          <div className="section-group">
+            <h3 className="section-title">My Network</h3>
 
-          <div className="switch-row switch-row-child">
-            <span className="switch-label">Block network puzzle</span>
-            <label className="switch switch-small">
-              <input
-                type="checkbox"
-                checked={settings.networkPuzzle}
-                onChange={() => toggleSection('networkPuzzle')}
-              />
-              <span className="slider"></span>
-            </label>
-          </div>
+            <div className="switch-row switch-row-child">
+              <span className="switch-label">Block puzzle</span>
+              <label className="switch switch-small">
+                <input
+                  type="checkbox"
+                  checked={settings.networkPuzzle}
+                  onChange={() => toggleSection('networkPuzzle')}
+                />
+                <span className="slider"></span>
+              </label>
+            </div>
 
-          <div className="switch-row switch-row-child">
-            <span className="switch-label">Block people you may know</span>
-            <label className="switch switch-small">
-              <input
-                type="checkbox"
-                checked={settings.networkPeople}
-                onChange={() => toggleSection('networkPeople')}
-              />
-              <span className="slider"></span>
-            </label>
+            <div className="switch-row switch-row-child">
+              <span className="switch-label">Block people sections</span>
+              <label className="switch switch-small">
+                <input
+                  type="checkbox"
+                  checked={settings.networkPeople}
+                  onChange={() => toggleSection('networkPeople')}
+                />
+                <span className="slider"></span>
+              </label>
+            </div>
+
+            <div className="switch-row switch-row-child">
+              <span className="switch-label">Block left ad</span>
+              <label className="switch switch-small">
+                <input
+                  type="checkbox"
+                  checked={settings.networkLeftAd}
+                  onChange={() => toggleSection('networkLeftAd')}
+                />
+                <span className="slider"></span>
+              </label>
+            </div>
           </div>
         </div>
       </div>

@@ -7,6 +7,7 @@ export type ExtensionSettings = {
   rightFeed: boolean
   networkPuzzle: boolean
   networkPeople: boolean
+  networkLeftAd: boolean
 }
 
 export type PageSection =
@@ -14,6 +15,7 @@ export type PageSection =
   | 'rightFeed'
   | 'networkPuzzle'
   | 'networkPeople'
+  | 'networkLeftAd'
 
 export const DEFAULT_SETTINGS: ExtensionSettings = {
   active: true,
@@ -21,6 +23,7 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   rightFeed: true,
   networkPuzzle: true,
   networkPeople: true,
+  networkLeftAd: true,
 }
 
 const PAGE_SECTIONS: PageSection[] = [
@@ -28,6 +31,7 @@ const PAGE_SECTIONS: PageSection[] = [
   'rightFeed',
   'networkPuzzle',
   'networkPeople',
+  'networkLeftAd',
 ]
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {
@@ -88,13 +92,14 @@ export const normalizeSettings = (
   if (!hasPageSectionSettings(value)) {
     return syncActiveWithPages({
       ...fallback,
-      active: legacyActive,
-      feed: legacyActive ? fallback.feed : false,
-      rightFeed: legacyActive ? fallback.rightFeed : false,
-      networkPuzzle: legacyActive ? fallback.networkPuzzle : false,
-      networkPeople: legacyActive ? fallback.networkPeople : false,
-    })
-  }
+    active: legacyActive,
+    feed: legacyActive ? fallback.feed : false,
+    rightFeed: legacyActive ? fallback.rightFeed : false,
+    networkPuzzle: legacyActive ? fallback.networkPuzzle : false,
+    networkPeople: legacyActive ? fallback.networkPeople : false,
+    networkLeftAd: legacyActive ? fallback.networkLeftAd : false,
+  })
+}
 
   return syncActiveWithPages({
     active: legacyActive,
@@ -105,6 +110,10 @@ export const normalizeSettings = (
     ),
     networkPuzzle: readBoolean(value.networkPuzzle, fallback.networkPuzzle),
     networkPeople: readBoolean(value.networkPeople, fallback.networkPeople),
+    networkLeftAd: readBoolean(
+      value.networkLeftAd,
+      readBoolean(value.networkPeople, fallback.networkLeftAd),
+    ),
   })
 }
 

@@ -39,6 +39,21 @@ body {
   gap: 10px;
 }
 
+.section-group {
+  display: grid;
+  gap: 10px;
+  padding-top: 6px;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #004182;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 .switch-row {
   display: flex;
   align-items: center;
