@@ -13,7 +13,10 @@ treated as an experimental implementation.
 - Persistent settings in `chrome.storage.local` with legacy active-flag
   migration.
 - Content-script selectors for Home feed, Home right rail, My Network puzzle,
-  My Network people sections, and My Network left ad.
+  My Network people sections, My Network Suggestions for you, and My Network
+  left ad.
+- Route-gated selector application for the currently supported Home and My
+  Network routes.
 - Restore path for elements hidden by the extension's managed data attributes.
 - Basic build/typecheck command surface.
 - Opt-in real LinkedIn smoke-test lane that reuses an ignored copied Chromium
@@ -27,8 +30,8 @@ The current blocking approach is deliberately simple and not very efficient.
   are currently only `/feed/` and `/mynetwork/grow/`.
 - Blocking re-runs from both a subtree-wide `MutationObserver` and a 1-second
   interval.
-- Each run queries every enabled selector group, even when the current route
-  cannot contain that section.
+- Each run still re-queries every enabled selector group for the current
+  supported route.
 - Several selectors use `:has(...)` and broad section-level matches. These can
   be expensive and brittle on LinkedIn's dynamic DOM.
 - Selectors are based on current observed markup, including attributes that may
@@ -48,17 +51,15 @@ Before treating this as maintained, prefer these steps:
 1. Add fixture-based tests for the LinkedIn DOM shapes this extension targets.
 2. Add unit tests for settings normalization, popup persistence, background
    command routing, and content-script hide/restore behavior.
-3. Route-gate selector application so `/feed/` and `/mynetwork/grow/` only query
-   selectors relevant to that route.
-4. Replace the fixed interval with a debounced observer or a more targeted
+3. Replace the fixed interval with a debounced observer or a more targeted
    page-change signal.
-5. Narrow selectors and document which LinkedIn attributes are expected to be
+4. Narrow selectors and document which LinkedIn attributes are expected to be
    stable enough to depend on.
-6. Extend real smoke coverage to `/mynetwork/grow/` after the Home feed path is
+5. Extend real smoke coverage to `/mynetwork/grow/` after the Home feed path is
    stable.
-7. Run manual unpacked-extension checks after build and record any route-specific
+6. Run manual unpacked-extension checks after build and record any route-specific
    caveats here.
-8. Decide whether the project stays local/unpacked or gets a real release
+7. Decide whether the project stays local/unpacked or gets a real release
    pipeline.
 
 Until then, optimize for easy inspection, quick iteration, and honest docs over

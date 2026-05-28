@@ -14,10 +14,100 @@ const HIDDEN_ATTR_BY_SECTION: Record<PageSection, string> = {
   rightFeed: 'data-ltfb-right-feed-hidden',
   networkPuzzle: 'data-ltfb-network-puzzle-hidden',
   networkPeople: 'data-ltfb-network-people-hidden',
+  networkSuggestions: 'data-ltfb-network-suggestions-hidden',
   networkLeftAd: 'data-ltfb-network-left-ad-hidden',
 }
 
-const SECTION_SELECTORS: Record<PageSection, readonly string[]> = {
+const ALL_SECTIONS = Object.keys(HIDDEN_ATTR_BY_SECTION) as PageSection[]
+
+type SectionTarget =
+  | string
+  | {
+      selector: string
+      matches?: (element: HTMLElement) => boolean
+    }
+
+const normalizeText = (value: string | null | undefined) => {
+  return (value ?? '').replace(/\s+/g, ' ').trim()
+}
+
+const hasHeadingText = (element: HTMLElement, labels: readonly string[]) => {
+  return Array.from(element.querySelectorAll('h1, h2, h3')).some(heading => {
+    const headingText = normalizeText(heading.textContent).toLowerCase()
+
+    return labels.some(label => headingText === label.toLowerCase())
+  })
+}
+
+const hasLeadingTextLabel = (
+  element: HTMLElement,
+  labels: readonly string[],
+) => {
+  const text = normalizeText(element.textContent).toLowerCase()
+
+  return labels.some(label => text.startsWith(label.toLowerCase()))
+}
+
+const isMainNetworkContentSection = (element: HTMLElement) => {
+  const mainContent = element.closest(
+    'section[aria-label="Contenu principal"], section[aria-label="Main content"]',
+  )
+
+  return mainContent !== null && mainContent !== element
+}
+
+const isAfterPendingInvitations = (element: HTMLElement) => {
+  const invitations = document.querySelector<HTMLElement>(
+    'section[componentkey="pending-invitations-preview"]',
+  )
+
+  return (
+    invitations !== null &&
+    Boolean(
+      invitations.compareDocumentPosition(element) &
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    )
+  )
+}
+
+const isNetworkSectionAfterInvitations = (element: HTMLElement) => {
+  return (
+    element.tagName.toLowerCase() === 'section' &&
+    isMainNetworkContentSection(element) &&
+    isAfterPendingInvitations(element)
+  )
+}
+
+const networkSuggestionsLabels = [
+  'Suggestions for you',
+  'Personalized suggestions',
+  'Suggestions personnalisées',
+]
+
+const isNetworkSuggestionsSection = (element: HTMLElement) => {
+  return (
+    hasHeadingText(element, networkSuggestionsLabels) ||
+    hasLeadingTextLabel(element, networkSuggestionsLabels)
+  )
+}
+
+const isNetworkPuzzleCard = (element: HTMLElement) => {
+  const text = normalizeText(element.textContent)
+
+  return (
+    (text.includes('LinkedIn') && text.includes('new daily puzzle')) ||
+    (text.includes('Your move') && text.includes('Solve now'))
+  )
+}
+
+const gameLinkSelector = 'a[href^="/games"], a[href*="linkedin.com/games"]'
+
+const notMainNetworkSection =
+  ':not([aria-label="Contenu principal"])' +
+  ':not([aria-label="Main content"])' +
+  ':not([componentkey="pending-invitations-preview"])'
+
+const SECTION_TARGETS: Record<PageSection, readonly SectionTarget[]> = {
   // Target the main feed column container directly.
   feed: [
     'div[data-testid="mainFeed"][data-component-type="LazyColumn"][role="list"][componentkey="container-update-list_mainFeed-lazy-container"]',
@@ -28,13 +118,37 @@ const SECTION_SELECTORS: Record<PageSection, readonly string[]> = {
     'img[alt="Advertise on LinkedIn"]',
     'iframe[componentkey="MainFeedDesktopNav_feed_ad"]',
   ],
-  // On My Network, the puzzle is a standalone section after invitations.
+  // On My Network, puzzle promos can render as a standalone section or card.
   networkPuzzle: [
-    'section:not([aria-label="Contenu principal"]):not([componentkey="pending-invitations-preview"]):has(a[href^="/games/"])',
+    {
+      selector: `section${notMainNetworkSection}:has(${gameLinkSelector})`,
+      matches: isNetworkSectionAfterInvitations,
+    },
+    {
+      selector: `section${notMainNetworkSection}`,
+      matches: element =>
+        isNetworkSectionAfterInvitations(element) &&
+        isNetworkPuzzleCard(element),
+    },
   ],
   // Hide recommendation sections while keeping invitations, tabs, and the
-  // puzzle section separate.
-  networkPeople: ['section[componentkey^="auto-component-"]'],
+  // puzzle and "Suggestions for you" sections separate.
+  networkPeople: [
+    {
+      selector: 'section[componentkey^="auto-component-"]',
+      matches: element =>
+        isNetworkSectionAfterInvitations(element) &&
+        !isNetworkSuggestionsSection(element),
+    },
+  ],
+  networkSuggestions: [
+    {
+      selector: `section${notMainNetworkSection}`,
+      matches: element =>
+        isNetworkSectionAfterInvitations(element) &&
+        isNetworkSuggestionsSection(element),
+    },
+  ],
   networkLeftAd: [
     'div:has(> div > iframe[componentkey="MynetworkDesktopNav_mynetwork_desktop_nav_ad"])',
   ],
@@ -51,14 +165,7 @@ type ToggleCurrentPageBlockMessage = {
 
 const SHORTCUT_DUPLICATE_WINDOW_MS = 500
 
-let settings: ExtensionSettings = {
-  active: true,
-  feed: true,
-  rightFeed: true,
-  networkPuzzle: true,
-  networkPeople: true,
-  networkLeftAd: true,
-}
+let settings: ExtensionSettings = { ...DEFAULT_SETTINGS }
 let observer: MutationObserver | null = null
 let intervalId: number | null = null
 let lastShortcutToggleAt = 0
@@ -106,7 +213,12 @@ const getCurrentRouteSections = (): PageSection[] => {
   }
 
   if (isNetworkGrowRoute()) {
-    return ['networkPuzzle', 'networkPeople', 'networkLeftAd']
+    return [
+      'networkPuzzle',
+      'networkPeople',
+      'networkSuggestions',
+      'networkLeftAd',
+    ]
   }
 
   return []
@@ -125,9 +237,15 @@ const hideElement = (element: HTMLElement, hiddenAttr: string) => {
   element.setAttribute(hiddenAttr, 'true')
 }
 
-const hideSelectors = (selectors: readonly string[], hiddenAttr: string) => {
-  selectors.forEach(selector => {
+const hideTargets = (targets: readonly SectionTarget[], hiddenAttr: string) => {
+  targets.forEach(target => {
+    const selector = typeof target === 'string' ? target : target.selector
+
     document.querySelectorAll<HTMLElement>(selector).forEach(element => {
+      if (typeof target !== 'string' && target.matches?.(element) === false) {
+        return
+      }
+
       hideElement(element, hiddenAttr)
     })
   })
@@ -150,26 +268,28 @@ const showSection = (section: PageSection) => {
 }
 
 const applySectionBlocking = (section: PageSection) => {
-  const selectors = SECTION_SELECTORS[section]
-  if (selectors.length === 0) {
+  const targets = SECTION_TARGETS[section]
+  if (targets.length === 0) {
     return
   }
 
-  hideSelectors(selectors, HIDDEN_ATTR_BY_SECTION[section])
+  hideTargets(targets, HIDDEN_ATTR_BY_SECTION[section])
 }
 
 const clearAllBlocking = () => {
-  ;(Object.keys(HIDDEN_ATTR_BY_SECTION) as PageSection[]).forEach(showSection)
+  ALL_SECTIONS.forEach(showSection)
 }
 
 const applyCurrentSettings = () => {
-  ;(Object.keys(HIDDEN_ATTR_BY_SECTION) as PageSection[]).forEach(section => {
-    if (settings[section]) {
-      applySectionBlocking(section)
+  const routeSections = new Set(getCurrentRouteSections())
+
+  ALL_SECTIONS.forEach(section => {
+    if (!routeSections.has(section) || !settings[section]) {
+      showSection(section)
       return
     }
 
-    showSection(section)
+    applySectionBlocking(section)
   })
 }
 

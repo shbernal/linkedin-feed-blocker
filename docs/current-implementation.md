@@ -32,13 +32,14 @@ Important exported types and helpers:
 
 Current section keys:
 
-| Key             | Intended surface                          |
-| --------------- | ----------------------------------------- |
-| `feed`          | Home main feed                            |
-| `rightFeed`     | Home right-rail feed widgets and ads      |
-| `networkPuzzle` | My Network puzzle section                 |
-| `networkPeople` | My Network people recommendation sections |
-| `networkLeftAd` | My Network left-rail ad                   |
+| Key                  | Intended surface                          |
+| -------------------- | ----------------------------------------- |
+| `feed`               | Home main feed                            |
+| `rightFeed`          | Home right-rail feed widgets and ads      |
+| `networkPuzzle`      | My Network puzzle sections and cards      |
+| `networkPeople`      | My Network people recommendation sections |
+| `networkSuggestions` | My Network Suggestions for you section    |
+| `networkLeftAd`      | My Network left-rail ad                   |
 
 When adding or removing a section, update shared settings, popup controls,
 content selectors, keyboard toggle behavior, and docs together.
@@ -88,7 +89,7 @@ width.
 `src/content/main.ts` owns DOM mutation behavior:
 
 - maps each `PageSection` to a managed `data-ltfb-*` attribute;
-- maps each section to one or more CSS selectors;
+- maps each section to one or more selector targets;
 - hides matched elements with `element.style.display = 'none'`;
 - restores only elements previously marked with the managed data attribute;
 - reacts to popup messages and storage changes;
@@ -100,12 +101,12 @@ width.
 Supported route toggling is narrow:
 
 - `/feed/` toggles `feed` and `rightFeed`.
-- `/mynetwork/grow/` toggles `networkPuzzle`, `networkPeople`, and
-  `networkLeftAd`.
+- `/mynetwork/grow/` toggles `networkPuzzle`, `networkPeople`,
+  `networkSuggestions`, and `networkLeftAd`.
 
-Selector application is broader than route toggling: every enabled section is
-queried whenever blocking is reapplied. That keeps the prototype simple, but it
-is part of the current inefficiency.
+Selector application is route-gated: `/feed/` only applies Home targets, and
+`/mynetwork/grow/` only applies My Network targets. Unsupported routes restore
+any elements previously hidden by the extension.
 
 ## Current Selector Strategy
 
@@ -117,10 +118,14 @@ Current examples:
 - Home feed targets a `mainFeed` lazy-column container.
 - Home right rail targets game links, discover-hub links, ad images, and a feed
   advertisement iframe.
-- My Network puzzle targets game-link sections while excluding the top-level
-  main content region and pending invitations.
+- My Network puzzle targets game-link sections and game-like promo cards after
+  pending invitations.
 - My Network people sections target LinkedIn auto-component recommendation
-  sections while keeping invitations, tabs, and puzzle content separate.
+  sections after pending invitations while keeping invitations, tabs, puzzle
+  content, and Suggestions for you separate.
+- My Network Suggestions for you targets heading-labeled suggestion sections,
+  including LinkedIn's current English and French labels, after pending
+  invitations.
 - My Network left ad targets the ad iframe component key in the left rail.
 
 This works as an experiment, but it should be treated as brittle until covered

@@ -7,6 +7,7 @@ export type ExtensionSettings = {
   rightFeed: boolean
   networkPuzzle: boolean
   networkPeople: boolean
+  networkSuggestions: boolean
   networkLeftAd: boolean
 }
 
@@ -15,6 +16,7 @@ export type PageSection =
   | 'rightFeed'
   | 'networkPuzzle'
   | 'networkPeople'
+  | 'networkSuggestions'
   | 'networkLeftAd'
 
 export const DEFAULT_SETTINGS: ExtensionSettings = {
@@ -23,6 +25,7 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   rightFeed: true,
   networkPuzzle: true,
   networkPeople: true,
+  networkSuggestions: true,
   networkLeftAd: true,
 }
 
@@ -31,6 +34,7 @@ const PAGE_SECTIONS: PageSection[] = [
   'rightFeed',
   'networkPuzzle',
   'networkPeople',
+  'networkSuggestions',
   'networkLeftAd',
 ]
 
@@ -76,6 +80,7 @@ export const setAllPages = (
     rightFeed: enabled,
     networkPuzzle: enabled,
     networkPeople: enabled,
+    networkSuggestions: enabled,
     networkLeftAd: enabled,
   })
 }
@@ -98,6 +103,7 @@ export const normalizeSettings = (
       rightFeed: legacyActive ? fallback.rightFeed : false,
       networkPuzzle: legacyActive ? fallback.networkPuzzle : false,
       networkPeople: legacyActive ? fallback.networkPeople : false,
+      networkSuggestions: legacyActive ? fallback.networkSuggestions : false,
       networkLeftAd: legacyActive ? fallback.networkLeftAd : false,
     })
   }
@@ -111,6 +117,10 @@ export const normalizeSettings = (
     ),
     networkPuzzle: readBoolean(value.networkPuzzle, fallback.networkPuzzle),
     networkPeople: readBoolean(value.networkPeople, fallback.networkPeople),
+    networkSuggestions: readBoolean(
+      value.networkSuggestions,
+      readBoolean(value.networkPeople, fallback.networkSuggestions),
+    ),
     networkLeftAd: readBoolean(
       value.networkLeftAd,
       readBoolean(value.networkPeople, fallback.networkLeftAd),
