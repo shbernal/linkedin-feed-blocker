@@ -49,6 +49,8 @@ type ToggleCurrentPageBlockMessage = {
   action: 'toggleCurrentPageBlock'
 }
 
+const SHORTCUT_DUPLICATE_WINDOW_MS = 500
+
 let settings: ExtensionSettings = {
   active: true,
   feed: true,
@@ -59,6 +61,7 @@ let settings: ExtensionSettings = {
 }
 let observer: MutationObserver | null = null
 let intervalId: number | null = null
+let lastShortcutToggleAt = 0
 
 const isUpdateSettingsMessage = (
   message: unknown,
@@ -189,6 +192,50 @@ const toggleCurrentPageBlock = () => {
   return true
 }
 
+const toggleCurrentPageBlockFromShortcut = () => {
+  lastShortcutToggleAt = Date.now()
+  return toggleCurrentPageBlock()
+}
+
+const wasRecentlyToggledByShortcut = () => {
+  return Date.now() - lastShortcutToggleAt < SHORTCUT_DUPLICATE_WINDOW_MS
+}
+
+const isTextInputTarget = (target: EventTarget | null) => {
+  if (!(target instanceof HTMLElement)) {
+    return false
+  }
+
+  const tagName = target.tagName.toLowerCase()
+  return (
+    target.isContentEditable ||
+    tagName === 'input' ||
+    tagName === 'select' ||
+    tagName === 'textarea'
+  )
+}
+
+const isToggleShortcut = (event: KeyboardEvent) => {
+  return (
+    event.ctrlKey &&
+    event.shiftKey &&
+    !event.altKey &&
+    !event.metaKey &&
+    event.code === 'Digit7'
+  )
+}
+
+const onKeyDown = (event: KeyboardEvent) => {
+  if (!isToggleShortcut(event) || isTextInputTarget(event.target)) {
+    return
+  }
+
+  if (toggleCurrentPageBlockFromShortcut()) {
+    event.preventDefault()
+    event.stopPropagation()
+  }
+}
+
 const onRuntimeMessage: Parameters<
   typeof chrome.runtime.onMessage.addListener
 >[0] = (message, _sender, sendResponse) => {
@@ -201,6 +248,11 @@ const onRuntimeMessage: Parameters<
   }
 
   if (isToggleCurrentPageBlockMessage(message)) {
+    if (wasRecentlyToggledByShortcut()) {
+      sendResponse({ success: true })
+      return false
+    }
+
     sendResponse({ success: toggleCurrentPageBlock() })
     return false
   }
@@ -278,6 +330,7 @@ const init = () => {
 
   chrome.runtime.onMessage.addListener(onRuntimeMessage)
   chrome.storage.onChanged.addListener(onStorageChanged)
+  document.addEventListener('keydown', onKeyDown, true)
   setupObserver()
   startBlockingLoop()
 }
@@ -285,6 +338,7 @@ const init = () => {
 const cleanup = () => {
   chrome.runtime.onMessage.removeListener(onRuntimeMessage)
   chrome.storage.onChanged.removeListener(onStorageChanged)
+  document.removeEventListener('keydown', onKeyDown, true)
 
   if (observer) {
     observer.disconnect()

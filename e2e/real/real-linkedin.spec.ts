@@ -99,4 +99,43 @@ test.describe('real LinkedIn selector smoke', () => {
     await expect(feed).toBeVisible({ timeout: smokeTimeout })
     await checkpointScreenshot(page, testInfo, 'linkedin-feed-restored')
   })
+
+  test('toggles the real home feed from the focused page shortcut', async ({
+    clearSettings,
+    seedSettings,
+    newRealLinkedInPage,
+  }, testInfo) => {
+    await clearSettings()
+    await seedSettings(allSectionsOff())
+
+    const page = await newRealLinkedInPage()
+    await gotoRealLinkedInPage(page, 'https://www.linkedin.com/feed/')
+    await assertSignedIn(page)
+
+    const feed = page.locator(feedSelector).first()
+    const hiddenFeedTargets = page.locator('[data-ltfb-feed-hidden="true"]')
+
+    await expect(feed).toBeVisible({ timeout: smokeTimeout })
+    await page.bringToFront()
+    await page.locator('body').click()
+    await page.keyboard.press('Control+Shift+7')
+
+    await expect(hiddenFeedTargets.first()).toBeAttached({
+      timeout: smokeTimeout,
+    })
+    await expect(feed).toBeHidden({ timeout: smokeTimeout })
+    await checkpointScreenshot(page, testInfo, 'linkedin-feed-shortcut-blocked')
+
+    await page.keyboard.press('Control+Shift+7')
+
+    await expect(hiddenFeedTargets).toHaveCount(0, {
+      timeout: smokeTimeout,
+    })
+    await expect(feed).toBeVisible({ timeout: smokeTimeout })
+    await checkpointScreenshot(
+      page,
+      testInfo,
+      'linkedin-feed-shortcut-restored',
+    )
+  })
 })

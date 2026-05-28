@@ -45,8 +45,9 @@ content selectors, keyboard toggle behavior, and docs together.
 
 ## Background Command Flow
 
-`src/background/main.ts` listens for the `toggle-current-page-block` command.
-When the command fires, it queries the active tab, checks that the tab URL is on
+`src/background/main.ts` listens for the `toggle-current-page-block` command,
+currently suggested as `Ctrl+Shift+7` (`Command+Shift+7` on macOS). When the
+command fires, it queries the active tab, checks that the tab URL is on
 `linkedin.com` or a LinkedIn subdomain, and sends this content-script message:
 
 ```ts
@@ -58,6 +59,12 @@ When the command fires, it queries the active tab, checks that the tab URL is on
 The background script intentionally ignores missing tab IDs, non-LinkedIn URLs,
 and expected `sendMessage` failures from tabs without an injected content
 script.
+
+The content script also listens for the same focused-page shortcut directly.
+That page-level listener is the more reliable path on environments where
+Chrome's extension command dispatch does not fire for number-row shortcuts. It
+ignores editable fields and uses a short duplicate guard so a working Chrome
+command and the page-level listener do not double-toggle the page.
 
 ## Popup Flow
 
@@ -85,6 +92,8 @@ width.
 - hides matched elements with `element.style.display = 'none'`;
 - restores only elements previously marked with the managed data attribute;
 - reacts to popup messages and storage changes;
+- toggles the current supported route when `Ctrl+Shift+7` is pressed on a
+  focused LinkedIn page outside editable fields;
 - uses a `MutationObserver` plus a 1-second interval to reapply blocking as
   LinkedIn changes the page.
 

@@ -15,8 +15,8 @@ export default defineManifest({
   commands: {
     'toggle-current-page-block': {
       suggested_key: {
-        default: 'Ctrl+Shift+8',
-        mac: 'Command+Shift+8',
+        default: 'Ctrl+Shift+7',
+        mac: 'Command+Shift+7',
       },
       description: 'Toggle blocking for the current LinkedIn page',
     },
