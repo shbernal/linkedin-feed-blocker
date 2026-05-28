@@ -7,6 +7,7 @@ export type ExtensionSettings = {
   rightFeed: boolean
   networkPuzzle: boolean
   networkPremium: boolean
+  networkSuggestions: boolean
 }
 
 export type PageSection =
@@ -14,6 +15,7 @@ export type PageSection =
   | 'rightFeed'
   | 'networkPuzzle'
   | 'networkPremium'
+  | 'networkSuggestions'
 
 export const DEFAULT_SETTINGS: ExtensionSettings = {
   active: true,
@@ -21,6 +23,7 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   rightFeed: true,
   networkPuzzle: true,
   networkPremium: true,
+  networkSuggestions: true,
 }
 
 const PAGE_SECTIONS: PageSection[] = [
@@ -28,6 +31,7 @@ const PAGE_SECTIONS: PageSection[] = [
   'rightFeed',
   'networkPuzzle',
   'networkPremium',
+  'networkSuggestions',
 ]
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {
@@ -72,6 +76,7 @@ export const setAllPages = (
     rightFeed: enabled,
     networkPuzzle: enabled,
     networkPremium: enabled,
+    networkSuggestions: enabled,
   })
 }
 
@@ -93,6 +98,7 @@ export const normalizeSettings = (
       rightFeed: legacyActive ? fallback.rightFeed : false,
       networkPuzzle: legacyActive ? fallback.networkPuzzle : false,
       networkPremium: legacyActive ? fallback.networkPremium : false,
+      networkSuggestions: legacyActive ? fallback.networkSuggestions : false,
     })
   }
 
@@ -105,6 +111,10 @@ export const normalizeSettings = (
     ),
     networkPuzzle: readBoolean(value.networkPuzzle, fallback.networkPuzzle),
     networkPremium: readBoolean(value.networkPremium, fallback.networkPremium),
+    networkSuggestions: readBoolean(
+      value.networkSuggestions,
+      fallback.networkSuggestions,
+    ),
   })
 }
 

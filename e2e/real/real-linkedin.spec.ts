@@ -33,12 +33,21 @@ const networkPremiumSelector =
   'section[componentkey^="auto-component-"]' +
   ':has(a[href*="linkedin.com/premium"])'
 
+const networkSuggestionsSelector =
+  'section[componentkey="pending-invitations-preview"] ~ ' +
+  'section[componentkey^="auto-component-"]' +
+  ':not(:has(a[href^="/premium"]))' +
+  ':not(:has(a[href*="linkedin.com/premium"]))' +
+  ':not(:has(a[href^="/games"]))' +
+  ':not(:has(a[href*="linkedin.com/games"]))'
+
 const allSectionsOff = (): ExtensionSettings => ({
   active: false,
   feed: false,
   rightFeed: false,
   networkPuzzle: false,
   networkPremium: false,
+  networkSuggestions: false,
 })
 
 const onlyFeedOn = (): ExtensionSettings => ({
@@ -57,6 +66,12 @@ const onlyNetworkPremiumOn = (): ExtensionSettings => ({
   ...allSectionsOff(),
   active: true,
   networkPremium: true,
+})
+
+const onlyNetworkSuggestionsOn = (): ExtensionSettings => ({
+  ...allSectionsOff(),
+  active: true,
+  networkSuggestions: true,
 })
 
 const loginUrlPattern = /\/login|checkpoint|uas\/login/
@@ -288,6 +303,71 @@ test.describe('real LinkedIn selector smoke', () => {
       page,
       testInfo,
       'linkedin-network-premium-restored',
+    )
+  })
+
+  test('blocks and restores real My Network suggestions when present', async ({
+    clearSettings,
+    seedSettings,
+    newRealLinkedInPage,
+  }, testInfo) => {
+    await clearSettings()
+    await seedSettings(allSectionsOff())
+
+    const page = await newRealLinkedInPage()
+    await gotoRealLinkedInPage(page, 'https://www.linkedin.com/mynetwork/grow/')
+    await assertSignedIn(page)
+
+    const suggestions = page.locator(networkSuggestionsSelector).first()
+    const hiddenSuggestions = page.locator(
+      '[data-ltfb-network-suggestions-hidden="true"]',
+    )
+    const invitations = page
+      .locator('section[componentkey="pending-invitations-preview"]')
+      .first()
+
+    await revealLazySection(page, suggestions)
+    if ((await suggestions.count()) === 0) {
+      testInfo.annotations.push({
+        type: 'note',
+        description:
+          'LinkedIn did not render a My Network suggestions section for this profile run.',
+      })
+      await checkpointScreenshot(
+        page,
+        testInfo,
+        'linkedin-network-no-suggestions',
+      )
+      return
+    }
+
+    await expect(suggestions).toBeVisible({ timeout: smokeTimeout })
+    await expect(invitations).toBeVisible({ timeout: smokeTimeout })
+    await checkpointScreenshot(page, testInfo, 'linkedin-network-suggestions')
+
+    await seedSettings(onlyNetworkSuggestionsOn())
+
+    await expect(hiddenSuggestions.first()).toBeAttached({
+      timeout: smokeTimeout,
+    })
+    await expect(suggestions).toBeHidden({ timeout: smokeTimeout })
+    await expect(invitations).toBeVisible({ timeout: smokeTimeout })
+    await checkpointScreenshot(
+      page,
+      testInfo,
+      'linkedin-network-suggestions-blocked',
+    )
+
+    await seedSettings(allSectionsOff())
+
+    await expect(hiddenSuggestions).toHaveCount(0, {
+      timeout: smokeTimeout,
+    })
+    await expect(suggestions).toBeVisible({ timeout: smokeTimeout })
+    await checkpointScreenshot(
+      page,
+      testInfo,
+      'linkedin-network-suggestions-restored',
     )
   })
 })

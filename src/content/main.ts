@@ -14,6 +14,7 @@ const HIDDEN_ATTR_BY_SECTION: Record<PageSection, string> = {
   rightFeed: 'data-ltfb-right-feed-hidden',
   networkPuzzle: 'data-ltfb-network-puzzle-hidden',
   networkPremium: 'data-ltfb-network-premium-hidden',
+  networkSuggestions: 'data-ltfb-network-suggestions-hidden',
 }
 
 const ALL_SECTIONS = Object.keys(HIDDEN_ATTR_BY_SECTION) as PageSection[]
@@ -51,6 +52,20 @@ const isNetworkPuzzleCard = (element: HTMLElement) => {
   )
 }
 
+const isAfterPendingInvitations = (element: HTMLElement) => {
+  const invitations = document.querySelector<HTMLElement>(
+    'section[componentkey="pending-invitations-preview"]',
+  )
+
+  return (
+    invitations !== null &&
+    Boolean(
+      invitations.compareDocumentPosition(element) &
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    )
+  )
+}
+
 const gameLinkSelector = 'a[href^="/games"], a[href*="linkedin.com/games"]'
 const premiumLinkSelector =
   'a[href^="/premium"], a[href*="linkedin.com/premium"]'
@@ -61,6 +76,16 @@ const isNetworkPremiumSection = (element: HTMLElement) => {
   return (
     text.includes('premium') &&
     element.querySelector(premiumLinkSelector) !== null
+  )
+}
+
+const isNetworkSuggestionsSection = (element: HTMLElement) => {
+  return (
+    isMainNetworkContentSection(element) &&
+    isAfterPendingInvitations(element) &&
+    !isNetworkPremiumSection(element) &&
+    element.querySelector(gameLinkSelector) === null &&
+    !isNetworkPuzzleCard(element)
   )
 }
 
@@ -98,6 +123,12 @@ const SECTION_TARGETS: Record<PageSection, readonly SectionTarget[]> = {
       matches: element =>
         isMainNetworkContentSection(element) &&
         isNetworkPremiumSection(element),
+    },
+  ],
+  networkSuggestions: [
+    {
+      selector: 'section[componentkey^="auto-component-"]',
+      matches: isNetworkSuggestionsSection,
     },
   ],
 }
@@ -161,7 +192,7 @@ const getCurrentRouteSections = (): PageSection[] => {
   }
 
   if (isNetworkGrowRoute()) {
-    return ['networkPuzzle', 'networkPremium']
+    return ['networkPuzzle', 'networkPremium', 'networkSuggestions']
   }
 
   return []

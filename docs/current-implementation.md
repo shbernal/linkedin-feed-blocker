@@ -32,12 +32,13 @@ Important exported types and helpers:
 
 Current section keys:
 
-| Key              | Intended surface                     |
-| ---------------- | ------------------------------------ |
-| `feed`           | Home main feed                       |
-| `rightFeed`      | Home right-rail feed widgets and ads |
-| `networkPuzzle`  | My Network puzzle section            |
-| `networkPremium` | My Network Premium upsell section    |
+| Key                  | Intended surface                     |
+| -------------------- | ------------------------------------ |
+| `feed`               | Home main feed                       |
+| `rightFeed`          | Home right-rail feed widgets and ads |
+| `networkPuzzle`      | My Network puzzle section            |
+| `networkPremium`     | My Network Premium upsell section    |
+| `networkSuggestions` | My Network suggestions sections      |
 
 When adding or removing a section, update shared settings, popup controls,
 content selectors, keyboard toggle behavior, and docs together.
@@ -99,7 +100,8 @@ width.
 Supported route toggling is narrow:
 
 - `/feed/` toggles `feed` and `rightFeed`.
-- `/mynetwork/grow/` toggles `networkPuzzle` and `networkPremium`.
+- `/mynetwork/grow/` toggles `networkPuzzle`, `networkPremium`, and
+  `networkSuggestions`.
 
 Selector application is route-gated: `/feed/` only applies Home targets, and
 `/mynetwork/grow/` only applies My Network targets. Unsupported routes restore
@@ -121,6 +123,9 @@ Current examples:
 - My Network Premium targets an auto-component section inside LinkedIn's
   `<main>` or aria-labelled main content that contains both Premium text and a
   Premium link.
+- My Network suggestions targets auto-component sections inside LinkedIn's
+  `<main>` or aria-labelled main content after the pending invitations preview,
+  excluding sections already controlled by the puzzle and Premium toggles.
 
 This works as an experiment, but it should be treated as brittle until covered
 by fixtures or real-browser smoke checks.
