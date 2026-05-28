@@ -11,6 +11,7 @@
     "e2e:real:setup": "pnpm run typecheck:e2e && pnpm exec playwright test -c playwright.real.config.ts --grep @setup --headed",
     "e2e:real:login": "pnpm run e2e:real:setup",
     "e2e:real": "pnpm run typecheck:e2e && pnpm build && RUN_REAL_LINKEDIN_E2E=1 pnpm exec playwright test -c playwright.real.config.ts --grep-invert @setup --headed",
+    "manual:linkedin": "pnpm run typecheck:e2e && pnpm build && pnpm exec playwright test -c playwright.manual.config.ts --headed",
     "format": "prettier --check .",
     "preview": "vite preview"
   },

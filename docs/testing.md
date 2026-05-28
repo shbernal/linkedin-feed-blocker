@@ -16,6 +16,9 @@ state, regional UI, verification prompts, and current DOM structure.
 - `pnpm e2e:real:login` is an alias for `pnpm e2e:real:setup`.
 - `pnpm e2e:real` builds the extension and runs the real LinkedIn smoke test
   with the extension loaded.
+- `pnpm manual:linkedin` builds the extension, opens a headed Chromium window
+  with the extension loaded, and keeps the session open until the browser is
+  closed or the command is stopped.
 
 ## Persistent Profile
 
@@ -53,3 +56,13 @@ written to `playwright-report/`. Both directories are ignored by git.
 
 This lane is a selector-drift smoke check. It should not replace deterministic
 unit or fixture tests when those are added.
+
+## Manual LinkedIn Session
+
+Run `pnpm manual:linkedin` when you want to move around LinkedIn manually with
+the current `dist/` extension loaded in the same persistent profile used by the
+real smoke tests.
+
+Set `LINKEDIN_MANUAL_URL=https://www.linkedin.com/feed/` to start on another
+LinkedIn route. The default start URL is
+`https://www.linkedin.com/mynetwork/grow/`.
