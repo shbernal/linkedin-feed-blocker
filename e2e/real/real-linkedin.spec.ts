@@ -1,4 +1,4 @@
-import type { Page, TestInfo } from '@playwright/test'
+import type { Locator, Page, TestInfo } from '@playwright/test'
 import { test, expect } from '../fixtures/realExtension'
 import {
   DEFAULT_SETTINGS,
@@ -12,15 +12,33 @@ const feedSelector =
   '[role="list"][componentkey="container-update-list_mainFeed-lazy-container"]'
 
 const networkPuzzleSelector =
-  'main section:has(a[href*="/games/"]), ' +
+  'main section:not([aria-label="Primary content"])' +
+  ':has(a[href*="/games/"]), ' +
+  'section[aria-label="Primary content"] section:has(a[href*="/games/"]), ' +
   'section[aria-label="Contenu principal"] section:has(a[href*="/games/"]), ' +
   'section[aria-label="Main content"] section:has(a[href*="/games/"])'
+
+const networkPremiumSelector =
+  'main section[componentkey^="auto-component-"]:has(a[href^="/premium"]), ' +
+  'main section[componentkey^="auto-component-"]' +
+  ':has(a[href*="linkedin.com/premium"]), ' +
+  'section[aria-label="Contenu principal"] ' +
+  'section[componentkey^="auto-component-"]:has(a[href^="/premium"]), ' +
+  'section[aria-label="Contenu principal"] ' +
+  'section[componentkey^="auto-component-"]' +
+  ':has(a[href*="linkedin.com/premium"]), ' +
+  'section[aria-label="Main content"] ' +
+  'section[componentkey^="auto-component-"]:has(a[href^="/premium"]), ' +
+  'section[aria-label="Main content"] ' +
+  'section[componentkey^="auto-component-"]' +
+  ':has(a[href*="linkedin.com/premium"])'
 
 const allSectionsOff = (): ExtensionSettings => ({
   active: false,
   feed: false,
   rightFeed: false,
   networkPuzzle: false,
+  networkPremium: false,
 })
 
 const onlyFeedOn = (): ExtensionSettings => ({
@@ -33,6 +51,12 @@ const onlyNetworkPuzzleOn = (): ExtensionSettings => ({
   ...allSectionsOff(),
   active: true,
   networkPuzzle: true,
+})
+
+const onlyNetworkPremiumOn = (): ExtensionSettings => ({
+  ...allSectionsOff(),
+  active: true,
+  networkPremium: true,
 })
 
 const loginUrlPattern = /\/login|checkpoint|uas\/login/
@@ -62,6 +86,19 @@ const checkpointScreenshot = async (
     path: testInfo.outputPath(`${name}.png`),
     fullPage: true,
   })
+}
+
+const revealLazySection = async (page: Page, locator: Locator) => {
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    if ((await locator.count()) > 0) {
+      return
+    }
+
+    await page.evaluate(() => {
+      window.scrollBy(0, Math.round(window.innerHeight * 0.9))
+    })
+    await page.waitForTimeout(500)
+  }
 }
 
 test.describe('real LinkedIn selector smoke', () => {
@@ -188,5 +225,69 @@ test.describe('real LinkedIn selector smoke', () => {
     })
     await expect(puzzle).toBeVisible({ timeout: smokeTimeout })
     await checkpointScreenshot(page, testInfo, 'linkedin-network-restored')
+  })
+
+  test('blocks and restores the real My Network Premium section when present', async ({
+    clearSettings,
+    seedSettings,
+    newRealLinkedInPage,
+  }, testInfo) => {
+    await clearSettings()
+    await seedSettings(allSectionsOff())
+
+    const page = await newRealLinkedInPage()
+    await gotoRealLinkedInPage(page, 'https://www.linkedin.com/mynetwork/grow/')
+    await assertSignedIn(page)
+
+    const premium = page
+      .locator(networkPremiumSelector)
+      .filter({ hasText: /premium/i })
+      .first()
+    const hiddenPremium = page.locator(
+      '[data-ltfb-network-premium-hidden="true"]',
+    )
+    const invitations = page
+      .locator('section[componentkey="pending-invitations-preview"]')
+      .first()
+
+    await revealLazySection(page, premium)
+    if ((await premium.count()) === 0) {
+      testInfo.annotations.push({
+        type: 'note',
+        description:
+          'LinkedIn did not render a My Network Premium section for this profile run.',
+      })
+      await checkpointScreenshot(page, testInfo, 'linkedin-network-no-premium')
+      return
+    }
+
+    await expect(premium).toBeVisible({ timeout: smokeTimeout })
+    await expect(invitations).toBeVisible({ timeout: smokeTimeout })
+    await checkpointScreenshot(page, testInfo, 'linkedin-network-premium')
+
+    await seedSettings(onlyNetworkPremiumOn())
+
+    await expect(hiddenPremium.first()).toBeAttached({
+      timeout: smokeTimeout,
+    })
+    await expect(premium).toBeHidden({ timeout: smokeTimeout })
+    await expect(invitations).toBeVisible({ timeout: smokeTimeout })
+    await checkpointScreenshot(
+      page,
+      testInfo,
+      'linkedin-network-premium-blocked',
+    )
+
+    await seedSettings(allSectionsOff())
+
+    await expect(hiddenPremium).toHaveCount(0, {
+      timeout: smokeTimeout,
+    })
+    await expect(premium).toBeVisible({ timeout: smokeTimeout })
+    await checkpointScreenshot(
+      page,
+      testInfo,
+      'linkedin-network-premium-restored',
+    )
   })
 })

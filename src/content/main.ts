@@ -13,6 +13,7 @@ const HIDDEN_ATTR_BY_SECTION: Record<PageSection, string> = {
   feed: 'data-ltfb-feed-hidden',
   rightFeed: 'data-ltfb-right-feed-hidden',
   networkPuzzle: 'data-ltfb-network-puzzle-hidden',
+  networkPremium: 'data-ltfb-network-premium-hidden',
 }
 
 const ALL_SECTIONS = Object.keys(HIDDEN_ATTR_BY_SECTION) as PageSection[]
@@ -32,6 +33,7 @@ const isMainNetworkContentSection = (element: HTMLElement) => {
   const mainContent = element.closest(
     [
       'main',
+      'section[aria-label="Primary content"]',
       'section[aria-label="Contenu principal"]',
       'section[aria-label="Main content"]',
     ].join(', '),
@@ -50,9 +52,22 @@ const isNetworkPuzzleCard = (element: HTMLElement) => {
 }
 
 const gameLinkSelector = 'a[href^="/games"], a[href*="linkedin.com/games"]'
+const premiumLinkSelector =
+  'a[href^="/premium"], a[href*="linkedin.com/premium"]'
+
+const isNetworkPremiumSection = (element: HTMLElement) => {
+  const text = normalizeText(element.textContent).toLowerCase()
+
+  return (
+    text.includes('premium') &&
+    element.querySelector(premiumLinkSelector) !== null
+  )
+}
 
 const notMainNetworkSection =
-  ':not([aria-label="Contenu principal"])' + ':not([aria-label="Main content"])'
+  ':not([aria-label="Primary content"])' +
+  ':not([aria-label="Contenu principal"])' +
+  ':not([aria-label="Main content"])'
 
 const SECTION_TARGETS: Record<PageSection, readonly SectionTarget[]> = {
   // Target the main feed column container directly.
@@ -75,6 +90,14 @@ const SECTION_TARGETS: Record<PageSection, readonly SectionTarget[]> = {
       selector: `section${notMainNetworkSection}`,
       matches: element =>
         isMainNetworkContentSection(element) && isNetworkPuzzleCard(element),
+    },
+  ],
+  networkPremium: [
+    {
+      selector: `section[componentkey^="auto-component-"]:has(${premiumLinkSelector})`,
+      matches: element =>
+        isMainNetworkContentSection(element) &&
+        isNetworkPremiumSection(element),
     },
   ],
 }
@@ -138,7 +161,7 @@ const getCurrentRouteSections = (): PageSection[] => {
   }
 
   if (isNetworkGrowRoute()) {
-    return ['networkPuzzle']
+    return ['networkPuzzle', 'networkPremium']
   }
 
   return []

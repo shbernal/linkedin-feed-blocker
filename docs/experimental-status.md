@@ -12,8 +12,8 @@ treated as an experimental implementation.
 - Popup UI with a master toggle and per-section toggles for Home and My Network.
 - Persistent settings in `chrome.storage.local` with legacy active-flag
   migration.
-- Content-script selectors for Home feed, Home right rail, and My Network
-  puzzle.
+- Content-script selectors for Home feed, Home right rail, My Network puzzle,
+  and My Network Premium.
 - Route-gated selector application for the currently supported Home and My
   Network routes.
 - Restore path for elements hidden by the extension's managed data attributes.
