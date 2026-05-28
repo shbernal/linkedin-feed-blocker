@@ -158,42 +158,6 @@ function App() {
                 <span className="slider"></span>
               </span>
             </label>
-
-            <label className="switch-row switch-row-child">
-              <span className="switch-label">Block people sections</span>
-              <span className="switch switch-small">
-                <input
-                  type="checkbox"
-                  checked={settings.networkPeople}
-                  onChange={() => toggleSection('networkPeople')}
-                />
-                <span className="slider"></span>
-              </span>
-            </label>
-
-            <label className="switch-row switch-row-child">
-              <span className="switch-label">Block Suggestions for you</span>
-              <span className="switch switch-small">
-                <input
-                  type="checkbox"
-                  checked={settings.networkSuggestions}
-                  onChange={() => toggleSection('networkSuggestions')}
-                />
-                <span className="slider"></span>
-              </span>
-            </label>
-
-            <label className="switch-row switch-row-child">
-              <span className="switch-label">Block left ad</span>
-              <span className="switch switch-small">
-                <input
-                  type="checkbox"
-                  checked={settings.networkLeftAd}
-                  onChange={() => toggleSection('networkLeftAd')}
-                />
-                <span className="slider"></span>
-              </span>
-            </label>
           </div>
         </div>
       </div>

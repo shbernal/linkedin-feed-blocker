@@ -30,10 +30,7 @@ Current blocking targets:
 
 - Home main feed.
 - Home right-rail feed widgets and ads.
-- My Network puzzle sections and cards.
-- My Network people recommendation sections.
-- My Network Suggestions for you section.
-- My Network left-rail ad.
+- My Network puzzle section.
 
 The extension is meant to preserve higher-value LinkedIn surfaces by default:
 search, messages, jobs, direct profile pages, and My Network invitations.

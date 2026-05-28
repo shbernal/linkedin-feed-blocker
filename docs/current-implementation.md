@@ -32,14 +32,11 @@ Important exported types and helpers:
 
 Current section keys:
 
-| Key                  | Intended surface                          |
-| -------------------- | ----------------------------------------- |
-| `feed`               | Home main feed                            |
-| `rightFeed`          | Home right-rail feed widgets and ads      |
-| `networkPuzzle`      | My Network puzzle sections and cards      |
-| `networkPeople`      | My Network people recommendation sections |
-| `networkSuggestions` | My Network Suggestions for you section    |
-| `networkLeftAd`      | My Network left-rail ad                   |
+| Key             | Intended surface                     |
+| --------------- | ------------------------------------ |
+| `feed`          | Home main feed                       |
+| `rightFeed`     | Home right-rail feed widgets and ads |
+| `networkPuzzle` | My Network puzzle section            |
 
 When adding or removing a section, update shared settings, popup controls,
 content selectors, keyboard toggle behavior, and docs together.
@@ -101,8 +98,7 @@ width.
 Supported route toggling is narrow:
 
 - `/feed/` toggles `feed` and `rightFeed`.
-- `/mynetwork/grow/` toggles `networkPuzzle`, `networkPeople`,
-  `networkSuggestions`, and `networkLeftAd`.
+- `/mynetwork/grow/` toggles `networkPuzzle`.
 
 Selector application is route-gated: `/feed/` only applies Home targets, and
 `/mynetwork/grow/` only applies My Network targets. Unsupported routes restore
@@ -118,15 +114,9 @@ Current examples:
 - Home feed targets a `mainFeed` lazy-column container.
 - Home right rail targets game links, discover-hub links, ad images, and a feed
   advertisement iframe.
-- My Network puzzle targets game-link sections and game-like promo cards after
-  pending invitations.
-- My Network people sections target LinkedIn auto-component recommendation
-  sections after pending invitations while keeping invitations, tabs, puzzle
-  content, and Suggestions for you separate.
-- My Network Suggestions for you targets heading-labeled suggestion sections,
-  including LinkedIn's current English and French labels, after pending
-  invitations.
-- My Network left ad targets the ad iframe component key in the left rail.
+- My Network puzzle targets a section inside LinkedIn's `<main>` or
+  aria-labelled main content with a LinkedIn games link, with a text fallback
+  for puzzle promo copy.
 
 This works as an experiment, but it should be treated as brittle until covered
 by fixtures or real-browser smoke checks.

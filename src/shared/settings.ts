@@ -6,37 +6,18 @@ export type ExtensionSettings = {
   feed: boolean
   rightFeed: boolean
   networkPuzzle: boolean
-  networkPeople: boolean
-  networkSuggestions: boolean
-  networkLeftAd: boolean
 }
 
-export type PageSection =
-  | 'feed'
-  | 'rightFeed'
-  | 'networkPuzzle'
-  | 'networkPeople'
-  | 'networkSuggestions'
-  | 'networkLeftAd'
+export type PageSection = 'feed' | 'rightFeed' | 'networkPuzzle'
 
 export const DEFAULT_SETTINGS: ExtensionSettings = {
   active: true,
   feed: true,
   rightFeed: true,
   networkPuzzle: true,
-  networkPeople: true,
-  networkSuggestions: true,
-  networkLeftAd: true,
 }
 
-const PAGE_SECTIONS: PageSection[] = [
-  'feed',
-  'rightFeed',
-  'networkPuzzle',
-  'networkPeople',
-  'networkSuggestions',
-  'networkLeftAd',
-]
+const PAGE_SECTIONS: PageSection[] = ['feed', 'rightFeed', 'networkPuzzle']
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {
   return typeof value === 'object' && value !== null
@@ -79,9 +60,6 @@ export const setAllPages = (
     feed: enabled,
     rightFeed: enabled,
     networkPuzzle: enabled,
-    networkPeople: enabled,
-    networkSuggestions: enabled,
-    networkLeftAd: enabled,
   })
 }
 
@@ -102,9 +80,6 @@ export const normalizeSettings = (
       feed: legacyActive ? fallback.feed : false,
       rightFeed: legacyActive ? fallback.rightFeed : false,
       networkPuzzle: legacyActive ? fallback.networkPuzzle : false,
-      networkPeople: legacyActive ? fallback.networkPeople : false,
-      networkSuggestions: legacyActive ? fallback.networkSuggestions : false,
-      networkLeftAd: legacyActive ? fallback.networkLeftAd : false,
     })
   }
 
@@ -116,15 +91,6 @@ export const normalizeSettings = (
       readBoolean(value.feedPuzzle, fallback.rightFeed),
     ),
     networkPuzzle: readBoolean(value.networkPuzzle, fallback.networkPuzzle),
-    networkPeople: readBoolean(value.networkPeople, fallback.networkPeople),
-    networkSuggestions: readBoolean(
-      value.networkSuggestions,
-      readBoolean(value.networkPeople, fallback.networkSuggestions),
-    ),
-    networkLeftAd: readBoolean(
-      value.networkLeftAd,
-      readBoolean(value.networkPeople, fallback.networkLeftAd),
-    ),
   })
 }
 
