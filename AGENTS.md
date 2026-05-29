@@ -26,6 +26,8 @@ The extension is built with Vite, React, TypeScript, and
 - `src/shared/settings.ts` owns storage keys, defaults, normalization, and
   legacy settings migration.
 - `public/icons/` contains extension icons copied into builds.
+- `chrome-web-store/` contains store-listing copy, privacy justifications, and
+  media assets.
 - `docs/` contains contributor-facing project and implementation notes.
 - `dist/` and `release/` are generated or packaged outputs and are ignored by
   git.
