@@ -50,13 +50,16 @@ exactly. For `v0.1.1`, `package.json` must contain `"version": "0.1.1"`.
 
 ## GitHub Configuration
 
-The publish workflow expects these repository variables:
+The publish workflow uses the GitHub environment `chrome-web-store` and these
+repository variables:
 
-- `CWS_EXTENSION_ID`
-- `CWS_PUBLISHER_ID`
-- `GCP_PROJECT_ID`
-- `GCP_SERVICE_ACCOUNT`
-- `GCP_WORKLOAD_IDENTITY_PROVIDER`
+- `CWS_EXTENSION_ID`: `foncphmfnndmjembiamdmciojcdjnlpc`
+- `CWS_PUBLISHER_ID`: `45b66eec-fe97-4bca-a892-b10af59a0fab`
+- `GCP_PROJECT_ID`: `chrome-webstore-ci-9b6f6e`
+- `GCP_SERVICE_ACCOUNT`:
+  `chrome-webstore-ci@chrome-webstore-ci-9b6f6e.iam.gserviceaccount.com`
+- `GCP_WORKLOAD_IDENTITY_PROVIDER`:
+  `projects/366600061980/locations/global/workloadIdentityPools/github/providers/github`
 
 These values are identifiers and configuration, not credentials. Do not store a
 Google service-account JSON key in GitHub for this flow.
@@ -83,13 +86,15 @@ The Google Cloud setup has three parts:
 The provider should remain restricted to this repository and release tag refs:
 
 ```text
-assertion.repository == 'shbernal/linkedin-feed-blocker' &&
+(assertion.repository == 'shbernal/tiktok-feed-blocker' ||
+  assertion.repository == 'shbernal/linkedin-feed-blocker') &&
   assertion.ref.startsWith('refs/tags/')
 ```
 
 That restriction means pull requests, branch pushes, and workflows from other
 repositories cannot use the Chrome Web Store service account through this trust
-path.
+path. The same provider is shared with the adjacent TikTok blocker, so keep both
+repositories in the condition when updating it.
 
 ## Normal Release Procedure
 
