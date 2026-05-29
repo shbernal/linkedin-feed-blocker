@@ -1,8 +1,8 @@
 # Project Overview
 
-LinkedIn Feed Blocker is a local Chrome extension prototype for stripping down
-the distracting parts of LinkedIn while preserving the parts that are still
-useful for jobs, profiles, direct links, messages, and intentional networking.
+LinkedIn Feed Blocker is an experimental Chrome extension for stripping down the
+distracting parts of LinkedIn while preserving the parts that are still useful
+for jobs, profiles, direct links, messages, and intentional networking.
 
 The dev-project note frames the goal as attention control: keep LinkedIn useful
 without leaving the Home feed, recommendation modules, and My Network suggestion
@@ -10,14 +10,15 @@ loops untouched. This repo is the experimental implementation of that idea.
 
 ## Current Status
 
-Status: experimental local 0.1.0 shipping candidate.
+Status: experimental published 0.1.0 extension.
 
 The repo has a working MV3 extension shape, a popup, persistent settings, a
 background keyboard command, and a content script with LinkedIn-specific hiding
 selectors. It also has Chrome Web Store listing copy, captured screenshots, a
-small promo image, and a local upload ZIP packaging command. It does not yet
-have automated tests, fixture snapshots, an automated release workflow, a
-configured git remote, or a hardened selector strategy.
+small promo image, a local upload ZIP packaging command, CI, and a GitHub
+Release to Chrome Web Store publishing workflow. It does not yet have
+deterministic automated tests, fixture snapshots, or a hardened selector
+strategy.
 
 Use this repo as an implementation sandbox until those gaps are closed.
 
@@ -43,8 +44,7 @@ search, messages, jobs, direct profile pages, and My Network invitations.
 
 - Replacing LinkedIn with a full custom shell.
 - Blocking every LinkedIn route.
-- Chrome Web Store CI or automated publishing.
-- Shared infrastructure with `tiktok-feed-blocker`.
+- Shared runtime infrastructure with `tiktok-feed-blocker`.
 - A career workflow for jobs, applications, and messaging. That remains
   adjacent context, not this extension's job.
 

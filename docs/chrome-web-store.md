@@ -13,8 +13,10 @@ Chrome Web Store listing assets live in `chrome-web-store/`.
 - `chrome-web-store/screenshots/` contains the current 1280x800 PNG screenshot
   assets.
 
-This mirrors the adjacent `tiktok-feed-blocker` asset layout, but this repo does
-not have Chrome Web Store CI, release automation, or a published listing yet.
+This mirrors the adjacent `tiktok-feed-blocker` asset layout. Future Chrome Web
+Store submissions are handled by the GitHub Release workflow documented in
+[`docs/ci-release-flow.md`](./ci-release-flow.md) once the repository variables
+and Google Cloud trust path are configured.
 
 The current screenshot set uses five 1280x800 PNG files. The current Chrome Web
 Store guidance requires at least one screenshot, allows up to five, and accepts
@@ -28,7 +30,8 @@ pnpm package:chrome
 ```
 
 That command rebuilds `dist/` and writes the upload ZIP under `release/`, which
-is intentionally ignored by git.
+is intentionally ignored by git. The automated publish workflow builds and zips
+`dist/` directly instead of committing or reusing files from `release/`.
 
 Reference:
 

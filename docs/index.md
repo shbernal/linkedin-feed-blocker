@@ -14,6 +14,9 @@ this directory unless the task explicitly calls for it.
 - [Chrome Web Store Listing](./chrome-web-store.md) explains the store listing
   assets, privacy form justifications, screenshot set, and local ZIP packaging
   command.
+- [CI And Release Flow](./ci-release-flow.md) explains pull-request validation,
+  GitHub Release to Chrome Web Store publishing, and required GitHub/GCP
+  configuration.
 - [Testing](./testing.md) explains the local real-site Playwright smoke-test
   lane, persistent profile setup, and generated inspection artifacts.
 

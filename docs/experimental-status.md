@@ -23,6 +23,10 @@ treated as an experimental implementation.
 - Chrome Web Store listing copy, extension icons, five 1280x800 screenshots,
   and a 440x280 small promo image under `chrome-web-store/`.
 - Local Chrome upload ZIP packaging with `pnpm package:chrome`.
+- GitHub Actions CI for format, typecheck, Playwright harness typecheck, and
+  build.
+- GitHub Release to Chrome Web Store publishing workflow, modeled on the
+  adjacent TikTok blocker.
 
 ## Why It Is Still Rough
 
@@ -43,8 +47,8 @@ The current blocking approach is deliberately simple and not very efficient.
 - There are no fixture tests or unit tests. The real-browser smoke test is
   useful for selector drift, but it depends on live LinkedIn account state and
   is not deterministic.
-- The repo has no remote, CI, automated release process, or Chrome Web Store
-  publishing flow.
+- The publish workflow still depends on repository variables, Google Cloud OIDC
+  trust, and Chrome Web Store item access being kept in sync outside the repo.
 
 ## Hardening Direction
 
@@ -63,8 +67,8 @@ Before treating this as maintained, prefer these steps:
    caveats here.
 7. Refresh and re-sanitize Chrome Web Store screenshots after selector or UI
    changes.
-8. Decide whether the project stays local/unpacked or gets a real release
-   pipeline.
+8. Add deterministic CI tests so the release workflow can catch behavior
+   regressions before uploading a new Chrome Web Store package.
 
 Until then, optimize for easy inspection, quick iteration, and honest docs over
 polished release behavior.

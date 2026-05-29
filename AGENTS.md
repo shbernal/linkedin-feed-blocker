@@ -3,13 +3,14 @@
 ## Project State
 
 This is an experimental Manifest V3 Chrome extension for reducing distracting
-LinkedIn surfaces. Treat it as a local prototype, not as a polished or
-release-managed extension.
+LinkedIn surfaces. Treat it as a published prototype with release automation,
+not as a polished extension.
 
 The broader dev-project note is useful background, but the current source and
 repo-local docs are the durable source of truth for implementation details. This
-project is adjacent to `tiktok-feed-blocker`, but it is not currently managed
-with the same release, testing, or Chrome Web Store workflow.
+project is adjacent to `tiktok-feed-blocker` and now uses the same broad
+GitHub Release to Chrome Web Store workflow shape, adapted to this repo's
+smaller validation surface.
 
 ## Project Shape
 
@@ -29,6 +30,9 @@ The extension is built with Vite, React, TypeScript, and
 - `chrome-web-store/` contains store-listing copy, privacy justifications, and
   media assets.
 - `docs/` contains contributor-facing project and implementation notes.
+- `.github/workflows/ci.yml` validates pull requests and pushes to `master`.
+- `.github/workflows/publish-cws.yml` publishes Chrome Web Store submissions
+  from published GitHub Releases.
 - `dist/` and `release/` are generated or packaged outputs and are ignored by
   git.
 
@@ -38,6 +42,7 @@ Use `pnpm`, following the `packageManager` field in `package.json`.
 
 - `pnpm dev` starts the Vite dev server for extension development.
 - `pnpm typecheck` runs the TypeScript project build without emitting files.
+- `pnpm typecheck:e2e` type-checks the local Playwright real-site harness.
 - `pnpm build` runs TypeScript checks and creates the extension build in
   `dist/`.
 - `pnpm format` checks Prettier formatting.
@@ -48,7 +53,23 @@ There is no automated test suite in this repo yet. Do not document or rely on
 
 For docs-only changes, run a targeted Prettier check on the touched markdown
 files. For source, manifest, popup, content-script, background, settings, icon,
-or packaging changes, run at least `pnpm typecheck` and `pnpm build`.
+or packaging changes, run at least `pnpm typecheck`, `pnpm typecheck:e2e`, and
+`pnpm build`.
+
+## CI And Publishing
+
+- Normal CI runs `pnpm format`, `pnpm typecheck`, `pnpm typecheck:e2e`, and
+  `pnpm build`.
+- The Chrome Web Store workflow runs only on published GitHub Releases and
+  requires the release tag to match `package.json` with an optional leading
+  `v`.
+- The publish workflow expects repository variables named `CWS_EXTENSION_ID`,
+  `CWS_PUBLISHER_ID`, `GCP_PROJECT_ID`, `GCP_SERVICE_ACCOUNT`, and
+  `GCP_WORKLOAD_IDENTITY_PROVIDER`.
+- Keep the Google Cloud Workload Identity Federation trust restricted to
+  `shbernal/linkedin-feed-blocker` tag refs.
+- Do not publish releases, push tags, upload packages, or change Chrome Web
+  Store settings unless explicitly asked.
 
 ## Coding Guidelines
 
@@ -85,6 +106,8 @@ or packaging changes, run at least `pnpm typecheck` and `pnpm build`.
   message contracts, selectors, or manifest behavior changes.
 - Update `docs/experimental-status.md` when known limitations, validation gaps,
   or the hardening plan changes.
+- Update `docs/ci-release-flow.md` when CI gates, release triggers, workflow
+  variables, or Chrome Web Store publishing behavior changes.
 - Keep docs tied to current code. Put speculative roadmap context in docs only
   when the user asks for planning documentation.
 
@@ -94,8 +117,8 @@ or packaging changes, run at least `pnpm typecheck` and `pnpm build`.
 - Do not create or replace files in `release/` unless doing explicit release
   packaging.
 - Do not bump `package.json` version unless explicitly requested.
-- This repo currently has no configured git remote. Do not assume a publishing
-  flow exists.
+- Do not hand-edit GitHub Release assets; rebuild from source and let the
+  publish workflow attach the generated zip when doing automated releases.
 
 ## Manual Validation Notes
 

@@ -4,7 +4,7 @@ LinkedIn Feed Blocker is an experimental Chrome extension for reducing
 distracting LinkedIn surfaces while keeping useful areas like jobs, messages,
 search, profiles, direct links, and My Network invitations available.
 
-The current release candidate is `0.1.0`.
+The current published release is `0.1.0`.
 
 ## What It Blocks
 
@@ -52,6 +52,10 @@ pnpm package:chrome
 The ZIP is written to `release/linkedin-feed-blocker-0.1.0.zip`. Store listing
 copy and media live under `chrome-web-store/`.
 
+Future Chrome Web Store submissions are automated from published GitHub
+Releases. See `docs/ci-release-flow.md` for the release workflow and required
+GitHub/GCP configuration.
+
 ## Development
 
 Use `pnpm`, matching the `packageManager` field in `package.json`.
@@ -63,15 +67,16 @@ pnpm build
 pnpm format
 ```
 
-There is no default automated test suite yet. Real LinkedIn Playwright checks
-exist for local smoke testing, but they depend on an authenticated browser
-profile and live LinkedIn behavior.
+There is no default automated test suite yet. CI runs formatting, typechecking,
+Playwright harness typechecking, and build checks. Real LinkedIn Playwright
+checks exist for local smoke testing, but they depend on an authenticated
+browser profile and live LinkedIn behavior.
 
 ## Status
 
-This is a local prototype, not a polished or release-managed extension. LinkedIn
-selectors are brittle, and runtime behavior should be manually validated after
-changes by loading `dist/` as an unpacked extension.
+This is a published prototype, not a polished extension. LinkedIn selectors are
+brittle, and runtime behavior should be manually validated after changes by
+loading `dist/` as an unpacked extension or running the real-site smoke lane.
 
 The extension stores settings in `chrome.storage.local` and does not add an
 external backend.
