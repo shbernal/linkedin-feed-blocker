@@ -1,0 +1,17 @@
+Reduce distracting LinkedIn surfaces while keeping LinkedIn useful. LinkedIn
+Feed Blocker lets you block the Home feed, right-rail distractions, and selected
+My Network recommendation modules so you can use LinkedIn more intentionally.
+
+Features:
+
+- Blocks the LinkedIn Home feed
+- Blocks Home right-rail widgets and ad-like distractions
+- Blocks My Network puzzle, Premium upsell, and suggestions sections
+- Keeps higher-value LinkedIn areas such as jobs, messages, search, profiles,
+  direct links, and My Network invitations available
+- Turn blocking on or off for each supported section separately
+- Use a compact popup or keyboard shortcut to toggle supported pages
+- Saves settings in your browser with Chrome extension storage
+
+Use LinkedIn for the parts you came for without leaving every recommendation
+loop open by default.

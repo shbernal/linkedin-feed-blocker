@@ -14,8 +14,10 @@ Status: experimental local prototype.
 
 The repo has a working MV3 extension shape, a popup, persistent settings, a
 background keyboard command, and a content script with LinkedIn-specific hiding
-selectors. It does not yet have automated tests, fixture snapshots, a release
-workflow, a configured git remote, or a hardened selector strategy.
+selectors. It also has preliminary Chrome Web Store listing copy and a
+screenshot plan. It does not yet have automated tests, fixture snapshots,
+captured store screenshots, a release workflow, a configured git remote, or a
+hardened selector strategy.
 
 Use this repo as an implementation sandbox until those gaps are closed.
 
@@ -41,9 +43,9 @@ search, messages, jobs, direct profile pages, and My Network invitations.
 
 - Replacing LinkedIn with a full custom shell.
 - Blocking every LinkedIn route.
-- Chrome Web Store publishing.
+- Chrome Web Store CI or automated publishing.
 - Shared infrastructure with `tiktok-feed-blocker`.
-- A public user-facing README or store listing.
+- A public user-facing README.
 - A career workflow for jobs, applications, and messaging. That remains
   adjacent context, not this extension's job.
 
