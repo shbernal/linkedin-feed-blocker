@@ -20,8 +20,9 @@ treated as an experimental implementation.
 - Basic build/typecheck command surface.
 - Opt-in real LinkedIn smoke-test lane that reuses an ignored copied Chromium
   profile and records inspection artifacts.
-- Preliminary Chrome Web Store listing copy and screenshot organization under
-  `chrome-web-store/`.
+- Chrome Web Store listing copy, extension icons, five 1280x800 screenshots,
+  and a 440x280 small promo image under `chrome-web-store/`.
+- Local Chrome upload ZIP packaging with `pnpm package:chrome`.
 
 ## Why It Is Still Rough
 
@@ -42,8 +43,8 @@ The current blocking approach is deliberately simple and not very efficient.
 - There are no fixture tests or unit tests. The real-browser smoke test is
   useful for selector drift, but it depends on live LinkedIn account state and
   is not deterministic.
-- The repo has no remote, CI, release process, Chrome Web Store publishing flow,
-  or captured store screenshots.
+- The repo has no remote, CI, automated release process, or Chrome Web Store
+  publishing flow.
 
 ## Hardening Direction
 
@@ -60,8 +61,8 @@ Before treating this as maintained, prefer these steps:
    stable.
 6. Run manual unpacked-extension checks after build and record any route-specific
    caveats here.
-7. Capture and sanitize Chrome Web Store screenshots only after manual runtime
-   validation.
+7. Refresh and re-sanitize Chrome Web Store screenshots after selector or UI
+   changes.
 8. Decide whether the project stays local/unpacked or gets a real release
    pipeline.
 

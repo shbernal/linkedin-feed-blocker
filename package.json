@@ -1,11 +1,12 @@
 {
   "name": "linkedin-feed-blocker",
-  "version": "1.1.0",
+  "version": "0.1.0",
   "type": "module",
   "packageManager": "pnpm@10.33.0",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "package:chrome": "pnpm build && mkdir -p release && rm -f \"release/linkedin-feed-blocker-${npm_package_version}.zip\" && cd dist && zip -qr \"../release/linkedin-feed-blocker-${npm_package_version}.zip\" .",
     "typecheck": "tsc -b",
     "typecheck:e2e": "tsc -p tsconfig.e2e.json",
     "e2e:real:setup": "pnpm run typecheck:e2e && pnpm exec playwright test -c playwright.real.config.ts --grep @setup --headed",

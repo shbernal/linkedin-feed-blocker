@@ -1,14 +1,14 @@
-# Screenshot Plan
+# Screenshot Assets
 
-This directory is for Chrome Web Store screenshots that have not been captured
-yet. Follow the TikTok blocker layout and keep finished assets here as
+This directory contains Chrome Web Store screenshots for the 0.1.0 shipping
+candidate. Follow the TikTok blocker layout and keep finished assets here as
 full-bleed PNG files.
 
-Use 1280x800 screenshots for the first pass. Chrome Web Store currently accepts
-1280x800 or 640x400 screenshots, with at least one screenshot and up to five
-total.
+The current set uses 1280x800 PNG screenshots. Chrome Web Store currently
+accepts 1280x800 or 640x400 screenshots, with at least one screenshot and up to
+five total.
 
-Planned initial set:
+Current set:
 
 | Order | Filename                                           | Capture target                                                                 |
 | ----- | -------------------------------------------------- | ------------------------------------------------------------------------------ |
@@ -18,5 +18,6 @@ Planned initial set:
 | 4     | `linkedin-feedblocker-4-invitations-preserved.png` | My Network invitations still visible while lower-value modules are blocked.    |
 | 5     | `linkedin-feedblocker-5-section-restore.png`       | A section toggle disabled to show that blocked areas can be restored.          |
 
-Before committing screenshots, remove or blur private LinkedIn account data,
-names, profile photos, messages, job recommendations, and notifications.
+When replacing screenshots, remove or blur private LinkedIn account data, names,
+profile photos, messages, job recommendations, and notifications before
+committing the files.

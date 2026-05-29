@@ -1,9 +1,5 @@
 # Repository Instructions
 
-## Hard Rule
-
-Do not modify `README.md` unless told explicitly to do so.
-
 ## Project State
 
 This is an experimental Manifest V3 Chrome extension for reducing distracting
@@ -81,7 +77,8 @@ or packaging changes, run at least `pnpm typecheck` and `pnpm build`.
 
 - Prefer `docs/` for contributor-facing status, architecture, validation, and
   maintenance notes.
-- Keep `README.md` unchanged unless the user explicitly asks for README work.
+- Keep `README.md` concise and aligned with the current user-facing extension
+  behavior.
 - Update `docs/current-implementation.md` when runtime surfaces, settings shape,
   message contracts, selectors, or manifest behavior changes.
 - Update `docs/experimental-status.md` when known limitations, validation gaps,
