@@ -10,7 +10,7 @@ loops untouched. This repo is the experimental implementation of that idea.
 
 ## Current Status
 
-Status: experimental published 0.1.0 extension.
+Status: experimental published 0.1.1 extension.
 
 The repo has a working MV3 extension shape, a popup, persistent settings, a
 background keyboard command, and a content script with LinkedIn-specific hiding

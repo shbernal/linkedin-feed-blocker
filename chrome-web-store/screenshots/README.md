@@ -1,6 +1,6 @@
 # Screenshot Assets
 
-This directory contains Chrome Web Store screenshots for the 0.1.0 shipping
+This directory contains Chrome Web Store screenshots for the 0.1.1 shipping
 candidate. Follow the TikTok blocker layout and keep finished assets here as
 full-bleed PNG files.
 

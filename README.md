@@ -4,7 +4,7 @@ LinkedIn Feed Blocker is an experimental Chrome extension for reducing
 distracting LinkedIn surfaces while keeping useful areas like jobs, messages,
 search, profiles, direct links, and My Network invitations available.
 
-The current published release is `0.1.0`.
+The current release is `0.1.1`.
 
 ## What It Blocks
 
@@ -49,7 +49,7 @@ Create the upload ZIP:
 pnpm package:chrome
 ```
 
-The ZIP is written to `release/linkedin-feed-blocker-0.1.0.zip`. Store listing
+The ZIP is written to `release/linkedin-feed-blocker-0.1.1.zip`. Store listing
 copy and media live under `chrome-web-store/`.
 
 Future Chrome Web Store submissions are automated from published GitHub
