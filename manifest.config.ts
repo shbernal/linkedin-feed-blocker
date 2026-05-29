@@ -5,7 +5,7 @@ export default defineManifest({
   manifest_version: 3,
   name: 'LinkedIn Feed Blocker',
   version: pkg.version,
-  description: 'Blocks selected sections on LinkedIn Feed and My Network pages',
+  description: pkg.description,
   permissions: ['activeTab', 'storage'],
   host_permissions: ['*://*.linkedin.com/*'],
   background: {
