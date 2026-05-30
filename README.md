@@ -1,5 +1,10 @@
 # LinkedIn Feed Blocker
 
+[![Release](https://img.shields.io/github/v/release/shbernal/linkedin-feed-blocker?label=Release)](https://github.com/shbernal/linkedin-feed-blocker/releases/latest)
+[![CI](https://github.com/shbernal/linkedin-feed-blocker/actions/workflows/ci.yml/badge.svg)](https://github.com/shbernal/linkedin-feed-blocker/actions/workflows/ci.yml)
+[![License](https://img.shields.io/github/license/shbernal/linkedin-feed-blocker)](https://github.com/shbernal/linkedin-feed-blocker/blob/master/LICENSE)
+[![GitHub Stars](https://img.shields.io/github/stars/shbernal/linkedin-feed-blocker?style=social)](https://github.com/shbernal/linkedin-feed-blocker)
+
 LinkedIn Feed Blocker is an experimental Chrome extension for reducing
 distracting LinkedIn surfaces while keeping useful areas like jobs, messages,
 search, profiles, direct links, and My Network invitations available.

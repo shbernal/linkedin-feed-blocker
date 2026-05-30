@@ -8,6 +8,8 @@ Chrome Web Store listing assets live in `chrome-web-store/`.
   single-purpose, permission, and host-permission justifications for the
   Developer Dashboard privacy form.
 - `chrome-web-store/promo-small.png` is the required 440x280 small promo image.
+- `chrome-web-store/linkedin-feed-blocker-logo-source.png` is the full-size
+  source artwork used to derive the extension icon PNGs in `public/icons/`.
 - `chrome-web-store/screenshots/README.md` records the screenshot order and
   filenames.
 - `chrome-web-store/screenshots/` contains the current 1280x800 PNG screenshot

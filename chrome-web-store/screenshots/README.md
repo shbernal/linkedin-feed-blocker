@@ -16,7 +16,7 @@ Current set:
 | 2     | `linkedin-feedblocker-2-popup-controls.png`        | Popup open on a LinkedIn tab, showing the Home and My Network section toggles. |
 | 3     | `linkedin-feedblocker-3-my-network-blocked.png`    | `/mynetwork/grow/` with puzzle, Premium, and suggestions hidden.               |
 | 4     | `linkedin-feedblocker-4-invitations-preserved.png` | My Network invitations still visible while lower-value modules are blocked.    |
-| 5     | `linkedin-feedblocker-5-section-restore.png`       | A section toggle disabled to show that blocked areas can be restored.          |
+| 5     | `linkedin-feedblocker-5-github-contribute.png`     | GitHub contribution callout for `shbernal/linkedin-feed-blocker`.              |
 
 When replacing screenshots, remove or blur private LinkedIn account data, names,
 profile photos, messages, job recommendations, and notifications before
