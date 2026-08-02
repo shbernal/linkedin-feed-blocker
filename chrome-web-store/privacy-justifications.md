@@ -4,6 +4,10 @@ Use this copy for the Chrome Web Store Developer Dashboard privacy and
 permission form. Keep each answer aligned with `manifest.config.ts` and current
 runtime behavior before submitting a build.
 
+The body text under each heading is the answer itself and goes into a plain-text
+form field verbatim, so it stays free of Markdown — no backticks, emphasis, or
+lists. Headings are labels, not answers, and may keep their markup.
+
 Last reviewed against `manifest.config.ts`.
 
 ## Single Purpose Description
@@ -19,21 +23,21 @@ shortcut, and settings are stored locally in Chrome extension storage.
 
 ### `activeTab`
 
-`activeTab` is used only after a user action from the popup or keyboard command
-to identify and message the currently active LinkedIn tab. This lets the
-extension apply the user's chosen blocking state to the page they are viewing
-without broad tab history access or background scanning of unrelated tabs.
+activeTab is used only after a user action from the popup or keyboard command to
+identify and message the currently active LinkedIn tab. This lets the extension
+apply the user's chosen blocking state to the page they are viewing without
+broad tab history access or background scanning of unrelated tabs.
 
 ### `storage`
 
-`storage` saves the user's local extension settings, including whether blocking
-is enabled and which supported LinkedIn sections are blocked. The extension
-stores this configuration in `chrome.storage.local`; it does not use this
-permission to collect or transmit browsing data.
+storage saves the user's local extension settings, including whether blocking is
+enabled and which supported LinkedIn sections are blocked. The extension stores
+this configuration in chrome.storage.local; it does not use this permission to
+collect or transmit browsing data.
 
 ### Host Permission: `*://*.linkedin.com/*`
 
-`*://*.linkedin.com/*` is required because the content script must run on
-LinkedIn pages to hide or restore selected feed, right-rail, and My Network
-recommendation sections. The extension checks routes and only applies blocking
-to supported LinkedIn surfaces. It does not run on non-LinkedIn sites.
+Access to LinkedIn pages is required because the content script must run there
+to hide or restore selected feed, right-rail, and My Network recommendation
+sections. The extension checks routes and only applies blocking to supported
+LinkedIn surfaces. It does not run on non-LinkedIn sites.
