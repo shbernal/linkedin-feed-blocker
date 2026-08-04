@@ -23,10 +23,14 @@ treated as an experimental implementation.
 - Listing copy and five 1280x800 screenshots under `store/`, plus extension
   icons and a 440x280 small promo image for the Chrome Web Store.
 - Local Chrome upload ZIP packaging with `pnpm package:chrome`.
-- GitHub Actions CI for format, typecheck, Playwright harness typecheck, and
-  build.
+- GitHub Actions CI for format, browser-API compatibility, typecheck, Playwright
+  harness typecheck, and build.
 - GitHub Release to Chrome Web Store publishing workflow, modeled on the
   adjacent TikTok blocker.
+- Content script split into selector, route, blocking, and wiring modules with
+  an exported init/cleanup pair.
+- In-page shortcut fallback matched against the browser's real command binding
+  rather than a hard-coded `Ctrl+Shift+7`.
 
 ## Why It Is Still Rough
 
@@ -34,10 +38,14 @@ The current blocking approach is deliberately simple and not very efficient.
 
 - The content script is injected on all LinkedIn pages, while the useful targets
   are currently only `/feed/` and `/mynetwork/grow/`.
-- Blocking re-runs from both a subtree-wide `MutationObserver` and a 1-second
-  interval.
+- Blocking re-runs from a subtree-wide `MutationObserver`, which fires on any
+  element insertion anywhere on the page.
 - Each run still re-queries every enabled selector group for the current
   supported route.
+- Hiding happens from JavaScript after the page has painted, so blocked sections
+  flash briefly on load. A `document_start` stylesheet would fix that for the
+  selector-only targets, but the predicate-gated My Network sections cannot be
+  expressed in static CSS, so a partial gate is the most that is available.
 - Several selectors use `:has(...)` and broad section-level matches. These can
   be expensive and brittle on LinkedIn's dynamic DOM.
 - Selectors are based on current observed markup, including attributes that may
@@ -57,8 +65,8 @@ Before treating this as maintained, prefer these steps:
 1. Add fixture-based tests for the LinkedIn DOM shapes this extension targets.
 2. Add unit tests for settings normalization, popup persistence, background
    command routing, and content-script hide/restore behavior.
-3. Replace the fixed interval with a debounced observer or a more targeted
-   page-change signal.
+3. Narrow the observer to a more targeted page-change signal than "any element
+   inserted anywhere".
 4. Narrow selectors and document which LinkedIn attributes are expected to be
    stable enough to depend on.
 5. Extend real smoke coverage to `/mynetwork/grow/` after the Home feed path is

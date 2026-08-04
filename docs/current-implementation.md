@@ -14,6 +14,14 @@ permission, LinkedIn host permissions, keyboard command, and icons.
 The content script matches all `*.linkedin.com` pages, even though blocking is
 currently only useful on `/feed/` and `/mynetwork/grow/`.
 
+The two entry files must keep distinct basenames
+(`src/background/service-worker.ts` and `src/content/content-script.ts`). crxjs
+names each output chunk after its entry's basename, so when both were called
+`main.ts` the generated `dist/service-worker-loader.js` imported the content
+script chunk instead of the background one and the keyboard command never
+registered. After a build, `dist/service-worker-loader.js` should import the
+`service-worker.ts-*.js` chunk.
+
 ## Shared Settings
 
 `src/shared/settings.ts` is the storage contract between popup, content script,
@@ -45,10 +53,11 @@ content selectors, keyboard toggle behavior, and docs together.
 
 ## Background Command Flow
 
-`src/background/main.ts` listens for the `toggle-current-page-block` command,
-currently suggested as `Ctrl+Shift+7` (`Command+Shift+7` on macOS). When the
-command fires, it queries the active tab, checks that the tab URL is on
-`linkedin.com` or a LinkedIn subdomain, and sends this content-script message:
+`src/background/service-worker.ts` listens for the `toggle-current-page-block`
+command, currently suggested as `Ctrl+Shift+7` (`Command+Shift+7` on macOS).
+When the command fires, it queries the active tab, checks that the tab URL is on
+`linkedin.com` or a LinkedIn subdomain (`src/shared/linkedin.ts`), and sends this
+content-script message:
 
 ```ts
 {
@@ -65,6 +74,23 @@ That page-level listener is the more reliable path on environments where
 Chrome's extension command dispatch does not fire for number-row shortcuts. It
 ignores editable fields and uses a short duplicate guard so a working Chrome
 command and the page-level listener do not double-toggle the page.
+
+Content scripts cannot read `chrome.commands`, so the background script resolves
+the live binding with `chrome.commands.getAll()` on every background start and
+mirrors it into the `toggleShortcut` storage key. `src/shared/shortcut.ts` parses
+that string into a keydown matcher, which is what keeps the in-page fallback
+aligned with the real binding — including the macOS `Command+Shift+7` case and
+any binding the user has rebound in `chrome://extensions/shortcuts`. An unbound
+command mirrors an empty string, which falls back to the manifest default. A
+binding the page can never observe parses to `null` and the fallback matches
+nothing, rather than silently answering the default keys.
+
+## Chrome API Conventions
+
+Every `chrome.*` call site uses the callback form. Gecko exposes `chrome.*` as
+callback-only, so an awaited call resolves to `undefined` there with no error
+while every Chrome check still passes. `scripts/check-browser-api.mjs` scans
+`src/` for `await chrome.` and fails CI on a match.
 
 ## Popup Flow
 
@@ -85,17 +111,35 @@ width.
 
 ## Content Script Flow
 
-`src/content/main.ts` owns DOM mutation behavior:
+The content script is split into four modules:
 
-- maps each `PageSection` to a managed `data-ltfb-*` attribute;
-- maps each section to one or more selector targets;
-- hides matched elements with `element.style.display = 'none'`;
-- restores only elements previously marked with the managed data attribute;
-- reacts to popup messages and storage changes;
-- toggles the current supported route when `Ctrl+Shift+7` is pressed on a
+| File                            | Responsibility                                                                             |
+| ------------------------------- | ------------------------------------------------------------------------------------------ |
+| `src/content/selectors.ts`      | `SECTION_TARGETS`, the managed `data-ltfb-*` attribute per section, and the DOM predicates |
+| `src/content/routes.ts`         | maps a pathname to the sections the extension may touch there                              |
+| `src/content/blocking.ts`       | hide, restore, and the managed-attribute bookkeeping                                       |
+| `src/content/content-script.ts` | the manifest entry: listeners, observer, scheduled re-apply, shortcut state                |
+
+Together they:
+
+- map each `PageSection` to a managed `data-ltfb-*` attribute;
+- map each section to one or more selector targets;
+- hide matched elements with `element.style.display = 'none'`;
+- restore only elements previously marked with the managed data attribute;
+- react to popup messages and storage changes;
+- toggle the current supported route when the bound shortcut is pressed on a
   focused LinkedIn page outside editable fields;
-- uses a `MutationObserver` plus a 1-second interval to reapply blocking as
-  LinkedIn changes the page.
+- reapply blocking from a `MutationObserver` whose element-insertion callbacks
+  coalesce into a single re-apply scheduled 100ms out.
+
+An element LinkedIn itself already set to `display: none` is skipped rather than
+adopted, so disabling a section never reveals something the page meant to keep
+hidden.
+
+`content-script.ts` exports `initContentScript()` and `cleanupContentScript()`
+and only bootstraps itself outside test mode, so the pair can be driven directly
+from jsdom. `cleanupContentScript()` removes every listener, disconnects the
+observer, and cancels a pending re-apply.
 
 Supported route toggling is narrow:
 
@@ -134,6 +178,7 @@ by fixtures or real-browser smoke checks.
 
 Available commands:
 
+- `pnpm check:browser-api`
 - `pnpm typecheck`
 - `pnpm build`
 - `pnpm format`

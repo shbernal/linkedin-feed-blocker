@@ -14,9 +14,15 @@ The CI job:
 3. Sets up Node `24` with pnpm caching.
 4. Installs dependencies with `pnpm install --frozen-lockfile`.
 5. Runs `pnpm format`.
-6. Runs `pnpm typecheck`.
-7. Runs `pnpm typecheck:e2e`.
-8. Runs `pnpm build`.
+6. Runs `pnpm check:browser-api`.
+7. Runs `pnpm typecheck`.
+8. Runs `pnpm typecheck:e2e`.
+9. Runs `pnpm build`.
+
+`pnpm check:browser-api` scans `src/` for `await chrome.` and fails on a match.
+Gecko exposes `chrome.*` as callback-only, so an awaited call resolves to
+`undefined` there with no error while every Chrome-side check still passes; this
+is the only gate that can catch that regression.
 
 There is no default `pnpm test` gate yet because the repo does not have a
 deterministic automated test suite.
@@ -39,8 +45,8 @@ The publish workflow uses the GitHub environment `chrome-web-store`.
 The release job:
 
 1. Checks out the release tag.
-2. Runs the same install, format, typecheck, e2e typecheck, and build gates as
-   CI.
+2. Runs the same install, format, browser-API, typecheck, e2e typecheck, and
+   build gates as CI.
 3. Verifies the configured GitHub repository variables are present.
 4. Verifies the release tag matches `package.json`.
 5. Zips the generated `dist/` directory.
@@ -109,6 +115,7 @@ repositories in the condition when updating it.
 
    ```sh
    pnpm format
+   pnpm check:browser-api
    pnpm typecheck
    pnpm typecheck:e2e
    pnpm build

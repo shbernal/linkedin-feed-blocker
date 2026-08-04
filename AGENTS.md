@@ -19,13 +19,25 @@ The extension is built with Vite, React, TypeScript, and
 
 - `manifest.config.ts` defines the MV3 manifest and reads the version from
   `package.json`.
-- `src/background/main.ts` handles the keyboard command that asks the active
-  LinkedIn tab to toggle blocking for the current page.
-- `src/content/main.ts` runs on LinkedIn pages and hides matched sections with
-  inline display changes.
+- `src/background/service-worker.ts` handles the keyboard command that asks the
+  active LinkedIn tab to toggle blocking for the current page, and mirrors the
+  resolved command binding into storage for the content script.
+- `src/content/content-script.ts` runs on LinkedIn pages and wires the listeners,
+  the mutation observer, and the scheduled re-apply.
+- `src/content/selectors.ts` owns the section-to-selector table, the managed
+  `data-ltfb-*` attributes, and the DOM predicates.
+- `src/content/routes.ts` maps a pathname to the sections the extension may
+  touch there.
+- `src/content/blocking.ts` owns hiding, restoring, and the managed-attribute
+  bookkeeping.
 - `src/popup/App.tsx` is the popup UI for global and per-section toggles.
 - `src/shared/settings.ts` owns storage keys, defaults, normalization, and
   legacy settings migration.
+- `src/shared/shortcut.ts` parses a `chrome.commands` binding into a keydown
+  matcher for the in-page fallback.
+- `src/shared/linkedin.ts` answers whether a URL is on LinkedIn.
+- `scripts/check-browser-api.mjs` fails the build if any `chrome.*` call site is
+  awaited instead of callback-based.
 - `public/icons/` contains extension icons copied into builds.
 - `store/` contains listing assets shared across stores: the long description
   and the screenshot set.
@@ -45,6 +57,7 @@ Use `pnpm`, following the `packageManager` field in `package.json`.
 - `pnpm dev` starts the Vite dev server for extension development.
 - `pnpm typecheck` runs the TypeScript project build without emitting files.
 - `pnpm typecheck:e2e` type-checks the local Playwright real-site harness.
+- `pnpm check:browser-api` fails if any `chrome.*` call site is awaited.
 - `pnpm build` runs TypeScript checks and creates the extension build in
   `dist/`.
 - `pnpm format` checks Prettier formatting.
@@ -55,13 +68,13 @@ There is no automated test suite in this repo yet. Do not document or rely on
 
 For docs-only changes, run a targeted Prettier check on the touched markdown
 files. For source, manifest, popup, content-script, background, settings, icon,
-or packaging changes, run at least `pnpm typecheck`, `pnpm typecheck:e2e`, and
-`pnpm build`.
+or packaging changes, run at least `pnpm check:browser-api`, `pnpm typecheck`,
+`pnpm typecheck:e2e`, and `pnpm build`.
 
 ## CI And Publishing
 
-- Normal CI runs `pnpm format`, `pnpm typecheck`, `pnpm typecheck:e2e`, and
-  `pnpm build`.
+- Normal CI runs `pnpm format`, `pnpm check:browser-api`, `pnpm typecheck`,
+  `pnpm typecheck:e2e`, and `pnpm build`.
 - The Chrome Web Store workflow runs only on published GitHub Releases and
   requires the release tag to match `package.json` with an optional leading
   `v`.
@@ -87,14 +100,18 @@ or packaging changes, run at least `pnpm typecheck`, `pnpm typecheck:e2e`, and
 - Keep content-script DOM changes idempotent. If the script hides an element, it
   should mark that element with a managed data attribute and be able to restore
   only the elements it changed.
-- The current implementation is intentionally rough and inefficient: it combines
-  a mutation observer, a timed loop, and repeated selector queries. Do not treat
-  that as the desired long-term architecture.
+- The content script reapplies blocking from a mutation observer that coalesces
+  into a single scheduled pass. Do not reintroduce a polling interval; if a
+  surface is missed, fix the trigger or the selector.
+- Hiding is still inline `display: none` plus a managed attribute, which means a
+  brief flash of feed content before the first pass. Moving to a
+  `document_start` stylesheet is the intended next step, not a settled design.
 - Preserve high-value LinkedIn surfaces by default. In particular, the My
   Network invitation area should stay visible unless the user explicitly asks to
   block it.
-- For Chrome APIs, preserve the callback-compatible patterns already used in
-  the repo unless the surrounding code is being refactored deliberately.
+- Never `await` a `chrome.*` call. Gecko exposes `chrome.*` as callback-only, so
+  an awaited call resolves to `undefined` there with no error while every Chrome
+  check stays green. `pnpm check:browser-api` enforces this.
 - Keep the popup compact. It is designed around a 320px width, so avoid verbose
   explanatory text inside the extension UI.
 
