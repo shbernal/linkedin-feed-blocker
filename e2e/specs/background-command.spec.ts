@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/realExtension'
+import { test, expect } from '../fixtures/extension'
 import { TOGGLE_SHORTCUT_STORAGE_KEY } from '../../src/shared/shortcut'
 
 const TOGGLE_COMMAND = 'toggle-current-page-block'
@@ -11,8 +11,9 @@ type RegisteredCommand = chrome.commands.Command
  * A service worker still registered, so its presence proves nothing — these
  * assertions check that the code running inside it is the background script.
  *
- * Needs the extension loaded but not a LinkedIn session, so it runs without the
- * `RUN_REAL_LINKEDIN_E2E` gate the selector smoke tests sit behind.
+ * Needs the extension loaded but neither a LinkedIn session nor a page, which
+ * is why the guard belongs in the fixture suite CI runs rather than the
+ * credentialed real-site lane it started in.
  */
 test.describe('background command registration', () => {
   test('the service worker runs the background chunk', async ({

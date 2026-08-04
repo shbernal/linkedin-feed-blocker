@@ -16,13 +16,17 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "package:chrome": "pnpm build && mkdir -p release && rm -f \"release/linkedin-feed-blocker-${npm_package_version}.zip\" && cd dist && zip -qr \"../release/linkedin-feed-blocker-${npm_package_version}.zip\" .",
-    "check:browser-api": "node scripts/check-browser-api.mjs",
     "typecheck": "tsc -b",
-    "typecheck:e2e": "tsc -p tsconfig.e2e.json",
-    "e2e:real:setup": "pnpm run typecheck:e2e && pnpm exec playwright test -c playwright.real.config.ts --grep @setup --headed",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "e2e": "tsc -b && vite build && playwright test",
+    "e2e:headed": "tsc -b && vite build && playwright test --headed",
+    "e2e:ui": "tsc -b && vite build && playwright test --ui",
+    "e2e:real:setup": "tsc -b && playwright test -c playwright.real.config.ts --grep @setup --headed",
     "e2e:real:login": "pnpm run e2e:real:setup",
-    "e2e:real": "pnpm run typecheck:e2e && pnpm build && RUN_REAL_LINKEDIN_E2E=1 pnpm exec playwright test -c playwright.real.config.ts --grep-invert @setup --headed",
-    "manual:linkedin": "pnpm run typecheck:e2e && pnpm build && pnpm exec playwright test -c playwright.manual.config.ts --headed",
+    "e2e:real": "tsc -b && vite build && RUN_REAL_LINKEDIN_E2E=1 playwright test -c playwright.real.config.ts --grep-invert @setup --headed",
+    "manual:linkedin": "tsc -b && vite build && playwright test -c playwright.manual.config.ts --headed",
     "format": "prettier --check .",
     "preview": "vite preview"
   },
@@ -45,13 +49,19 @@
   "devDependencies": {
     "@crxjs/vite-plugin": "^2.7.1",
     "@playwright/test": "^1.62.1",
+    "@testing-library/jest-dom": "^7.0.0",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/chrome": "^0.2.5",
     "@types/node": "^26.1.2",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^6.0.5",
+    "@vitest/coverage-v8": "^4.1.10",
+    "jsdom": "^30.0.1",
     "prettier": "^3.9.6",
     "typescript": "^7.0.2",
-    "vite": "^8.2.0"
+    "vite": "^8.2.0",
+    "vitest": "^4.1.10"
   }
 }

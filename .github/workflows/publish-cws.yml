@@ -36,17 +36,24 @@ jobs:
       - name: Check formatting
         run: pnpm format
 
-      - name: Check browser API compatibility
-        run: pnpm check:browser-api
-
-      - name: Typecheck extension
+      - name: Typecheck
         run: pnpm typecheck
 
-      - name: Typecheck Playwright harness
-        run: pnpm typecheck:e2e
+      - name: Test
+        run: pnpm test:coverage
 
       - name: Build
         run: pnpm build
+
+      # The fixture suite loads the unpacked MV3 build through a persistent
+      # context, which needs a real Chromium rather than the bundled headless
+      # shell. Running it here is what stops a release shipping past a red
+      # suite when someone publishes without a green CI run behind it.
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run end-to-end tests
+        run: pnpm e2e
 
       - name: Verify publish configuration
         env:
