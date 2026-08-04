@@ -121,8 +121,8 @@ repositories in the condition when updating it.
    pnpm e2e:real
    ```
 
-4. Check whether `chrome-web-store/description.txt` or listing screenshots need
-   updates for the user-facing change.
+4. Check whether `store/description.txt` or `store/screenshots/` need updates
+   for the user-facing change.
 5. Commit the release candidate and version bump.
 6. Push `master`.
 7. Publish a GitHub Release with a matching tag, for example `v0.1.1`.

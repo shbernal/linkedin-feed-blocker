@@ -11,9 +11,9 @@ this directory unless the task explicitly calls for it.
 - [Experimental Status](./experimental-status.md) records what already exists,
   why the current approach is rough, and what needs hardening before treating
   the extension as maintained.
-- [Chrome Web Store Listing](./chrome-web-store.md) explains the store listing
-  assets, privacy form justifications, screenshot set, and local ZIP packaging
-  command.
+- [Chrome Web Store Listing](./chrome-web-store.md) explains how listing assets
+  are split between `store/` and `chrome-web-store/`, the privacy form
+  justifications, the screenshot set, and the local ZIP packaging command.
 - [CI And Release Flow](./ci-release-flow.md) explains pull-request validation,
   GitHub Release to Chrome Web Store publishing, and required GitHub/GCP
   configuration.

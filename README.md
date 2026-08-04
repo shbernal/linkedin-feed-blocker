@@ -54,8 +54,9 @@ Create the upload ZIP:
 pnpm package:chrome
 ```
 
-The ZIP is written to `release/linkedin-feed-blocker-0.1.1.zip`. Store listing
-copy and media live under `chrome-web-store/`.
+The ZIP is written to `release/linkedin-feed-blocker-0.1.1.zip`. Shared listing
+copy and screenshots live under `store/`; Chrome-specific listing assets live
+under `chrome-web-store/`.
 
 Future Chrome Web Store submissions are automated from published GitHub
 Releases. See `docs/ci-release-flow.md` for the release workflow and required

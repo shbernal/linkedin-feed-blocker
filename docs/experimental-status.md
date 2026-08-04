@@ -20,8 +20,8 @@ treated as an experimental implementation.
 - Basic build/typecheck command surface.
 - Opt-in real LinkedIn smoke-test lane that reuses an ignored copied Chromium
   profile and records inspection artifacts.
-- Chrome Web Store listing copy, extension icons, five 1280x800 screenshots,
-  and a 440x280 small promo image under `chrome-web-store/`.
+- Listing copy and five 1280x800 screenshots under `store/`, plus extension
+  icons and a 440x280 small promo image for the Chrome Web Store.
 - Local Chrome upload ZIP packaging with `pnpm package:chrome`.
 - GitHub Actions CI for format, typecheck, Playwright harness typecheck, and
   build.

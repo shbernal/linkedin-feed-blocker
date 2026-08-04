@@ -27,8 +27,10 @@ The extension is built with Vite, React, TypeScript, and
 - `src/shared/settings.ts` owns storage keys, defaults, normalization, and
   legacy settings migration.
 - `public/icons/` contains extension icons copied into builds.
-- `chrome-web-store/` contains store-listing copy, privacy justifications, and
-  media assets.
+- `store/` contains listing assets shared across stores: the long description
+  and the screenshot set.
+- `chrome-web-store/` contains Chrome-specific listing assets: privacy
+  justifications, the promo tile, and the logo source artwork.
 - `docs/` contains contributor-facing project and implementation notes.
 - `.github/workflows/ci.yml` validates pull requests and pushes to `master`.
 - `.github/workflows/publish-cws.yml` publishes Chrome Web Store submissions
