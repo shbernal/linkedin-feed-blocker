@@ -10,7 +10,7 @@ Store publishing.
 The CI job:
 
 1. Checks out the repository.
-2. Installs pnpm `10.33.0`, matching `package.json`.
+2. Installs pnpm `11.20.0`, matching `package.json`.
 3. Sets up Node `24` with pnpm caching.
 4. Installs dependencies with `pnpm install --frozen-lockfile`.
 5. Runs `pnpm format`.
