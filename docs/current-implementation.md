@@ -89,8 +89,8 @@ nothing, rather than silently answering the default keys.
 
 Every `chrome.*` call site uses the callback form. Gecko exposes `chrome.*` as
 callback-only, so an awaited call resolves to `undefined` there with no error
-while every Chrome check still passes. `scripts/check-browser-api.mjs` scans
-`src/` for `await chrome.` and fails CI on a match.
+while every Chrome check still passes. `tests/browser-api-compat.test.ts` scans
+`src/` for `await chrome.` and fails the test suite on a match.
 
 ## Popup Flow
 
@@ -171,27 +171,37 @@ Current examples:
   `<main>` or aria-labelled main content after the pending invitations preview,
   excluding sections already controlled by the puzzle and Premium toggles.
 
-This works as an experiment, but it should be treated as brittle until covered
-by fixtures or real-browser smoke checks.
+Selector shapes are covered by `src/test/fixtures/linkedin.ts` in both the unit
+and fixture-Playwright layers. They remain brittle in the sense that matters:
+LinkedIn can change the markup, and only the real-site lane notices.
 
 ## Validation Today
 
 Available commands:
 
-- `pnpm check:browser-api`
 - `pnpm typecheck`
+- `pnpm test`
+- `pnpm test:coverage`
+- `pnpm e2e`
 - `pnpm build`
 - `pnpm format`
-- `pnpm typecheck:e2e`
 - `pnpm e2e:real:setup`
 - `pnpm e2e:real:login`
 - `pnpm e2e:real`
 
-The current Playwright coverage is an opt-in real LinkedIn smoke check rather
-than a deterministic default suite. It uses a copied persistent Chromium
+`pnpm test` covers the settings contract, the shortcut parser, the route table,
+the selector predicates, hide/restore, the content-script wiring, the background
+command path, and the popup, in jsdom. `pnpm e2e` runs the unpacked build in a
+real Chromium against local LinkedIn-shaped fixtures. Both are deterministic and
+both run in CI.
+
+The real-site Playwright lane stays opt-in: it uses a copied persistent Chromium
 profile under `.e2e/linkedin-real-profile`, loads the built extension, and
 captures screenshots/video/trace artifacts under ignored Playwright output
-directories.
+directories. It is the selector-drift canary, which no fixture can be.
+
+See [Testing](./testing.md) for the full layer map and the fixture-fidelity
+rule.
 
 `e2e/real/background-command.spec.ts` guards the entry-name regression: it
 asserts the service worker is running the background chunk by checking that

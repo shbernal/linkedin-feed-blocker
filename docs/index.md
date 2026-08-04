@@ -17,8 +17,9 @@ this directory unless the task explicitly calls for it.
 - [CI And Release Flow](./ci-release-flow.md) explains pull-request validation,
   GitHub Release to Chrome Web Store publishing, and required GitHub/GCP
   configuration.
-- [Testing](./testing.md) explains the local real-site Playwright smoke-test
-  lane, persistent profile setup, and generated inspection artifacts.
+- [Testing](./testing.md) explains the three test layers, the Chrome API mock,
+  the shared LinkedIn fixtures and the rule they follow, the coverage map, and
+  the local real-site smoke-test lane.
 
 When behavior, settings shape, Chrome API usage, selector strategy, validation,
 or publishing assumptions change, check whether these docs should be updated in

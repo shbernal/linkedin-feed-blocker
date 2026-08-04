@@ -70,14 +70,17 @@ Use `pnpm`, matching the `packageManager` field in `package.json`.
 ```bash
 pnpm dev
 pnpm typecheck
+pnpm test
+pnpm e2e
 pnpm build
 pnpm format
 ```
 
-There is no default automated test suite yet. CI runs formatting, typechecking,
-Playwright harness typechecking, and build checks. Real LinkedIn Playwright
-checks exist for local smoke testing, but they depend on an authenticated
-browser profile and live LinkedIn behavior.
+`pnpm test` runs the Vitest suite in jsdom. `pnpm e2e` runs the unpacked build
+in a real Chromium against local LinkedIn-shaped fixtures. CI runs both, plus
+formatting, typechecking and the build. Real LinkedIn Playwright checks exist
+for local smoke testing, but they depend on an authenticated browser profile and
+live LinkedIn behavior.
 
 ## Status
 

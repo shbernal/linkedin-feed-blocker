@@ -7,25 +7,34 @@ Store publishing.
 
 `.github/workflows/ci.yml` runs on pull requests and pushes to `master`.
 
-The CI job:
+It runs two jobs. They are split so a browser-level flake reddens only the
+end-to-end signal and leaves the unit-test result readable.
+
+The `validate` job:
 
 1. Checks out the repository.
 2. Installs pnpm `11.20.0`, matching `package.json`.
 3. Sets up Node `24` with pnpm caching.
 4. Installs dependencies with `pnpm install --frozen-lockfile`.
 5. Runs `pnpm format`.
-6. Runs `pnpm check:browser-api`.
-7. Runs `pnpm typecheck`.
-8. Runs `pnpm typecheck:e2e`.
-9. Runs `pnpm build`.
+6. Runs `pnpm typecheck`.
+7. Runs `pnpm test:coverage`.
+8. Runs `pnpm build`.
 
-`pnpm check:browser-api` scans `src/` for `await chrome.` and fails on a match.
-Gecko exposes `chrome.*` as callback-only, so an awaited call resolves to
-`undefined` there with no error while every Chrome-side check still passes; this
-is the only gate that can catch that regression.
+`pnpm typecheck` is a single `tsc -b`, which covers the extension, the Node-side
+config plus `tests/`, and the Playwright harness through project references.
 
-There is no default `pnpm test` gate yet because the repo does not have a
-deterministic automated test suite.
+The `e2e` job installs Playwright's Chromium with `--with-deps` and runs
+`pnpm e2e`, then uploads the HTML report as an artifact even when the suite
+fails. The persistent context that loads the unpacked build needs a real
+Chromium rather than the bundled headless shell, which is why that install step
+exists.
+
+`tests/browser-api-compat.test.ts` runs inside `pnpm test:coverage` and fails if
+any file under `src/` awaits a `chrome.*` call. Gecko exposes `chrome.*` as
+callback-only, so an awaited call resolves to `undefined` there with no error
+while every Chrome-side check still passes; this is the only gate that can catch
+that regression.
 
 `.github/dependabot.yml` opens weekly update pull requests for npm dependencies
 and GitHub Actions. Development dependencies are grouped into a single pull
@@ -45,8 +54,8 @@ The publish workflow uses the GitHub environment `chrome-web-store`.
 The release job:
 
 1. Checks out the release tag.
-2. Runs the same install, format, browser-API, typecheck, e2e typecheck, and
-   build gates as CI.
+2. Runs the same install, format, typecheck, test, build and end-to-end gates
+   as CI, so a release cannot ship past a red suite.
 3. Verifies the configured GitHub repository variables are present.
 4. Verifies the release tag matches `package.json`.
 5. Zips the generated `dist/` directory.
@@ -115,10 +124,10 @@ repositories in the condition when updating it.
 
    ```sh
    pnpm format
-   pnpm check:browser-api
    pnpm typecheck
-   pnpm typecheck:e2e
+   pnpm test:coverage
    pnpm build
+   pnpm e2e
    ```
 
 3. For content-script, selector, or popup changes, run the real-site smoke lane

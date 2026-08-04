@@ -36,8 +36,12 @@ The extension is built with Vite, React, TypeScript, and
 - `src/shared/shortcut.ts` parses a `chrome.commands` binding into a keydown
   matcher for the in-page fallback.
 - `src/shared/linkedin.ts` answers whether a URL is on LinkedIn.
-- `scripts/check-browser-api.mjs` fails the build if any `chrome.*` call site is
-  awaited instead of callback-based.
+- `src/test/` holds the shared Chrome API mock, the Vitest setup file, and the
+  LinkedIn fixture markup used by both the unit and Playwright layers.
+- `tests/` holds source-tree guards, currently the callback-only `chrome.*`
+  check. They run inside Vitest and are compiled by `tsconfig.node.json`.
+- `e2e/specs/` is the deterministic Playwright suite CI runs; `e2e/real/` and
+  `e2e/manual/` are the opt-in credentialed lanes it cannot.
 - `public/icons/` contains extension icons copied into builds.
 - `store/` contains listing assets shared across stores: the long description
   and the screenshot set.
@@ -55,26 +59,28 @@ The extension is built with Vite, React, TypeScript, and
 Use `pnpm`, following the `packageManager` field in `package.json`.
 
 - `pnpm dev` starts the Vite dev server for extension development.
-- `pnpm typecheck` runs the TypeScript project build without emitting files.
-- `pnpm typecheck:e2e` type-checks the local Playwright real-site harness.
-- `pnpm check:browser-api` fails if any `chrome.*` call site is awaited.
+- `pnpm typecheck` runs `tsc -b`, which covers the extension, the Node-side
+  config plus `tests/`, and the Playwright harness in one pass. There is no
+  separate harness typecheck.
+- `pnpm test` runs the Vitest suite once; `pnpm test:watch` and
+  `pnpm test:coverage` are the watch and coverage forms.
+- `pnpm e2e` builds the extension and runs the fixture Playwright suite;
+  `pnpm e2e:headed` and `pnpm e2e:ui` are the headed and UI forms.
 - `pnpm build` runs TypeScript checks and creates the extension build in
   `dist/`.
 - `pnpm format` checks Prettier formatting.
 - `pnpm preview` previews the Vite build.
 
-There is no automated test suite in this repo yet. Do not document or rely on
-`pnpm test` until tests are actually added.
-
 For docs-only changes, run a targeted Prettier check on the touched markdown
 files. For source, manifest, popup, content-script, background, settings, icon,
-or packaging changes, run at least `pnpm check:browser-api`, `pnpm typecheck`,
-`pnpm typecheck:e2e`, and `pnpm build`.
+or packaging changes, run at least `pnpm typecheck`, `pnpm test:coverage`,
+`pnpm build`, and `pnpm e2e`.
 
 ## CI And Publishing
 
-- Normal CI runs `pnpm format`, `pnpm check:browser-api`, `pnpm typecheck`,
-  `pnpm typecheck:e2e`, and `pnpm build`.
+- Normal CI runs two jobs: `validate` (`pnpm format`, `pnpm typecheck`,
+  `pnpm test:coverage`, `pnpm build`) and `e2e` (`pnpm e2e`). The publish
+  workflow repeats the same gates.
 - The Chrome Web Store workflow runs only on published GitHub Releases and
   requires the release tag to match `package.json` with an optional leading
   `v`.
@@ -111,9 +117,26 @@ or packaging changes, run at least `pnpm check:browser-api`, `pnpm typecheck`,
   block it.
 - Never `await` a `chrome.*` call. Gecko exposes `chrome.*` as callback-only, so
   an awaited call resolves to `undefined` there with no error while every Chrome
-  check stays green. `pnpm check:browser-api` enforces this.
+  check stays green. `tests/browser-api-compat.test.ts` enforces this.
 - Keep the popup compact. It is designed around a 320px width, so avoid verbose
   explanatory text inside the extension UI.
+
+## Testing Guidelines
+
+- Prefer the smallest layer that proves the behavior: Vitest first, the fixture
+  Playwright suite when the claim needs a real extension runtime, and the
+  real-site lane only for selector drift.
+- `src/test/fixtures/linkedin.ts` is the single source of LinkedIn-shaped markup
+  for both deterministic layers. Copy attributes and nesting from a real page;
+  never write the markup a selector expects. A fixture written to fit the
+  selector produces a green suite that matches nothing in production.
+- Content-script tests must pair `clearAllBlocking()` with
+  `cleanupContentScript()` in teardown, or blocking state leaks into the next
+  test.
+- Coverage thresholds in `vitest.config.ts` are a ratchet. Raise them when
+  coverage rises; do not lower them to make a change fit.
+- The My Network invitation area staying visible is covered by tests in both
+  deterministic layers. Keep it that way when touching the suggestion rule.
 
 ## Documentation Guidelines
 
@@ -127,6 +150,8 @@ or packaging changes, run at least `pnpm check:browser-api`, `pnpm typecheck`,
   or the hardening plan changes.
 - Update `docs/ci-release-flow.md` when CI gates, release triggers, workflow
   variables, or Chrome Web Store publishing behavior changes.
+- Update `docs/testing.md` when test layers, commands, the Chrome API mock, the
+  fixtures, or the coverage map change.
 - Keep docs tied to current code. Put speculative roadmap context in docs only
   when the user asks for planning documentation.
 
