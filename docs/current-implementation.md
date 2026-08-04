@@ -193,6 +193,18 @@ profile under `.e2e/linkedin-real-profile`, loads the built extension, and
 captures screenshots/video/trace artifacts under ignored Playwright output
 directories.
 
+`e2e/real/background-command.spec.ts` guards the entry-name regression: it
+asserts the service worker is running the background chunk by checking that
+`chrome.commands.getAll()` resolves the toggle command, that
+`chrome.commands.onCommand.hasListeners()` is true, and that the live binding
+reached the `toggleShortcut` mirror. It needs the extension loaded but not a
+LinkedIn session, so it runs without the `RUN_REAL_LINKEDIN_E2E` gate.
+
+The one path no harness covers is Chrome delivering a real OS keystroke to
+`chrome.commands.onCommand`. Playwright's key events reach the renderer, so they
+exercise the in-page fallback rather than the browser-level command dispatch;
+that link needs a human pressing the shortcut in a normal Chrome window.
+
 There are still no unit tests or fixture tests in this repo. Runtime behavior
 outside the real smoke path still needs manual validation by loading `dist/` as
 an unpacked extension.
