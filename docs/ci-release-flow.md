@@ -21,6 +21,12 @@ The CI job:
 There is no default `pnpm test` gate yet because the repo does not have a
 deterministic automated test suite.
 
+`.github/dependabot.yml` opens weekly update pull requests for npm dependencies
+and GitHub Actions. Development dependencies are grouped into a single pull
+request, with at most five open npm pull requests at a time. Both stores' review
+processes flag stale bundled dependencies, so this keeps the shipped tree moving
+even when nothing else changes.
+
 `.github/workflows/publish-cws.yml` runs when a GitHub Release is published.
 It validates the release, builds the extension, uploads the packaged `dist/`
 directory to Chrome Web Store, submits the item for review, and attaches the zip
