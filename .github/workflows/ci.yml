@@ -30,6 +30,9 @@ jobs:
       - name: Check formatting
         run: pnpm format
 
+      - name: Check browser API compatibility
+        run: pnpm check:browser-api
+
       - name: Typecheck extension
         run: pnpm typecheck
 
