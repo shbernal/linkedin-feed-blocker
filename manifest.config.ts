@@ -1,6 +1,11 @@
 import { defineManifest } from '@crxjs/vite-plugin'
 import pkg from './package.json' with { type: 'json' }
 
+// crxjs names each output chunk after its entry file's basename, so the two
+// entries must not both be called `main.ts`: the generated
+// `service-worker-loader.js` then picks whichever `main.ts-<hash>.js` it
+// resolves first and can end up importing the content script instead of the
+// background script.
 export default defineManifest({
   manifest_version: 3,
   name: 'LinkedIn Feed Blocker',
@@ -9,7 +14,7 @@ export default defineManifest({
   permissions: ['activeTab', 'storage'],
   host_permissions: ['*://*.linkedin.com/*'],
   background: {
-    service_worker: 'src/background/main.ts',
+    service_worker: 'src/background/service-worker.ts',
     type: 'module',
   },
   commands: {
@@ -24,7 +29,7 @@ export default defineManifest({
   content_scripts: [
     {
       matches: ['*://*.linkedin.com/*'],
-      js: ['src/content/main.ts'],
+      js: ['src/content/content-script.ts'],
       run_at: 'document_end',
     },
   ],

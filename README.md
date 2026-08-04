@@ -28,7 +28,8 @@ Current blocking targets:
 
 Each supported section can be toggled from the popup. The current supported
 page can also be toggled with `Ctrl+Shift+7` on Windows/Linux or
-`Command+Shift+7` on macOS.
+`Command+Shift+7` on macOS. Rebinding the shortcut in
+`chrome://extensions/shortcuts` is picked up automatically.
 
 ## Install Locally
 
