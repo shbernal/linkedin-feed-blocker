@@ -1,0 +1,17 @@
+{
+  "slug": "linkedin-feed-blocker",
+  "default_locale": "en-US",
+  "summary": {
+    "en-US": "Block LinkedIn's Home feed, its right-rail widgets, and the My Network puzzle, Premium, and suggestion modules. Toggle each one from the popup or a keyboard shortcut. Invitations, jobs, and messages stay. Nothing leaves your device."
+  },
+  "categories": ["social-communication"],
+  "tags": ["content blocker", "social media"],
+  "homepage": {
+    "en-US": "https://github.com/shbernal/linkedin-feed-blocker"
+  },
+  "support_url": {
+    "en-US": "https://github.com/shbernal/linkedin-feed-blocker/issues"
+  },
+  "is_experimental": false,
+  "requires_payment": false
+}

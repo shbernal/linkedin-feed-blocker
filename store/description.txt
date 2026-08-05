@@ -11,7 +11,7 @@ Features:
   direct links, and My Network invitations available
 - Turn blocking on or off for each supported section separately
 - Use a compact popup or keyboard shortcut to toggle supported pages
-- Saves settings in your browser with Chrome extension storage
+- Saves settings locally in your browser, and sends nothing anywhere
 
 Use LinkedIn for the parts you came for without leaving every recommendation
 loop open by default.

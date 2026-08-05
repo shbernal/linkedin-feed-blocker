@@ -1,0 +1,32 @@
+[
+  {
+    "file": "store/screenshots/linkedin-feedblocker-1-home-feed-blocked.png",
+    "caption": {
+      "en-US": "Blocking Home clears the main feed and the right-rail widgets beside it."
+    }
+  },
+  {
+    "file": "store/screenshots/linkedin-feedblocker-2-popup-controls.png",
+    "caption": {
+      "en-US": "The popup toggles every supported section at once or one at a time."
+    }
+  },
+  {
+    "file": "store/screenshots/linkedin-feedblocker-3-my-network-blocked.png",
+    "caption": {
+      "en-US": "On My Network the puzzle, Premium upsell, and suggestion modules go away."
+    }
+  },
+  {
+    "file": "store/screenshots/linkedin-feedblocker-4-invitations-preserved.png",
+    "caption": {
+      "en-US": "Pending invitations stay visible; only the recommendation modules below them are blocked."
+    }
+  },
+  {
+    "file": "store/screenshots/linkedin-feedblocker-5-github-contribute.png",
+    "caption": {
+      "en-US": "Open source at github.com/shbernal/linkedin-feed-blocker."
+    }
+  }
+]
