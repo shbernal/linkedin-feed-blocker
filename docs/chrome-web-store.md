@@ -1,14 +1,19 @@
 # Chrome Web Store Listing
 
-Listing assets are split by who publishes them. Anything a second store would
-reuse unchanged lives in `store/`; anything shaped by the Chrome Web Store
-Developer Dashboard lives in `chrome-web-store/`.
+Listing assets are split by who publishes them. Anything a second store reuses
+unchanged lives in `store/`; anything shaped by the Chrome Web Store Developer
+Dashboard lives in `chrome-web-store/`. The second store is real: see
+[AMO Listing](./amo-listing.md) for the addons.mozilla.org side, which consumes
+both files below.
 
 Shared, in `store/`:
 
 - `store/description.txt` is the long description to paste into the Developer
-  Dashboard.
-- `store/screenshots/` holds the current 1280x800 PNG screenshot set.
+  Dashboard. AMO publishes the same text automatically on every release, so keep
+  it store-neutral: do not name Chrome in copy a Firefox user will read.
+- `store/screenshots/` holds the current 1280x800 PNG screenshot set. AMO
+  references these files in place through `amo/previews.json`; do not copy them
+  into `amo/`.
 
 Chrome-specific, in `chrome-web-store/`:
 

@@ -2,23 +2,27 @@
 
 ## Project State
 
-This is an experimental Manifest V3 Chrome extension for reducing distracting
-LinkedIn surfaces. Treat it as a published prototype with release automation,
-not as a polished extension.
+This is an experimental Manifest V3 browser extension for reducing distracting
+LinkedIn surfaces. It builds for Chromium and for Gecko from one source tree and
+ships to the Chrome Web Store and addons.mozilla.org. Treat it as a published
+prototype with release automation, not as a polished extension.
 
 The broader dev-project note is useful background, but the current source and
 repo-local docs are the durable source of truth for implementation details. This
-project is adjacent to `tiktok-feed-blocker` and now uses the same broad
-GitHub Release to Chrome Web Store workflow shape, adapted to this repo's
-smaller validation surface.
+project is adjacent to `tiktok-feed-blocker` and uses the same broad
+GitHub Release to store workflow shape, adapted to this repo's smaller
+validation surface.
 
 ## Project Shape
 
 The extension is built with Vite, React, TypeScript, and
 `@crxjs/vite-plugin`.
 
-- `manifest.config.ts` defines the MV3 manifest and reads the version from
-  `package.json`.
+- `manifest.config.ts` defines the MV3 manifest, reads the version from
+  `package.json`, and switches the background entry and the Gecko settings on
+  `EXT_TARGET`.
+- `vite.config.ts` switches the output directory and the dev-server CORS origin
+  on the same variable.
 - `src/background/service-worker.ts` handles the keyboard command that asks the
   active LinkedIn tab to toggle blocking for the current page, and mirrors the
   resolved command binding into storage for the content script.
@@ -38,21 +42,28 @@ The extension is built with Vite, React, TypeScript, and
 - `src/shared/linkedin.ts` answers whether a URL is on LinkedIn.
 - `src/test/` holds the shared Chrome API mock, the Vitest setup file, and the
   LinkedIn fixture markup used by both the unit and Playwright layers.
-- `tests/` holds source-tree guards, currently the callback-only `chrome.*`
-  check. They run inside Vitest and are compiled by `tsconfig.node.json`.
+- `tests/` holds source-tree guards: the callback-only `chrome.*` check, the
+  two-target manifest check, and the AMO listing-asset logic. They run inside
+  Vitest; the `.ts` ones are compiled by `tsconfig.node.json`.
 - `e2e/specs/` is the deterministic Playwright suite CI runs; `e2e/real/` and
   `e2e/manual/` are the opt-in credentialed lanes it cannot.
+- `scripts/` holds the plain-ESM release and validation tooling: the source
+  archiver, the AMO publisher and its preview logic, and the Gecko runtime
+  validator.
 - `public/icons/` contains extension icons copied into builds.
 - `store/` contains listing assets shared across stores: the long description
   and the screenshot set.
 - `chrome-web-store/` contains Chrome-specific listing assets: privacy
   justifications, the promo tile, and the logo source artwork.
+- `amo/` contains addons.mozilla.org listing metadata: the listing JSON, the
+  preview captions, the data-collection answer, and the source-submission
+  instructions.
 - `docs/` contains contributor-facing project and implementation notes.
 - `.github/workflows/ci.yml` validates pull requests and pushes to `master`.
-- `.github/workflows/publish-cws.yml` publishes Chrome Web Store submissions
-  from published GitHub Releases.
-- `dist/` and `release/` are generated or packaged outputs and are ignored by
-  git.
+- `.github/workflows/publish-cws.yml` and `.github/workflows/publish-amo.yml`
+  publish to the two stores from published GitHub Releases, independently.
+- `dist/`, `dist-firefox/` and `release/` are generated or packaged outputs and
+  are ignored by git.
 
 ## Commands
 
@@ -66,31 +77,46 @@ Use `pnpm`, following the `packageManager` field in `package.json`.
   `pnpm test:coverage` are the watch and coverage forms.
 - `pnpm e2e` builds the extension and runs the fixture Playwright suite;
   `pnpm e2e:headed` and `pnpm e2e:ui` are the headed and UI forms.
-- `pnpm build` runs TypeScript checks and creates the extension build in
-  `dist/`.
+- `pnpm build` runs TypeScript checks and creates the Chrome build in `dist/`;
+  `pnpm build:firefox` creates the Gecko build in `dist-firefox/`.
+- `pnpm lint:firefox` builds the Gecko target and runs `web-ext lint` over it.
+- `pnpm validate:firefox` drives the Gecko build in a real Firefox over
+  WebDriver BiDi. Set `FIREFOX_BINARY` to run it against Zen.
+- `pnpm package:chrome`, `pnpm package:firefox` and `pnpm package:source` write
+  the release artifacts under `release/`.
+- `pnpm publish:amo` submits to addons.mozilla.org; `--dry-run` is the safe
+  form and uploads nothing.
 - `pnpm format` checks Prettier formatting.
 - `pnpm preview` previews the Vite build.
 
 For docs-only changes, run a targeted Prettier check on the touched markdown
 files. For source, manifest, popup, content-script, background, settings, icon,
 or packaging changes, run at least `pnpm typecheck`, `pnpm test:coverage`,
-`pnpm build`, and `pnpm e2e`.
+`pnpm build`, `pnpm e2e`, and `pnpm lint:firefox`.
 
 ## CI And Publishing
 
 - Normal CI runs two jobs: `validate` (`pnpm format`, `pnpm typecheck`,
-  `pnpm test:coverage`, `pnpm build`) and `e2e` (`pnpm e2e`). The publish
-  workflow repeats the same gates.
-- The Chrome Web Store workflow runs only on published GitHub Releases and
-  requires the release tag to match `package.json` with an optional leading
-  `v`.
-- The publish workflow expects repository variables named `CWS_EXTENSION_ID`,
+  `pnpm test:coverage`, `pnpm build`, `pnpm lint:firefox`) and `e2e`
+  (`pnpm e2e`). Both publish workflows repeat the same gates.
+- Both store workflows run only on published GitHub Releases and require the
+  release tag to match `package.json` with an optional leading `v`. They are
+  independent: neither waits for the other.
+- The Chrome workflow expects repository variables named `CWS_EXTENSION_ID`,
   `CWS_PUBLISHER_ID`, `GCP_PROJECT_ID`, `GCP_SERVICE_ACCOUNT`, and
   `GCP_WORKLOAD_IDENTITY_PROVIDER`.
+- The AMO workflow expects the secrets `MOZILLA_ADDON_JWT_ISSUER` and
+  `MOZILLA_ADDON_JWT_SECRET` in the `addons-mozilla-org` environment.
 - Keep the Google Cloud Workload Identity Federation trust restricted to
   `shbernal/linkedin-feed-blocker` tag refs.
+- A successful AMO release ends in review, not live. Never write tooling or
+  docs that wait for or report `public` on submission.
+- Every AMO version carries a source archive, and every release must stay
+  reproducible from a clean extraction of it. Do not make the build depend on
+  anything outside the archive.
 - Do not publish releases, push tags, upload packages, or change Chrome Web
-  Store settings unless explicitly asked.
+  Store or AMO settings unless explicitly asked. `pnpm publish:amo --dry-run`
+  uploads nothing and is the safe form.
 
 ## Coding Guidelines
 
@@ -118,14 +144,28 @@ or packaging changes, run at least `pnpm typecheck`, `pnpm test:coverage`,
 - Never `await` a `chrome.*` call. Gecko exposes `chrome.*` as callback-only, so
   an awaited call resolves to `undefined` there with no error while every Chrome
   check stays green. `tests/browser-api-compat.test.ts` enforces this.
+- Only the manifest may differ between build targets. The JavaScript, CSS, HTML
+  and icons must be the same bytes in `dist/` and `dist-firefox/`, and only the
+  background entry and `browser_specific_settings.gecko` may vary.
+  `tests/manifest-targets.test.ts` enforces this.
+- `browser_specific_settings.gecko.id` is permanent. Changing it creates a
+  different add-on on AMO and strands every installed user.
 - Keep the popup compact. It is designed around a 320px width, so avoid verbose
   explanatory text inside the extension UI.
+- Never add `<input type="color">` or `<input type="file">` to the popup. In a
+  Gecko action popup the native dialog steals focus and destroys the popup
+  document mid-interaction.
 
 ## Testing Guidelines
 
 - Prefer the smallest layer that proves the behavior: Vitest first, the fixture
   Playwright suite when the claim needs a real extension runtime, and the
-  real-site lane only for selector drift.
+  real-site lane only for selector drift. Gecko sits outside that ladder,
+  because Playwright cannot load an MV3 extension in Firefox at all;
+  `pnpm validate:firefox` is its runtime lane.
+- `pnpm validate:firefox` reports a check it could not run as `SKIP`, never as a
+  pass. Its page-level checks need a LinkedIn session in the persistent profile,
+  and Zen cannot reach extension pages at all. Keep it that way.
 - `src/test/fixtures/linkedin.ts` is the single source of LinkedIn-shaped markup
   for both deterministic layers. Copy attributes and nesting from a real page;
   never write the markup a selector expects. A fixture written to fit the
@@ -149,9 +189,16 @@ or packaging changes, run at least `pnpm typecheck`, `pnpm test:coverage`,
 - Update `docs/experimental-status.md` when known limitations, validation gaps,
   or the hardening plan changes.
 - Update `docs/ci-release-flow.md` when CI gates, release triggers, workflow
-  variables, or Chrome Web Store publishing behavior changes.
+  variables or secrets, or either store's publishing behavior changes.
+- Update `docs/build-targets.md` when the target switch, the manifest
+  differences, or the Firefox lint and runtime validation change.
+- Update `docs/firefox-amo.md` when the Gecko rules or AMO's obligations change,
+  and `docs/amo-listing.md` when the listing copy, metadata, or assets change.
 - Update `docs/testing.md` when test layers, commands, the Chrome API mock, the
   fixtures, or the coverage map change.
+- Store form copy is plaintext. No backticks, emphasis, lists, links, or match
+  patterns inside any answer body in `chrome-web-store/` or `amo/` — the fields
+  they are pasted into render none of it.
 - Keep docs tied to current code. Put speculative roadmap context in docs only
   when the user asks for planning documentation.
 
@@ -167,7 +214,10 @@ or packaging changes, run at least `pnpm typecheck`, `pnpm test:coverage`,
 ## Manual Validation Notes
 
 After a build, load `dist/` as an unpacked extension in Chrome or Chromium when
-behavior needs runtime validation. Check at least:
+behavior needs runtime validation. Walk the same list on Gecko with
+`dist-firefox/` before a release: it is where the background script (not a
+service worker) and the callback-only `chrome.*` surface can diverge, and where
+the popup is a XUL panel rather than a tab. Check at least:
 
 - popup toggles persist via `chrome.storage.local`;
 - `/feed/` main feed and right-rail blocking behave as expected;

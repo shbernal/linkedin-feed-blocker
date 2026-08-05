@@ -11,6 +11,10 @@ Three layers, in the order you should reach for them:
 3. **Real-site Playwright** (`e2e/real/`, `e2e/manual/`) — opt-in, headed, and
    credentialed. The selector-drift canary. CI can never run it.
 
+Firefox sits outside that ladder, because Playwright cannot load an MV3
+extension in it at all. `pnpm validate:firefox` drives the built Gecko package
+over WebDriver BiDi instead; see [Build Targets](./build-targets.md).
+
 ## Commands
 
 - `pnpm test` runs the Vitest suite once.
@@ -24,6 +28,9 @@ Three layers, in the order you should reach for them:
   config plus `tests/`, and the Playwright harness through project references.
   There is no separate harness typecheck step.
 - `pnpm build` writes the unpacked extension to `dist/`.
+- `pnpm lint:firefox` builds `dist-firefox/` and runs `web-ext`'s static checks
+  over it. CI runs this too.
+- `pnpm validate:firefox` drives the built Gecko package in a real Firefox.
 - `pnpm e2e:real:setup` opens the persistent LinkedIn profile without loading
   the extension so the account session can be repaired manually.
 - `pnpm e2e:real:login` is an alias for `pnpm e2e:real:setup`.
@@ -128,6 +135,24 @@ promise-returning variants on `browser.*`, so an awaited call yields `undefined`
 there and the extension breaks silently while every Chrome test stays green.
 Keep those call sites callback-based.
 
+`tests/manifest-targets.test.ts` loads `manifest.config.ts` once per build
+target and asserts what each one emits: a module service worker and no Gecko
+block for Chrome, `background.scripts` and the permanent add-on id for Firefox,
+and — the load-bearing one — that **no other manifest key differs between them**.
+One source tree, one set of assets, and a manifest that varies in exactly two
+documented places is the rule the whole dual build rests on. It also checks that
+the manifest's `suggested_key` and `DEFAULT_TOGGLE_SHORTCUT` in
+`src/shared/shortcut.ts` name the same keys, since the in-page fallback would
+otherwise answer a binding the browser never made.
+
+`tests/amo-previews.test.mjs` covers the AMO listing-asset planning in
+`scripts/amo-previews.mjs` — image types and sizes, manifest parsing, the
+replace-don't-reconcile sync plan, and the drift line — plus a check that every
+screenshot `amo/previews.json` names is actually on disk. It is `.mjs` because
+the module under test is: the publish scripts are plain ESM run by node, not
+part of a TypeScript project reference. Vitest picks it up from the same default
+glob as the `.ts` suites.
+
 ## Coverage Map
 
 - `src/shared/settings.test.ts` — defaults, normalization, the `feedPuzzle` to
@@ -149,6 +174,10 @@ Keep those call sites callback-based.
 - `src/popup/App.test.tsx` — loading, every switch, persistence, tab
   notification, and external storage changes.
 - `tests/browser-api-compat.test.ts` — the callback-only `chrome.*` rule.
+- `tests/manifest-targets.test.ts` — the two build targets and the rule that
+  only the background entry and the Gecko block may differ between them.
+- `tests/amo-previews.test.mjs` — the AMO listing-asset planning and the
+  checked-in previews manifest.
 
 The module-level auto-start and the `import.meta.hot` dispose hook in
 `src/content/content-script.ts` are the known uncovered lines; both are gated on
