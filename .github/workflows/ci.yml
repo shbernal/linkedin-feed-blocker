@@ -41,6 +41,14 @@ jobs:
       - name: Build
         run: pnpm build
 
+      # Builds the Gecko target and runs web-ext's static checks over it. Zero
+      # errors is the bar; two warning classes are expected and documented in
+      # docs/build-targets.md. This is the cheap gate that catches an
+      # unsupported manifest key or a reserved keyboard shortcut before a
+      # release job tries to upload the package to AMO.
+      - name: Lint Firefox package
+        run: pnpm lint:firefox
+
   # Kept as its own job so a browser-level flake reddens only the end-to-end
   # signal and leaves the unit-test result readable. Covers e2e/specs only:
   # e2e/real and e2e/manual drive the real LinkedIn site and need credentials.

@@ -4,7 +4,10 @@
   "description": "Block LinkedIn's most distracting features.",
   "keywords": [
     "linkedin",
+    "browser-extension",
     "chrome-extension",
+    "firefox-addon",
+    "zen-browser",
     "attention",
     "blocking",
     "productivity",
@@ -15,7 +18,13 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:firefox": "EXT_TARGET=firefox pnpm run build",
     "package:chrome": "pnpm build && mkdir -p release && rm -f \"release/linkedin-feed-blocker-${npm_package_version}.zip\" && cd dist && zip -qr \"../release/linkedin-feed-blocker-${npm_package_version}.zip\" .",
+    "package:firefox": "pnpm run build:firefox && web-ext build --source-dir dist-firefox --artifacts-dir release --filename linkedin-feed-blocker-firefox-{version}.zip --overwrite-dest",
+    "package:source": "node scripts/package-source.mjs",
+    "publish:amo": "node scripts/publish-amo.mjs",
+    "lint:firefox": "pnpm run build:firefox && web-ext lint --source-dir dist-firefox",
+    "validate:firefox": "pnpm run build:firefox && node scripts/validate-firefox.mjs",
     "typecheck": "tsc -b",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -62,6 +71,7 @@
     "prettier": "^3.9.6",
     "typescript": "^7.0.2",
     "vite": "^8.2.0",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.10",
+    "web-ext": "^10.5.0"
   }
 }
