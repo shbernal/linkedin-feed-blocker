@@ -2,23 +2,46 @@
   <!-- 768x768 tile centred in 1024, i.e. 96x96 art in a 128 canvas -->
   <rect x="128" y="128" width="768" height="768" rx="170" fill="#0A66C2"/>
 
-  <!-- feed cards, deliberately low-contrast: they read as a stack at 128 and
-       48, and fall away at 16 so the prohibition mark survives alone -->
-  <g fill="#4A8FD4">
-    <rect x="208" y="288" width="608" height="104" rx="32"/>
-    <rect x="208" y="460" width="608" height="104" rx="32"/>
-    <rect x="208" y="632" width="608" height="104" rx="32"/>
+  <!-- A suited figure seated in a lotus pose: the outcome rather than the
+       mechanism, and no prohibition ring. The ring was dropped because every
+       variant of it collapsed to the same red smudge at 16px — see
+       docs/icon-explorations.md. Near-white against the tile is a 5.19:1
+       luminance step where the red ring was 1.45:1, which is the whole reason
+       this survives the favicon and the ring did not. -->
+  <g fill="#F1F5F9">
+    <circle cx="512" cy="266" r="92"/>
+
+    <!-- crossed legs: one bar with two knee circles breaking past its ends, so
+         the base keeps a bumped silhouette instead of flattening to a pill -->
+    <circle cx="288" cy="700" r="94"/>
+    <circle cx="736" cy="700" r="94"/>
+    <rect x="240" y="690" width="544" height="148" rx="74"/>
+
+    <!-- torso, 200 units across at the shoulders against 636 at the knees -->
+    <path d="M412 500Q412 462 450 462L574 462Q612 462 612 500L640 664Q646 700 610 700L414 700Q378 700 384 664Z"/>
   </g>
 
-  <!-- moat in the tile colour keeps the ring from touching a card edge -->
-  <g fill="none" stroke="#0A66C2" stroke-width="148" stroke-linecap="butt">
-    <circle cx="512" cy="512" r="182"/>
-    <line x1="383" y1="383" x2="641" y2="641"/>
+  <!-- Arms bowing out to rest on the knees. The ~29 units of tile colour between
+       each arm and the torso is what makes this a pose and not a silhouette: it
+       reads at 128 and 48 and closes at 16, which is intended. Keep the head
+       clear of the shoulders by at least 100 units for the same reason — below
+       that the 16px render antialiases the neck shut and the figure becomes one
+       blob. -->
+  <g fill="none" stroke="#F1F5F9" stroke-width="76" stroke-linecap="round">
+    <path d="M408 512C356 560 306 612 288 654"/>
+    <path d="M616 512C668 560 718 612 736 654"/>
   </g>
 
-  <!-- prohibition mark -->
-  <g fill="none" stroke="#E5484D" stroke-width="92" stroke-linecap="butt">
-    <circle cx="512" cy="512" r="182"/>
-    <line x1="383" y1="383" x2="641" y2="641"/>
+  <!-- Closed eyes and lapels, cut in the tile colour so they carry the suit and
+       the calm at listing size and disappear by 16 rather than turning to
+       gravel. A single centred dash instead of two reads as a minus badge. -->
+  <g fill="none" stroke="#0A66C2" stroke-linecap="round">
+    <path d="M464 266h30M530 266h30" stroke-width="16"/>
+    <path d="M466 470 512 542 558 470" stroke-width="26" stroke-linejoin="round"/>
   </g>
+
+  <!-- The tie is the only red left, at 64 units wide because the 768 tile is 12
+       device pixels at 16px and 64 units is exactly one of them. At 40 it landed
+       across two pixels at partial alpha and read as a pink smear. -->
+  <path d="M480 546h64l14 110-46 34-46-34Z" fill="#E5484D"/>
 </svg>

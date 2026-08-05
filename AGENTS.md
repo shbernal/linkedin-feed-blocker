@@ -227,16 +227,28 @@ or packaging changes, run at least `pnpm typecheck`, `pnpm test:coverage`,
   is a known and accepted rejection vector, not an oversight to be tidied away.
   If a reviewer rejects on branding, the graphite mark in `a755e41` is the
   fallback, not a new design. Naming the product stays nominative use.
+- Rejected icon directions are recorded in `docs/icon-explorations.md` with what
+  each one cost at 16px. Read it before proposing a new mark, and add a round to
+  it rather than discarding the sketches.
 - Judge every icon change at 16px, not at 1024. That is the size the extensions
   page favicon uses, and it is where a mark with too much in it turns to mud.
-  The feed cards behind the prohibition sign are deliberately low-contrast so
-  they fall away at 16px and leave a legible ring and slash.
-- The prohibition mark is red (`#E5484D`), an owner decision for the convention
-  the shape already carries. It costs legibility: red and the tile blue sit at
-  close relative luminance, so the ring separates on hue more than on lightness
-  and the slash is weaker at 16px than the green (`#34D399`) it replaced. If a
-  future change needs the ring to carry more of the mark, raising its lightness
-  is the lever, not adding detail.
+- The mark is a suited figure seated in a lotus pose, and it carries no
+  prohibition ring. Do not add one back without reading
+  `docs/icon-explorations.md`: every ring variant tried collapsed to the same red
+  smudge at 16px, because red against the tile blue is a 1.45:1 luminance step
+  where the figure's near-white (`#F1F5F9`) is 5.19:1. The ring was retired on
+  that measurement, not on taste.
+- Three pieces of the figure's geometry are load-bearing at 16px and are not
+  styling. Keep at least 100 units of tile colour between the head and the
+  shoulders, or the neck antialiases shut and the figure becomes one blob. Keep
+  the tile-coloured gap between each arm and the torso, which is what reads as a
+  pose rather than a silhouette. Keep the tie at 64 units wide, which is exactly
+  one device pixel at 16px; narrower and it smears to pink.
+- Detail that cannot survive 16px belongs in the tile colour, cut out of the
+  figure — the closed eyes and the lapels work that way. They carry the suit at
+  listing size and disappear cleanly rather than becoming gravel.
+- Red (`#E5484D`) is now only the tie. It is the accent, not the subject, which
+  is what makes its poor luminance separation from the tile affordable.
 - The mark must work on light and dark backgrounds, which is what the saturated
   tile is for.
 - Replacing a Chrome Web Store listing image is a manual dashboard paste and

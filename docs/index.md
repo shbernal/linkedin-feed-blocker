@@ -27,6 +27,9 @@ this directory unless the task explicitly calls for it.
 - [CI And Release Flow](./ci-release-flow.md) explains pull-request validation,
   GitHub Release publishing to both the Chrome Web Store and
   addons.mozilla.org, and required GitHub/GCP/Mozilla configuration.
+- [Icon Explorations](./icon-explorations.md) records the icon directions the
+  project tried and rejected, what each one cost at 16px, and how the sketches
+  were generated. It is history, not a description of the shipped mark.
 - [Testing](./testing.md) explains the three test layers, the Chrome API mock,
   the shared LinkedIn fixtures and the rule they follow, the coverage map, and
   the local real-site smoke-test lane.

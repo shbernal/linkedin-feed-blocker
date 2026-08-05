@@ -4,19 +4,22 @@
   <!-- the same mark, scaled so its 768 tile lands at 96x96 -->
   <g transform="translate(172,40) scale(0.125) translate(-128,-128)">
     <rect x="128" y="128" width="768" height="768" rx="170" fill="#0A66C2"/>
-    <g fill="#4A8FD4">
-      <rect x="208" y="288" width="608" height="104" rx="32"/>
-      <rect x="208" y="460" width="608" height="104" rx="32"/>
-      <rect x="208" y="632" width="608" height="104" rx="32"/>
+    <g fill="#F1F5F9">
+      <circle cx="512" cy="266" r="92"/>
+      <circle cx="288" cy="700" r="94"/>
+      <circle cx="736" cy="700" r="94"/>
+      <rect x="240" y="690" width="544" height="148" rx="74"/>
+      <path d="M412 500Q412 462 450 462L574 462Q612 462 612 500L640 664Q646 700 610 700L414 700Q378 700 384 664Z"/>
     </g>
-    <g fill="none" stroke="#0A66C2" stroke-width="148" stroke-linecap="butt">
-      <circle cx="512" cy="512" r="182"/>
-      <line x1="383" y1="383" x2="641" y2="641"/>
+    <g fill="none" stroke="#F1F5F9" stroke-width="76" stroke-linecap="round">
+      <path d="M408 512C356 560 306 612 288 654"/>
+      <path d="M616 512C668 560 718 612 736 654"/>
     </g>
-    <g fill="none" stroke="#E5484D" stroke-width="92" stroke-linecap="butt">
-      <circle cx="512" cy="512" r="182"/>
-      <line x1="383" y1="383" x2="641" y2="641"/>
+    <g fill="none" stroke="#0A66C2" stroke-linecap="round">
+      <path d="M464 266h30M530 266h30" stroke-width="16"/>
+      <path d="M466 470 512 542 558 470" stroke-width="26" stroke-linejoin="round"/>
     </g>
+    <path d="M480 546h64l14 110-46 34-46-34Z" fill="#E5484D"/>
   </g>
 
   <text x="220" y="190" text-anchor="middle" font-family="Adwaita Sans"
