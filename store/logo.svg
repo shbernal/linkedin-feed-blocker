@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- 768x768 tile centred in 1024, i.e. 96x96 art in a 128 canvas -->
+  <rect x="128" y="128" width="768" height="768" rx="170" fill="#1E2A36"/>
+
+  <!-- feed cards, deliberately low-contrast: they read as a stack at 128 and
+       48, and fall away at 16 so the prohibition mark survives alone -->
+  <g fill="#46566A">
+    <rect x="208" y="288" width="608" height="104" rx="32"/>
+    <rect x="208" y="460" width="608" height="104" rx="32"/>
+    <rect x="208" y="632" width="608" height="104" rx="32"/>
+  </g>
+
+  <!-- graphite moat keeps the ring from touching a card edge -->
+  <g fill="none" stroke="#1E2A36" stroke-width="148" stroke-linecap="butt">
+    <circle cx="512" cy="512" r="182"/>
+    <line x1="383" y1="383" x2="641" y2="641"/>
+  </g>
+
+  <!-- prohibition mark -->
+  <g fill="none" stroke="#34D399" stroke-width="92" stroke-linecap="butt">
+    <circle cx="512" cy="512" r="182"/>
+    <line x1="383" y1="383" x2="641" y2="641"/>
+  </g>
+</svg>

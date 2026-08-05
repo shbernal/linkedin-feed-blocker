@@ -23,6 +23,7 @@
     "package:firefox": "pnpm run build:firefox && web-ext build --source-dir dist-firefox --artifacts-dir release --filename linkedin-feed-blocker-firefox-{version}.zip --overwrite-dest",
     "package:source": "node scripts/package-source.mjs",
     "publish:amo": "node scripts/publish-amo.mjs",
+    "icons": "node scripts/generate-icons.mjs",
     "lint:firefox": "pnpm run build:firefox && web-ext lint --source-dir dist-firefox",
     "validate:firefox": "pnpm run build:firefox && node scripts/validate-firefox.mjs",
     "typecheck": "tsc -b",

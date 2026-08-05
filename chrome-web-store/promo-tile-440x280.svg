@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="440" height="280" viewBox="0 0 440 280">
+  <rect width="440" height="280" fill="#141E28"/>
+
+  <!-- the same mark, scaled so its 768 tile lands at 96x96 -->
+  <g transform="translate(172,40) scale(0.125) translate(-128,-128)">
+    <rect x="128" y="128" width="768" height="768" rx="170" fill="#1E2A36"/>
+    <g fill="#46566A">
+      <rect x="208" y="288" width="608" height="104" rx="32"/>
+      <rect x="208" y="460" width="608" height="104" rx="32"/>
+      <rect x="208" y="632" width="608" height="104" rx="32"/>
+    </g>
+    <g fill="none" stroke="#1E2A36" stroke-width="148" stroke-linecap="butt">
+      <circle cx="512" cy="512" r="182"/>
+      <line x1="383" y1="383" x2="641" y2="641"/>
+    </g>
+    <g fill="none" stroke="#34D399" stroke-width="92" stroke-linecap="butt">
+      <circle cx="512" cy="512" r="182"/>
+      <line x1="383" y1="383" x2="641" y2="641"/>
+    </g>
+  </g>
+
+  <text x="220" y="190" text-anchor="middle" font-family="Adwaita Sans"
+        font-size="30" font-weight="700" fill="#F1F5F9">LinkedIn Feed Blocker</text>
+  <text x="220" y="224" text-anchor="middle" font-family="Adwaita Sans"
+        font-size="16" font-weight="400" fill="#94A3B8">Quiet the feed, keep what you came for</text>
+</svg>
