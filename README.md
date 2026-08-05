@@ -12,7 +12,7 @@ search, profiles, direct links, and My Network invitations available.
 It builds for Chrome and Chromium, and for Firefox and Zen, from one source
 tree. Only the manifest differs between the two packages.
 
-The current release is `0.1.1`.
+The current release is `0.2.0`.
 
 ## What It Blocks
 
@@ -55,9 +55,9 @@ Then load the built directory as a temporary extension:
 ## Package For The Stores
 
 ```bash
-pnpm package:chrome     # release/linkedin-feed-blocker-0.1.1.zip
-pnpm package:firefox    # release/linkedin-feed-blocker-firefox-0.1.1.zip
-pnpm package:source     # release/linkedin-feed-blocker-source-0.1.1.zip
+pnpm package:chrome     # release/linkedin-feed-blocker-0.2.0.zip
+pnpm package:firefox    # release/linkedin-feed-blocker-firefox-0.2.0.zip
+pnpm package:source     # release/linkedin-feed-blocker-source-0.2.0.zip
 ```
 
 Shared listing copy and screenshots live under `store/`; Chrome-specific listing

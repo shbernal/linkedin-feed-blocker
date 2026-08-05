@@ -1,6 +1,6 @@
 # Project Overview
 
-LinkedIn Feed Blocker is an experimental Chrome extension for stripping down the
+LinkedIn Feed Blocker is an experimental browser extension for stripping down the
 distracting parts of LinkedIn while preserving the parts that are still useful
 for jobs, profiles, direct links, messages, and intentional networking.
 
@@ -10,15 +10,18 @@ loops untouched. This repo is the experimental implementation of that idea.
 
 ## Current Status
 
-Status: experimental published 0.1.1 extension.
+Status: experimental published 0.2.0 extension.
 
 The repo has a working MV3 extension shape, a popup, persistent settings, a
 background keyboard command, and a content script with LinkedIn-specific hiding
-selectors. It also has Chrome Web Store listing copy, captured screenshots, a
-small promo image, a local upload ZIP packaging command, CI, and a GitHub
-Release to Chrome Web Store publishing workflow. It does not yet have
-deterministic automated tests, fixture snapshots, or a hardened selector
-strategy.
+selectors. It builds for Chromium and for Gecko from one source tree and
+publishes to both the Chrome Web Store and addons.mozilla.org from published
+GitHub Releases. It has listing copy, captured screenshots, promo imagery,
+packaging commands for all three release artifacts, a Vitest suite with a
+coverage ratchet, source-tree guards, and a fixture-backed Playwright suite. It
+does not yet have a hardened selector strategy, and hiding is still inline
+`display: none` applied after first paint rather than a `document_start`
+stylesheet.
 
 Use this repo as an implementation sandbox until those gaps are closed.
 
