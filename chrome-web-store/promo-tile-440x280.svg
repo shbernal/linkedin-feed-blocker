@@ -3,17 +3,17 @@
 
   <!-- the same mark, scaled so its 768 tile lands at 96x96 -->
   <g transform="translate(172,40) scale(0.125) translate(-128,-128)">
-    <rect x="128" y="128" width="768" height="768" rx="170" fill="#1E2A36"/>
-    <g fill="#46566A">
+    <rect x="128" y="128" width="768" height="768" rx="170" fill="#0A66C2"/>
+    <g fill="#4A8FD4">
       <rect x="208" y="288" width="608" height="104" rx="32"/>
       <rect x="208" y="460" width="608" height="104" rx="32"/>
       <rect x="208" y="632" width="608" height="104" rx="32"/>
     </g>
-    <g fill="none" stroke="#1E2A36" stroke-width="148" stroke-linecap="butt">
+    <g fill="none" stroke="#0A66C2" stroke-width="148" stroke-linecap="butt">
       <circle cx="512" cy="512" r="182"/>
       <line x1="383" y1="383" x2="641" y2="641"/>
     </g>
-    <g fill="none" stroke="#34D399" stroke-width="92" stroke-linecap="butt">
+    <g fill="none" stroke="#E5484D" stroke-width="92" stroke-linecap="butt">
       <circle cx="512" cy="512" r="182"/>
       <line x1="383" y1="383" x2="641" y2="641"/>
     </g>

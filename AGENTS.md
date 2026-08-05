@@ -218,14 +218,26 @@ or packaging changes, run at least `pnpm typecheck`, `pnpm test:coverage`,
 
 ## Artwork
 
-- The mark must not reproduce LinkedIn's logo, wordmark, rounded-square tile, or
-  their blue. Naming the product is nominative use and is fine; wearing their
-  branding suggests affiliation and is a rejection vector at both stores.
+- The mark must not reproduce LinkedIn's logo or wordmark. It does use their
+  brand blue (`#0A66C2`) on a rounded-square tile, which is a deliberate owner
+  decision taken for recognizability at favicon size, overriding the earlier
+  rule against it. Understand the tradeoff before touching it: a rounded blue
+  tile is close to LinkedIn's own app icon, and both stores restrict listings
+  that use another company's branding in a way that suggests affiliation. This
+  is a known and accepted rejection vector, not an oversight to be tidied away.
+  If a reviewer rejects on branding, the graphite mark in `a755e41` is the
+  fallback, not a new design. Naming the product stays nominative use.
 - Judge every icon change at 16px, not at 1024. That is the size the extensions
   page favicon uses, and it is where a mark with too much in it turns to mud.
   The feed cards behind the prohibition sign are deliberately low-contrast so
   they fall away at 16px and leave a legible ring and slash.
-- The mark must work on light and dark backgrounds, which is what the graphite
+- The prohibition mark is red (`#E5484D`), an owner decision for the convention
+  the shape already carries. It costs legibility: red and the tile blue sit at
+  close relative luminance, so the ring separates on hue more than on lightness
+  and the slash is weaker at 16px than the green (`#34D399`) it replaced. If a
+  future change needs the ring to carry more of the mark, raising its lightness
+  is the lever, not adding detail.
+- The mark must work on light and dark backgrounds, which is what the saturated
   tile is for.
 - Replacing a Chrome Web Store listing image is a manual dashboard paste and
   puts the item back through review. Only the AMO listing icon is pushed
