@@ -48,13 +48,14 @@ The extension is built with Vite, React, TypeScript, and
 - `e2e/specs/` is the deterministic Playwright suite CI runs; `e2e/real/` and
   `e2e/manual/` are the opt-in credentialed lanes it cannot.
 - `scripts/` holds the plain-ESM release and validation tooling: the source
-  archiver, the AMO publisher and its preview logic, and the Gecko runtime
-  validator.
-- `public/icons/` contains extension icons copied into builds.
-- `store/` contains listing assets shared across stores: the long description
-  and the screenshot set.
+  archiver, the AMO publisher and its preview logic, the Gecko runtime
+  validator, and the icon renderer.
+- `public/icons/` contains extension icons copied into builds. They are
+  generated from `store/logo.svg`, not hand-exported.
+- `store/` contains listing assets shared across stores: the long description,
+  the screenshot set, and the logo in SVG and 1024px PNG form.
 - `chrome-web-store/` contains Chrome-specific listing assets: privacy
-  justifications, the promo tile, and the logo source artwork.
+  justifications and the promo tile with its SVG source.
 - `amo/` contains addons.mozilla.org listing metadata: the listing JSON, the
   preview captions, the data-collection answer, and the source-submission
   instructions.
@@ -86,6 +87,8 @@ Use `pnpm`, following the `packageManager` field in `package.json`.
   the release artifacts under `release/`.
 - `pnpm publish:amo` submits to addons.mozilla.org; `--dry-run` is the safe
   form and uploads nothing.
+- `pnpm icons` re-renders the icon set and the promo tile from their SVG
+  sources; `--check` reports drift without writing. It needs `rsvg-convert`.
 - `pnpm format` checks Prettier formatting.
 - `pnpm preview` previews the Vite build.
 
@@ -210,6 +213,23 @@ or packaging changes, run at least `pnpm typecheck`, `pnpm test:coverage`,
 - Do not bump `package.json` version unless explicitly requested.
 - Do not hand-edit GitHub Release assets; rebuild from source and let the
   publish workflow attach the generated zip when doing automated releases.
+- Do not hand-edit the icon PNGs, `store/logo-source.png`, or the promo tile.
+  Edit the SVG source and run `pnpm icons`; `pnpm icons --check` reports drift.
+
+## Artwork
+
+- The mark must not reproduce LinkedIn's logo, wordmark, rounded-square tile, or
+  their blue. Naming the product is nominative use and is fine; wearing their
+  branding suggests affiliation and is a rejection vector at both stores.
+- Judge every icon change at 16px, not at 1024. That is the size the extensions
+  page favicon uses, and it is where a mark with too much in it turns to mud.
+  The feed cards behind the prohibition sign are deliberately low-contrast so
+  they fall away at 16px and leave a legible ring and slash.
+- The mark must work on light and dark backgrounds, which is what the graphite
+  tile is for.
+- Replacing a Chrome Web Store listing image is a manual dashboard paste and
+  puts the item back through review. Only the AMO listing icon is pushed
+  automatically, by `pnpm publish:amo`.
 
 ## Manual Validation Notes
 
