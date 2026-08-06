@@ -74,6 +74,13 @@ The release job:
 9. Submits the item for publishing.
 10. Uploads the zip as a GitHub Release asset.
 
+The two steps that write a response to a file take the status from curl's
+`-w '%{http_code}'` rather than from `--fail-with-body`. With `--fail-with-body`
+the body lands in the file and curl exits non-zero, which under the default
+`bash -e` aborts the step before anything prints it — the TikTok extension's
+1.4.1 release failed on a 400 whose message was never shown. Whatever Chrome
+answers with is printed before the status is checked.
+
 Release tags should use a leading `v`, for example `v0.1.1`. The workflow
 strips the leading `v` and requires the remaining value to match `package.json`
 exactly. For `v0.1.1`, `package.json` must contain `"version": "0.1.1"`. Both
@@ -146,6 +153,12 @@ with a JWT it mints itself, so it needs no OIDC token. Every request mints its
 own JWT, because AMO caps a token's life at five minutes past `iat` — shorter
 than the validation polling loop can run.
 
+A 429 is retried, but only when the wait is one this run can actually serve: a
+single wait is capped at 70 minutes and a whole run at two hours. Anything
+longer is a throttle bucket that refills on a scale a GitHub job does not live
+on, so the run fails and prints the time to re-run after. See
+[Preview Writes Are Throttled Hard](./amo-listing.md#preview-writes-are-throttled-hard).
+
 ## Google Cloud Configuration
 
 Chrome Web Store publishing is authenticated through Google Cloud Workload
@@ -213,6 +226,42 @@ release must bump `package.json` before publishing.
 Do not run `pnpm publish:amo --sync-previews` in the same hour as a release.
 Both draw on one AMO throttle budget and the sync is what will stall; see
 [AMO Listing](./amo-listing.md).
+
+## When A Publish Job Fails
+
+The two publish jobs are independent, and a store that rejected a submission
+usually has not recorded the version at all. Re-run the failed job rather than
+cutting a new tag:
+
+```sh
+gh run rerun <run-id> --repo shbernal/linkedin-feed-blocker
+```
+
+A re-run replays the original commit, so it does not pick up a fix pushed to
+`master` afterwards — that only reaches the next release. What it is for is a
+store-side condition that has since cleared.
+
+Two of those are known from the TikTok extension, which publishes through the
+same two workflows:
+
+- **AMO throttled the submission.** The failure prints when the bucket refills;
+  re-run after that. AMO's daily add-on-submission budget is per user and a
+  release spends about four calls, so a release cut within a day of the last one
+  — in either repository, since the credential is shared — can land on it.
+- **Chrome answered 400 on the upload.** Read the message the step now prints
+  before assuming anything. The TikTok 1.4.1 upload hit one while 1.4.0 was
+  still in review and its body was discarded, so whether Chrome refuses an
+  upload against an item with a pending submission is a guess that was never
+  settled — if it recurs here, the log will say. Check what is actually live
+  first:
+
+  ```sh
+  curl -sI "https://clients2.google.com/service/update2/crx?response=redirect&prodversion=200&acceptformat=crx3&x=id%3Dfoncphmfnndmjembiamdmciojcdjnlpc%26uc" |
+    grep -i location
+  ```
+
+Neither case burns the version number: nothing was created on either store, so
+the same tag can be re-run until it lands.
 
 ## Useful Checks
 

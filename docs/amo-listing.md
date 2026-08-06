@@ -156,6 +156,20 @@ every other failure means the request itself is wrong. Waits are not short:
 crossing the hourly boundary has been observed on the TikTok listing to cost a
 single wait of just under an hour.
 
+It does not wait out all of them. Which bucket was hit changes the header by
+four orders of magnitude, and the daily one answers with whatever is left of its
+24 hours — that is not a wait, it is a different day. The TikTok listing lost
+its 1.4.1 release to one: handed 52277 seconds, it slept, inside a GitHub job
+that is cancelled at six hours. A whole runner spent, no version created, and
+the reason visible only in a log line six hours above the failure.
+`planThrottleRetry` in `scripts/amo-previews.mjs` caps a single wait at 70
+minutes — clear of the hourly boundary, which is the longest wait that is still
+a real one — and caps what one run may spend throttled at two hours, since waits
+under the ceiling still add up past the job serving them. Five screenshots means
+five throttled writes, so this listing is likelier to meet the second cap than
+the first. Past either, the run fails at once and prints when the bucket
+refills, so the answer is to re-run it after that.
+
 The throttle is not specific to previews. `AddonViewSet` carries the same
 classes, so the listing `PUT` and the icon `PATCH` draw on one shared budget — a
 release already spends about four calls of the ten. **Do not run a preview sync
