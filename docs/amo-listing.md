@@ -8,7 +8,8 @@ holds the Chrome-specific ones. Copy that both stores publish verbatim lives in
   Chrome listing rather than living in `amo/`; see
   [Store Listing Copy](#store-listing-copy-is-shared) below.
 - `amo/listing.json` contains the rest of the listing metadata — slug, summary,
-  categories, tags, and support links — in the shape the AMO API accepts.
+  categories, tags, and support links — in the shape the AMO API accepts. See
+  [The Slug Is Not The Repo Name](#the-slug-is-not-the-repo-name) below.
 - `amo/previews.json` orders and captions the screenshots AMO publishes; see
   [Listing Assets](#listing-assets-are-repo-driven-too) below.
 - `amo/data-collection.md` contains the `data_collection_permissions` answer,
@@ -23,6 +24,40 @@ nothing the Chrome listing does not already have. Do not copy those files into
 `amo/` and do not regenerate them for AMO. `amo/previews.json` references them
 in place, and stays in `amo/` because it is AMO-shaped metadata — localized
 captions and `position` semantics — about images Chrome consumes without either.
+
+## The Slug Is Not The Repo Name
+
+The AMO slug is `quiet-linkedin`, not `linkedin-feed-blocker`. The obvious slug
+is taken by an unrelated add-on published in June 2021 under the guid
+`{78400a4a-b6fe-4f7d-a831-734229802784}`, so it was never available here. The
+adjacent TikTok blocker uses its repo name only because that slug happened to be
+free; do not treat matching the repo name as the convention.
+
+AMO reports the collision late and bluntly. The slug lives in the same JSON body
+as the version, so the first sign of it is a `400` from the `PUT` that creates
+the add-on, after the package has already uploaded and validated:
+
+```json
+{ "slug": ["addon with this slug already exists."] }
+```
+
+That `PUT` creates the add-on and its first version together, so a slug
+collision fails atomically and leaves nothing behind to clean up. Check
+availability before a first submission rather than discovering it mid-release:
+
+```sh
+curl -s -o /dev/null -w '%{http_code}\n' \
+  https://addons.mozilla.org/api/v5/addons/addon/<slug>/
+```
+
+`404` means the slug is free. `200` means it is taken, and the response body
+names the add-on holding it.
+
+Changing the slug later breaks every published link to the listing, so it is
+effectively permanent once the add-on is public. It is not the guid, though:
+`browser_specific_settings.gecko.id` stays
+`linkedin-feed-blocker@shbernal.github.io` regardless, and that is the value
+that must never change.
 
 ## Store Listing Copy Is Shared
 
