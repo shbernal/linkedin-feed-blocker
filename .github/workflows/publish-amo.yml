@@ -13,6 +13,22 @@ jobs:
     environment: addons-mozilla-org
 
     steps:
+      # First, so a missing credential fails in seconds rather than after the
+      # install, checks, Playwright run and packaging that precede the upload.
+      - name: Verify publish configuration
+        env:
+          MOZILLA_ADDON_JWT_ISSUER: ${{ secrets.MOZILLA_ADDON_JWT_ISSUER }}
+          MOZILLA_ADDON_JWT_SECRET: ${{ secrets.MOZILLA_ADDON_JWT_SECRET }}
+        run: |
+          for name in \
+            MOZILLA_ADDON_JWT_ISSUER \
+            MOZILLA_ADDON_JWT_SECRET; do
+            if [ -z "${!name}" ]; then
+              echo "$name is not set"
+              exit 1
+            fi
+          done
+
       - name: Checkout release tag
         uses: actions/checkout@v6
         with:

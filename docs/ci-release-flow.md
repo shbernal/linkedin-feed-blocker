@@ -88,18 +88,21 @@ variables.
 
 The release job:
 
-1. Checks out the release tag.
-2. Runs the same install, format, typecheck, test and end-to-end gates as CI.
-3. Verifies the release tag matches `package.json`.
-4. Runs `pnpm package:source`. This happens **before** the build, so the source
+1. Verifies both `MOZILLA_ADDON_*` secrets are present. This runs first, before
+   the checkout, so a missing credential fails the run in seconds instead of
+   after the gates and packaging that would otherwise precede the upload.
+2. Checks out the release tag.
+3. Runs the same install, format, typecheck, test and end-to-end gates as CI.
+4. Verifies the release tag matches `package.json`.
+5. Runs `pnpm package:source`. This happens **before** the build, so the source
    archive cannot pick up build output. `HEAD` is the release tag in this job,
    so archiving `HEAD` archives the tag.
-5. Runs `pnpm package:firefox`, which builds `dist-firefox/` and zips it.
-6. Runs `web-ext lint` over the built package.
-7. Runs `pnpm publish:amo`, which uploads the package, waits for AMO's
+6. Runs `pnpm package:firefox`, which builds `dist-firefox/` and zips it.
+7. Runs `web-ext lint` over the built package.
+8. Runs `pnpm publish:amo`, which uploads the package, waits for AMO's
    server-side validation, creates the version with the reviewer notes, attaches
    the source archive, and reapplies the listing icon.
-8. Attaches both zips to the GitHub Release.
+9. Attaches both zips to the GitHub Release.
 
 `scripts/publish-amo.mjs` drives AMO API v5 directly rather than going through
 `web-ext sign`, which reports listed-channel review state poorly and has been
