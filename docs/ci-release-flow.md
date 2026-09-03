@@ -14,7 +14,7 @@ end-to-end signal and leaves the unit-test result readable.
 The `validate` job:
 
 1. Checks out the repository.
-2. Installs pnpm `11.20.0`, matching `package.json`.
+2. Installs pnpm, taking the version from `packageManager` in `package.json`.
 3. Sets up Node `24` with pnpm caching.
 4. Installs dependencies with `pnpm install --frozen-lockfile`.
 5. Runs `pnpm format`.
