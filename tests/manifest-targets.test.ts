@@ -1,39 +1,9 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
+import { isolateExtTarget, loadManifest } from './helpers/manifest'
 
-// `manifest.config.ts` reads `EXT_TARGET` at module scope, so each target needs
-// its own module instance.
-const loadManifest = async (target?: string) => {
-  vi.resetModules()
-
-  if (target === undefined) {
-    delete process.env.EXT_TARGET
-  } else {
-    process.env.EXT_TARGET = target
-  }
-
-  // `ManifestV3Export` also covers the promise and factory forms crxjs accepts;
-  // this repo exports a plain object, which is what these assertions read.
-  return (await import('../manifest.config')).default as unknown as Record<
-    string,
-    unknown
-  >
-}
-
-const originalTarget = process.env.EXT_TARGET
-
-beforeEach(() => {
-  delete process.env.EXT_TARGET
-})
-
-afterEach(() => {
-  if (originalTarget === undefined) {
-    delete process.env.EXT_TARGET
-  } else {
-    process.env.EXT_TARGET = originalTarget
-  }
-})
+isolateExtTarget()
 
 describe('the Chrome manifest', () => {
   it('uses a module service worker', async () => {

@@ -162,7 +162,13 @@ or packaging changes, run at least `pnpm format`, `pnpm lint`,
   explanatory text inside the extension UI.
 - Never add `<input type="color">` or `<input type="file">` to the popup. In a
   Gecko action popup the native dialog steals focus and destroys the popup
-  document mid-interaction.
+  document mid-interaction. `tests/popup-native-dialogs.test.ts` enforces this.
+- No two manifest entries may share a basename. crxjs names each output chunk
+  after its entry file's basename, so a collision makes the generated
+  `service-worker-loader.js` import whichever chunk resolves first. That
+  shipped once, in `7e10cad`, with the background entry importing the content
+  script and every check green. `tests/manifest-entry-names.test.ts` enforces
+  this.
 - oxlint runs its `correctness` category over the tree, plus
   `react-hooks/exhaustive-deps` and `react-hooks/rules-of-hooks` scoped to
   `src/popup/`. Those two are the reason the project lints at all: a dependency
@@ -199,6 +205,10 @@ or packaging changes, run at least `pnpm format`, `pnpm lint`,
   maintenance notes.
 - Keep `README.md` concise and aligned with the current user-facing extension
   behavior.
+- `README.md` and `docs/project-overview.md` state the shipped version as a
+  literal. Both have to move with `package.json`;
+  `tests/documented-version.test.ts` enforces this. Version literals anywhere
+  else are examples, not claims.
 - Update `docs/current-implementation.md` when runtime surfaces, settings shape,
   message contracts, selectors, or manifest behavior changes.
 - Update `docs/experimental-status.md` when known limitations, validation gaps,

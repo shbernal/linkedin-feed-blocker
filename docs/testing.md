@@ -154,6 +154,30 @@ the manifest's `suggested_key` and `DEFAULT_TOGGLE_SHORTCUT` in
 `src/shared/shortcut.ts` name the same keys, since the in-page fallback would
 otherwise answer a binding the browser never made.
 
+`tests/manifest-entry-names.test.ts` fails if two manifest entries share a
+basename. crxjs names each output chunk after its entry file's basename, so
+when the background and content-script entries were both `main.ts` the
+generated `service-worker-loader.js` imported whichever `main.ts-<hash>.js` it
+resolved first, which was the content script. `chrome.commands.onCommand`
+registered in no shipped build and every check stayed green. It walks the whole
+manifest object rather than reading two keys by name, so a later `options_page`
+or `web_accessible_resources` entry is covered without anyone remembering.
+
+`tests/popup-native-dialogs.test.ts` fails if anything under `src/popup/`
+declares an `<input type="color">` or `<input type="file">`. In a Gecko action
+popup either one opens a native dialog that takes focus, and the panel closes
+on focus loss, destroying the popup document mid-interaction. Chrome keeps the
+popup alive, so nothing else in the suite can see it. The guard strips comments
+before matching, because the rule is the kind that gets written down next to
+the code it forbids, and skips test files, which construct these inputs on
+purpose.
+
+`tests/documented-version.test.ts` fails if the version stated in `README.md`
+or `docs/project-overview.md` is not the one in `package.json`. Nothing else
+propagates a version bump into either file. Every other version literal in the
+tree sits inside an example command or a tag-naming sentence, which is why the
+guard names two files instead of walking the docs.
+
 `tests/amo-previews.test.mjs` covers the AMO listing-asset planning in
 `scripts/amo-previews.mjs` — image types and sizes, manifest parsing, the
 replace-don't-reconcile sync plan, and the drift line — plus a check that every
@@ -185,8 +209,18 @@ glob as the `.ts` suites.
 - `tests/browser-api-compat.test.ts` — the callback-only `chrome.*` rule.
 - `tests/manifest-targets.test.ts` — the two build targets and the rule that
   only the background entry and the Gecko block may differ between them.
+- `tests/manifest-entry-names.test.ts` — the rule that no two manifest entries
+  share a basename, under both build targets.
+- `tests/popup-native-dialogs.test.ts` — the rule that the popup declares no
+  input that opens a native dialog.
+- `tests/documented-version.test.ts` — the two documents that state the shipped
+  version against `package.json`.
 - `tests/amo-previews.test.mjs` — the AMO listing-asset planning and the
   checked-in previews manifest.
+
+`tests/helpers/manifest.ts` is not a test. It holds the `EXT_TARGET`-switching
+loader the two manifest guards share, so there is one loader rather than one
+per file.
 
 The module-level auto-start and the `import.meta.hot` dispose hook in
 `src/content/content-script.ts` are the known uncovered lines; both are gated on
