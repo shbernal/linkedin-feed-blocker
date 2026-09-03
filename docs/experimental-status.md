@@ -6,12 +6,18 @@ treated as an experimental implementation.
 ## Already Done
 
 - MV3 extension scaffold with Vite, React, TypeScript, and
-  `@crxjs/vite-plugin`.
-- LinkedIn manifest targeting and host permissions.
+  `@crxjs/vite-plugin`, building the Chromium target to `dist/` and the Gecko
+  target to `dist-firefox/` from one source tree.
+- LinkedIn manifest targeting and host permissions, with the background entry
+  and `browser_specific_settings.gecko` switched on `EXT_TARGET`.
 - Background keyboard command for toggling the current supported LinkedIn page.
+- In-page shortcut fallback matched against the browser's real command binding
+  rather than a hard-coded `Ctrl+Shift+7`.
 - Popup UI with a master toggle and per-section toggles for Home and My Network.
 - Persistent settings in `chrome.storage.local` with legacy active-flag
   migration.
+- Content script split into selector, route, blocking, and wiring modules with
+  an exported init/cleanup pair.
 - Content-script selectors for Home feed, Home right rail, My Network puzzle,
   My Network Premium, and My Network suggestions.
 - Route-gated selector application for the currently supported Home and My
@@ -22,21 +28,27 @@ treated as an experimental implementation.
   the background command path, and the popup, with a coverage ratchet.
 - Fixture-backed Playwright suite that runs the unpacked build in a real
   Chromium against local LinkedIn-shaped pages, with no account and no network.
-- Source-tree guard that fails if any `chrome.*` call site is awaited.
-- Opt-in real LinkedIn smoke-test lane that reuses an ignored copied Chromium
-  profile and records inspection artifacts.
+- Source-tree guards that fail if any `chrome.*` call site is awaited, or if the
+  two build targets differ in anything but the manifest.
+- Opt-in real LinkedIn smoke-test lane that reuses a gitignored in-repo
+  Chromium profile and records inspection artifacts.
+- oxlint over the source tree, with `react-hooks/exhaustive-deps` scoped to the
+  popup, and oxfmt as the formatter.
+- `web-ext lint` over the Gecko package, plus `pnpm validate:firefox`, which
+  drives that package in a real Firefox over WebDriver BiDi and reports a check
+  it could not run as `SKIP`.
 - Listing copy and five 1280x800 screenshots under `store/`, plus extension
-  icons and a 440x280 small promo image for the Chrome Web Store.
-- Local Chrome upload ZIP packaging with `pnpm package:chrome`.
-- GitHub Actions CI split into a `validate` job (format, typecheck, tests with
-  coverage, build) and a separate `e2e` job, with the same gates repeated in the
-  publish workflow.
-- GitHub Release to Chrome Web Store publishing workflow, modeled on the
-  adjacent TikTok blocker.
-- Content script split into selector, route, blocking, and wiring modules with
-  an exported init/cleanup pair.
-- In-page shortcut fallback matched against the browser's real command binding
-  rather than a hard-coded `Ctrl+Shift+7`.
+  icons generated from `store/logo.svg` and a 440x280 small promo image for the
+  Chrome Web Store.
+- addons.mozilla.org listing metadata under `amo/`, including the
+  data-collection answer and the reviewer instructions for the source archive.
+- Local packaging with `pnpm package:chrome`, `pnpm package:firefox` and
+  `pnpm package:source`.
+- GitHub Actions CI split into a `validate` job (format, lint, typecheck, tests
+  with coverage, build, Gecko lint) and a separate `e2e` job.
+- Two independent publish workflows, one per store, both triggered by a
+  published GitHub Release and both repeating the CI gates. Neither waits for
+  the other.
 
 ## Why It Is Still Rough
 

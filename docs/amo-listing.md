@@ -218,13 +218,6 @@ version, which is what makes it usable between releases. AMO accepts both while 
 version sits in review, since they are add-on metadata rather than version
 metadata.
 
-## The Listing Icon Is Not Yet The One To Ship
-
-`scripts/publish-amo.mjs` pushes `public/icons/icon128.png` to the listing on
-every release. That artwork is still the pre-redesign icon, so the first AMO
-submission must wait for the new one — otherwise the maiden release publishes the
-current icon and the next one republishes over it, with an AMO review in between.
-
 ## Source Submission Is Mandatory
 
 AMO requires the source of any add-on built by a bundler. Every version upload

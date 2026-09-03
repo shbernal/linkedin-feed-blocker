@@ -73,8 +73,8 @@ Reference:
 
 Before submitting a release, review the listing copy and media against the
 current extension behavior. Keep claims narrow: the extension currently targets
-LinkedIn `/feed/` and `/mynetwork/grow/`, uses local Chrome extension storage,
-and has not yet been hardened with fixture or unit tests.
+LinkedIn `/feed/` and `/mynetwork/grow/`, and uses local Chrome extension
+storage.
 
 ## Privacy Form Process
 

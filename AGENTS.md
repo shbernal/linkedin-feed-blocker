@@ -49,7 +49,8 @@ The extension is built with Vite, React, TypeScript, and
   `e2e/manual/` are the opt-in credentialed lanes it cannot.
 - `scripts/` holds the plain-ESM release and validation tooling: the source
   archiver, the AMO publisher and its preview logic, the Gecko runtime
-  validator, and the icon renderer.
+  validator, the icon renderer, and the shared `--help` handling all four of
+  them import.
 - `public/icons/` contains extension icons copied into builds. They are
   generated from `store/logo.svg`, not hand-exported.
 - `store/` contains listing assets shared across stores: the long description,
@@ -112,8 +113,10 @@ or packaging changes, run at least `pnpm format`, `pnpm lint`,
   `GCP_WORKLOAD_IDENTITY_PROVIDER`.
 - The AMO workflow expects the secrets `MOZILLA_ADDON_JWT_ISSUER` and
   `MOZILLA_ADDON_JWT_SECRET` in the `addons-mozilla-org` environment.
-- Keep the Google Cloud Workload Identity Federation trust restricted to
-  `shbernal/linkedin-feed-blocker` tag refs.
+- The Google Cloud Workload Identity Federation provider is shared with
+  `shbernal/tiktok-feed-blocker`. Its trust condition names both repositories
+  and restricts them to tag refs. Narrowing it to this repository alone breaks
+  TikTok's releases. `docs/ci-release-flow.md` carries the exact condition.
 - A successful AMO release ends in review, not live. Never write tooling or
   docs that wait for or report `public` on submission.
 - Every AMO version carries a source archive, and every release must stay
@@ -274,8 +277,8 @@ the popup is a XUL panel rather than a tab. Check at least:
 
 - popup toggles persist via `chrome.storage.local`;
 - `/feed/` main feed and right-rail blocking behave as expected;
-- `/mynetwork/grow/` puzzle, people sections, and left ad blocking behave as
-  expected while invitations remain visible;
+- `/mynetwork/grow/` `networkPuzzle`, `networkPremium` and `networkSuggestions`
+  blocking behaves as expected while invitations remain visible;
 - the command in `manifest.config.ts` toggles the currently supported LinkedIn
   page;
 - disabled sections restore elements hidden by the extension.

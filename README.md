@@ -55,9 +55,9 @@ Then load the built directory as a temporary extension:
 ## Package For The Stores
 
 ```bash
-pnpm package:chrome     # release/linkedin-feed-blocker-0.2.0.zip
-pnpm package:firefox    # release/linkedin-feed-blocker-firefox-0.2.0.zip
-pnpm package:source     # release/linkedin-feed-blocker-source-0.2.0.zip
+pnpm package:chrome     # release/linkedin-feed-blocker-<version>.zip
+pnpm package:firefox    # release/linkedin-feed-blocker-firefox-<version>.zip
+pnpm package:source     # release/linkedin-feed-blocker-source-<version>.zip
 ```
 
 Shared listing copy and screenshots live under `store/`; Chrome-specific listing

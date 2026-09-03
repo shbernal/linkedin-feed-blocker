@@ -10,7 +10,7 @@ The body text under each heading is the answer itself and goes into a plain-text
 form field verbatim, so it stays free of Markdown — no backticks, emphasis, or
 lists. Headings are labels, not answers, and may keep their markup.
 
-Last reviewed against `manifest.config.ts`.
+Last reviewed against `manifest.config.ts` on 2026-09-03.
 
 ## Declared Data Collection
 

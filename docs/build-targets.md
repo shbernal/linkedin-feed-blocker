@@ -24,7 +24,7 @@ does not use it either way, so it is kept only because it is useful by hand.
 `pnpm package:source` writes `release/linkedin-feed-blocker-source-<version>.zip`
 from `git archive`, which AMO requires alongside every Firefox upload because
 the package is bundled by Vite. It archives `HEAD` by default and takes a ref
-argument for releases: `pnpm package:source v0.1.1`. See
+argument for releases: `pnpm package:source v0.2.0`. See
 [AMO Listing](./amo-listing.md).
 
 ## Target Differences
@@ -56,7 +56,8 @@ user. Nothing else in the manifest needs a version that high.
 catches unsupported manifest keys, bad add-on ids, and reserved keyboard
 shortcuts. It runs in the `validate` CI job.
 
-Zero errors is the bar. Three warnings are expected and are not defects:
+Zero errors is the bar. Three warnings across two classes are expected and are
+not defects:
 
 - `KEY_FIREFOX_ANDROID_UNSUPPORTED_BY_MIN_VERSION` for
   `data_collection_permissions`, which Firefox for Android only supports from

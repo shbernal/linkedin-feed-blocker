@@ -83,9 +83,9 @@ the body lands in the file and curl exits non-zero, which under the default
 1.4.1 release failed on a 400 whose message was never shown. Whatever Chrome
 answers with is printed before the status is checked.
 
-Release tags should use a leading `v`, for example `v0.1.1`. The workflow
+Release tags should use a leading `v`, for example `v0.2.0`. The workflow
 strips the leading `v` and requires the remaining value to match `package.json`
-exactly. For `v0.1.1`, `package.json` must contain `"version": "0.1.1"`. Both
+exactly. For `v0.2.0`, `package.json` must contain `"version": "0.2.0"`. Both
 publish workflows enforce this independently.
 
 ## addons.mozilla.org Publishing
@@ -175,7 +175,8 @@ The Google Cloud setup has three parts:
 3. An IAM binding that lets this repository's GitHub Actions identity
    impersonate the Chrome Web Store service account.
 
-The provider should remain restricted to this repository and release tag refs:
+The provider should remain restricted to these two repositories and release tag
+refs:
 
 ```text
 (assertion.repository == 'shbernal/tiktok-feed-blocker' ||
@@ -218,7 +219,7 @@ repositories in the condition when updating it.
    extraction of the source archive, then run `pnpm publish:amo --dry-run`.
 6. Commit the release candidate and version bump.
 7. Push `master`.
-8. Publish a GitHub Release with a matching tag, for example `v0.1.1`.
+8. Publish a GitHub Release with a matching tag, for example `v0.2.0`.
 9. Watch both the `Publish Chrome Web Store` and
    `Publish addons.mozilla.org` GitHub Actions runs.
 10. Confirm Chrome Web Store shows the new version as submitted or published,
@@ -284,7 +285,7 @@ gh run watch <run-id> --repo shbernal/linkedin-feed-blocker --exit-status
 Inspect the release asset:
 
 ```sh
-gh release view v0.1.1 \
+gh release view v0.2.0 \
   --repo shbernal/linkedin-feed-blocker \
   --json tagName,name,isDraft,isPrerelease,assets,url
 ```

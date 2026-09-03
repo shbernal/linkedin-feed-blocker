@@ -219,30 +219,32 @@ Prefer the smallest layer that proves the behavior.
 
 ## Persistent Profile
 
-The real-site lane uses `.e2e/linkedin-real-profile`, which is ignored by git.
-For this workstation it is seeded from the `santiago` Chromium profile in
-`/home/shb/Work/linkedin-careers/data/browser-profiles/santiago`.
+The real-site lane keeps its Chromium profile inside the repository, at
+`.e2e/linkedin-real-profile`. The whole `.e2e/` directory is ignored by git.
+Nothing is seeded from outside: `pnpm e2e:real:setup` launches a persistent
+context on that path, which creates it on first run, and you sign in to
+LinkedIn there.
 
-The copied profile is test state. Do not commit it, do not paste LinkedIn
-cookies or tokens into chat or repo files, and delete or recopy it if the state
-becomes inconsistent.
+The profile is test state and it holds a live LinkedIn session. Do not commit
+it, do not paste LinkedIn cookies or tokens into chat or repo files, and delete
+it and run setup again if the state becomes inconsistent.
 
-Set `LINKEDIN_REAL_PROFILE_DIR=/absolute/or/relative/path` to use another
-profile directory.
+Set `LINKEDIN_REAL_PROFILE_DIR=/absolute/or/relative/path` to point the lane at
+a profile somewhere else, which is the escape hatch for reusing an existing
+signed-in profile rather than the normal path.
 
 ### Setup Flow
 
-1. Seed `.e2e/linkedin-real-profile` from the `santiago` profile.
-2. Run `pnpm e2e:real:setup` or `pnpm e2e:real:login`.
-3. Confirm LinkedIn is signed in in the Chromium window.
-4. Complete any checkpoint, 2FA, cookie, or verification prompts.
-5. Visit `https://www.linkedin.com/feed/` once and confirm the feed loads.
-6. Close the Chromium tab or window.
+1. Run `pnpm e2e:real:setup` or `pnpm e2e:real:login`.
+2. Sign in to LinkedIn in the Chromium window it opens.
+3. Complete any checkpoint, 2FA, cookie, or verification prompts.
+4. Visit `https://www.linkedin.com/feed/` once and confirm the feed loads.
+5. Close the Chromium tab or window.
 
 ### Real Smoke Test
 
-Run `pnpm e2e:real` after setup. The test opens the copied persistent profile
-with the built extension loaded, visits `https://www.linkedin.com/feed/`,
+Run `pnpm e2e:real` after setup. The test opens the persistent profile with the
+built extension loaded, visits `https://www.linkedin.com/feed/`,
 captures an unblocked checkpoint screenshot, enables only Home feed blocking
 through extension storage, captures a blocked screenshot, then restores the feed
 and captures a final screenshot.

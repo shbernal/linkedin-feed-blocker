@@ -33,6 +33,9 @@ this directory unless the task explicitly calls for it.
 - [Testing](./testing.md) explains the three test layers, the Chrome API mock,
   the shared LinkedIn fixtures and the rule they follow, the coverage map, and
   the local real-site smoke-test lane.
+- [Stabilize My Network Suggestions Blocking](./next-features/block-network-suggestions.md)
+  records why the `networkSuggestions` selector is treated as incomplete and
+  what would make it reliable.
 
 When behavior, settings shape, Chrome API usage, selector strategy, validation,
 or publishing assumptions change, check whether these docs should be updated in
