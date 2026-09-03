@@ -286,6 +286,30 @@ The coverage thresholds in `vitest.config.ts` are a floor that only moves up.
 They sit a couple of points under the measured numbers so an unrelated change
 cannot quietly erode coverage while a real refactor still has room.
 
+## Visible, and actually visible
+
+`e2e/fixtures/visibility.ts` exports `expectUncovered`, which asserts that an
+element is on screen and that nothing is painted over it. It reads what
+`elementFromPoint` returns at the element's centre and fails with the name of
+whatever came back instead.
+
+Playwright's `toBeVisible()` answers a narrower question: the element has a
+non-empty box and is not `display: none` or `visibility: hidden`. An element
+with a full-screen overlay on top of it passes. That was checked rather than
+assumed, by painting one over the fixture and watching `toBeVisible()` stay
+green while `expectUncovered` failed and named the covering `div`.
+
+The gap matters for one claim in particular. The My Network invitation area
+staying visible is the extension's standing product guarantee, and a rule that
+collapsed a neighbouring section over it would leave the suite green and the
+page wrong. That assertion uses `expectUncovered`.
+
+The idea is borrowed from the caption-truth checks in the adjacent rebobinate
+project, where a screenshot shipping a true-sounding caption over the wrong
+pixels buys a round of confident, wrong conclusions. This is the same failure
+one layer down, and it is the same shape as the fixture rule: something that
+looks like proof while proving nothing.
+
 ## Rules that keep these layers honest
 
 - Prefer the smallest layer that proves the behaviour: Vitest first, the fixture

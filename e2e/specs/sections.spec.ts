@@ -1,5 +1,6 @@
 import type { Page } from '@playwright/test'
 import { test, expect } from '../fixtures/extension'
+import { expectSelectorUncovered } from '../fixtures/visibility'
 import type { ExtensionSettings, PageSection } from '../../src/shared/settings'
 
 const NOTHING_BLOCKED: ExtensionSettings = {
@@ -120,8 +121,13 @@ test('blocks the My Network promos and keeps invitations', async ({
   // A standing product guarantee: the invitation area is the reason to open
   // this page. The section above the preview is checked too, because the
   // suggestion rule is an ordering check, not "every auto-component section".
-  await expectVisible(page, '#network-invitations')
-  await expectVisible(page, '#network-before-invitations')
+  //
+  // Checked for occlusion rather than with `toBeVisible()`. A neighbouring
+  // section collapsing over the invitations, or a curtain that never lifted off
+  // an overlay, leaves them visible by Playwright's definition and invisible to
+  // the person who opened the page.
+  await expectSelectorUncovered(page, '#network-invitations')
+  await expectSelectorUncovered(page, '#network-before-invitations')
 
   await seedSettings(NOTHING_BLOCKED)
 
