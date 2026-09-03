@@ -47,10 +47,11 @@ The extension is built with Vite, React, TypeScript, and
   Vitest; the `.ts` ones are compiled by `tsconfig.node.json`.
 - `e2e/specs/` is the deterministic Playwright suite CI runs; `e2e/real/` and
   `e2e/manual/` are the opt-in credentialed lanes it cannot.
-- `scripts/` holds the plain-ESM release and validation tooling: the source
-  archiver, the AMO publisher and its preview logic, the Gecko runtime
-  validator, the icon renderer, and the shared `--help` handling all four of
-  them import.
+- `scripts/` holds the plain-ESM release, validation and development tooling:
+  the source archiver, the AMO publisher and its preview logic, the Gecko
+  runtime validator, the icon renderer, the Chromium and Gecko launchers, the
+  runtime inspector, and the shared browser resolution and `--help` handling the
+  rest of them import.
 - `public/icons/` contains extension icons copied into builds. They are
   generated from `store/logo.svg`, not hand-exported.
 - `store/` contains listing assets shared across stores: the long description,
@@ -72,6 +73,15 @@ The extension is built with Vite, React, TypeScript, and
 Use `pnpm`, following the `packageManager` field in `package.json`.
 
 - `pnpm dev` starts the Vite dev server for extension development.
+- `pnpm dev:chrome [url]` builds and opens `dist/` in a real Chromium on a
+  throwaway profile; `pnpm dev:firefox [url]` and `pnpm dev:zen [url]` do the
+  same for `dist-firefox/` as a temporary add-on. `FIREFOX_BINARY` overrides the
+  Gecko binary.
+- `pnpm inspect:chrome [url]` builds, loads `dist/`, and prints a JSON snapshot
+  of the running extension: id, granted permissions, the resolved command
+  binding, visible tabs, storage, popup controls, and the managed attributes on
+  the page. `INSPECT_PROFILE_DIR=.e2e/linkedin-real-profile` runs it against the
+  signed-in profile.
 - `pnpm typecheck` runs `tsc -b`, which covers the extension, the Node-side
   config plus `tests/`, and the Playwright harness in one pass. There is no
   separate harness typecheck.
@@ -279,11 +289,13 @@ or packaging changes, run at least `pnpm format`, `pnpm lint`,
 
 ## Manual Validation Notes
 
-After a build, load `dist/` as an unpacked extension in Chrome or Chromium when
-behavior needs runtime validation. Walk the same list on Gecko with
-`dist-firefox/` before a release: it is where the background script (not a
+`pnpm dev:chrome` builds and opens `dist/` in a real Chromium when behavior
+needs runtime validation. Walk the same list on Gecko with `pnpm dev:firefox`
+or `pnpm dev:zen` before a release: it is where the background script (not a
 service worker) and the callback-only `chrome.*` surface can diverge, and where
-the popup is a XUL panel rather than a tab. Check at least:
+the popup is a XUL panel rather than a tab. When a result is confusing, run
+`pnpm inspect:chrome` before reading source: it prints what the running
+extension actually sees. Check at least:
 
 - popup toggles persist via `chrome.storage.local`;
 - `/feed/` main feed and right-rail blocking behave as expected;

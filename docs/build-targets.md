@@ -140,6 +140,12 @@ Useful environment variables:
 defaults. Going through `pnpm validate:firefox --help` also works, but builds
 the Firefox target first.
 
+For driving the Gecko build by hand rather than checking it automatically,
+`pnpm dev:firefox` and `pnpm dev:zen` install `dist-firefox/` as a temporary
+add-on on a throwaway profile and leave the window open. They read
+`FIREFOX_BINARY` from the same resolution this script does, so one variable
+covers every Gecko lane. See [Testing](./testing.md).
+
 ### Zen
 
 `FIREFOX_BINARY=/usr/bin/zen-browser pnpm exec node scripts/validate-firefox.mjs`

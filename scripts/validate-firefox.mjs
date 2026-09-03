@@ -13,6 +13,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { spawn } from 'node:child_process'
 import { printHelpAndExit } from './help.mjs'
+import { resolveGeckoBinary } from './browsers.mjs'
 
 printHelpAndExit(`
 Usage: pnpm validate:firefox [--help]
@@ -51,7 +52,7 @@ const extensionId = 'linkedin-feed-blocker@shbernal.github.io'
 const extensionUuid = '8c4d19b7-2a05-4e63-9f1c-6d7b40e2a915'
 const extensionOrigin = `moz-extension://${extensionUuid}`
 const extensionPath = path.resolve(process.cwd(), 'dist-firefox')
-const binary = process.env.FIREFOX_BINARY ?? '/usr/bin/firefox'
+const binary = resolveGeckoBinary()
 // Namespaced by binary so a Zen run does not overwrite the Firefox proof, and
 // so the two browsers never share a profile.
 const proofDir = path.resolve(

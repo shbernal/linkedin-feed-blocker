@@ -37,6 +37,12 @@ behaviour. Its configuration and the reason behind each suppression live in
 - `pnpm build` writes the unpacked extension to `dist/`.
 - `pnpm lint` runs oxlint over the source tree. `pnpm lint:fix` applies the
   fixes it can make on its own. CI runs the first with `--format github`.
+- `pnpm dev:chrome [url]` builds and opens `dist/` in a real Chromium on a
+  throwaway profile.
+- `pnpm dev:firefox [url]` and `pnpm dev:zen [url]` build and install
+  `dist-firefox/` as a temporary add-on in Firefox or Zen.
+- `pnpm inspect:chrome [url]` builds, loads `dist/`, and prints a JSON snapshot
+  of what the running extension sees.
 - `pnpm lint:firefox` builds `dist-firefox/` and runs `web-ext`'s static checks
   over it. CI runs this too.
 - `pnpm validate:firefox` drives the built Gecko package in a real Firefox.
@@ -250,6 +256,49 @@ Prefer the smallest layer that proves the behavior.
   in `src/test/setup.ts` does not undo the managed attributes, so without it
   blocking state leaks into the next test. That pair is the same one
   `import.meta.hot.dispose` runs, so teardown matches production.
+
+## Driving The Built Extension By Hand
+
+Three commands get to the starting line of the manual checklist in `AGENTS.md`,
+which otherwise means a build, a browser, an unpacked-extension dialog and a
+URL. Each builds first, so a stale `dist/` cannot produce a confusing result.
+
+`pnpm dev:chrome [url]` opens `dist/` in a real Chromium and leaves the window
+open. `pnpm dev:firefox [url]` and `pnpm dev:zen [url]` install `dist-firefox/`
+as a temporary add-on in Firefox or Zen. Gecko is where the background script
+is not a service worker, the `chrome.*` surface is callback-only and the popup
+is a XUL panel, so walking the checklist there before a release is the point of
+the second and third.
+
+All three use a throwaway profile under `node_modules/.tmp/`, recreated on every
+launch, so extension storage from the last session cannot make this one lie
+about defaults. They are deliberately not under `.e2e/`, which holds the
+real-site profile someone signed in by hand.
+
+`FIREFOX_BINARY` picks the Gecko binary for all three Gecko lanes, including
+`pnpm validate:firefox`, so a fork that is not Zen needs no new command.
+
+### Inspecting The Running Extension
+
+`pnpm inspect:chrome [url]` prints a JSON snapshot of the live extension: its
+id, the permissions the browser granted, the resolved `chrome.commands`
+binding, the tabs the worker can see, storage contents, the popup's rendered
+controls, and the `data-ltfb-*` attributes on the page.
+
+The principle is getting the browser's answer before reasoning from the source.
+LinkedIn's markup is brittle by constraint and the content script is
+route-gated, so "the selector missed" and "the route table does not list this
+section on this path" look identical from the outside. The snapshot separates
+them: it reports the pathname it actually landed on next to the attributes it
+actually found.
+
+A field it could not read is reported as an error string rather than a default,
+because a snapshot that invents plausible state is worse than no snapshot.
+
+`INSPECT_PROFILE_DIR=.e2e/linkedin-real-profile` runs it against the signed-in
+profile, which is the only way to see blocking on a real feed. Without it
+LinkedIn redirects to the auth wall, the content script correctly matches
+nothing, and the snapshot says so.
 
 ## Persistent Profile
 
