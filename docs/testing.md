@@ -286,6 +286,49 @@ Coverage thresholds in `vitest.config.ts` are a **ratchet, not a target**: they
 sit a couple of points under the measured numbers so an unrelated change cannot
 quietly erode coverage. Raise them when coverage rises.
 
+## Rules That Keep These Layers Honest
+
+- Prefer the smallest layer that proves the behaviour: Vitest first, the fixture
+  Playwright suite when the claim needs a real extension runtime, and the
+  real-site lane only for selector drift.
+- `src/test/fixtures/linkedin.ts` is the single source of LinkedIn-shaped markup
+  for both deterministic layers. Copy attributes and nesting from a real page;
+  never write the markup a selector expects. A fixture written to fit the
+  selector produces a green suite that matches nothing in production.
+- Content-script tests must pair `clearAllBlocking()` with
+  `cleanupContentScript()` in teardown, or blocking state leaks into the next
+  test.
+- Coverage thresholds in `vitest.config.ts` are a ratchet. Raise them when
+  coverage rises; do not lower them to make a change fit.
+- `pnpm validate:firefox` reports a check it could not run as `SKIP`, never as a
+  pass. Its page-level checks need a LinkedIn session in the persistent profile,
+  and Zen cannot reach extension pages at all. Keep it that way.
+- The My Network invitation area staying visible is covered in both
+  deterministic layers. Keep it that way when touching the suggestion rule.
+
+## Manual Validation
+
+The deterministic layers prove the selectors match the markup that was copied
+and that the extension runtime behaves. They cannot tell you the popup looks
+right or that a real feed is quiet. After a build, drive it by hand.
+
+`pnpm dev:chrome` is the Chromium pass. Walk the same list on Gecko with
+`pnpm dev:firefox` or `pnpm dev:zen` before a release: that is where the
+background script is not a service worker, the `chrome.*` surface is
+callback-only, and the popup is a XUL panel rather than a tab. When a result is
+confusing, run `pnpm inspect:chrome` before reading source.
+
+Check at least:
+
+- popup toggles persist via `chrome.storage.local`;
+- `/feed/` main feed and right-rail blocking behave as expected, and the feed
+  does not flash before the first pass;
+- `/mynetwork/grow/` `networkPuzzle`, `networkPremium` and `networkSuggestions`
+  blocking behaves as expected while invitations remain visible;
+- the command in `manifest.config.ts` toggles the currently supported LinkedIn
+  page;
+- disabled sections restore elements hidden by the extension.
+
 ## Adding Tests
 
 Prefer the smallest layer that proves the behavior.

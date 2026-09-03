@@ -37,6 +37,26 @@ this directory unless the task explicitly calls for it.
   records why the `networkSuggestions` selector is treated as incomplete and
   what would make it reliable.
 
-When behavior, settings shape, Chrome API usage, selector strategy, validation,
-or publishing assumptions change, check whether these docs should be updated in
-the same change.
+## Which Doc To Update
+
+When behaviour, settings shape, Chrome API usage, selector strategy, validation,
+or publishing assumptions change, one of these needs updating in the same
+change.
+
+| When this changes                                                            | Update                      |
+| ---------------------------------------------------------------------------- | --------------------------- |
+| runtime surfaces, settings shape, message contracts, selectors, the manifest | `current-implementation.md` |
+| known limitations, validation gaps, the hardening plan                       | `experimental-status.md`    |
+| CI gates, release triggers, workflow variables or secrets, store publishing  | `ci-release-flow.md`        |
+| the target switch, the manifest differences, Firefox lint or runtime checks  | `build-targets.md`          |
+| the Gecko rules or what AMO obliges the repository to do                     | `firefox-amo.md`            |
+| AMO listing copy, metadata, assets, the preview throttle or the listing lock | `amo-listing.md`            |
+| Chrome Web Store listing assets or the privacy form                          | `chrome-web-store.md`       |
+| test layers, commands, the Chrome API mock, the fixtures, the coverage map   | `testing.md`                |
+| the repository layout, scope, or shipped status                              | `project-overview.md`       |
+| a rejected icon direction, or what a mark costs at 16px                      | `icon-explorations.md`      |
+
+Two rules apply to all of them. Keep docs tied to current code: speculative
+roadmap context belongs here only when the task asks for planning
+documentation. And keep `README.md` out of it — that one is user-facing, is
+ignored by the formatter, and is not part of this directory.

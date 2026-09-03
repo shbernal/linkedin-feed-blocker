@@ -18,10 +18,11 @@ selectors. It builds for Chromium and for Gecko from one source tree and
 publishes to both the Chrome Web Store and addons.mozilla.org from published
 GitHub Releases. It has listing copy, captured screenshots, promo imagery,
 packaging commands for all three release artifacts, a Vitest suite with a
-coverage ratchet, source-tree guards, and a fixture-backed Playwright suite. It
-does not yet have a hardened selector strategy, and hiding is still inline
-`display: none` applied after first paint rather than a `document_start`
-stylesheet.
+coverage ratchet, source-tree guards, and a fixture-backed Playwright suite. A
+`document_start` stylesheet keeps the `/feed/` route from flashing before the
+content script's first pass. It does not yet have a hardened selector strategy,
+and the `/mynetwork/grow/` sections match on text content or document position,
+so they cannot follow into CSS and still flash.
 
 Use this repo as an implementation sandbox until those gaps are closed.
 
@@ -42,6 +43,44 @@ Current blocking targets:
 
 The extension is meant to preserve higher-value LinkedIn surfaces by default:
 search, messages, jobs, direct profile pages, and My Network invitations.
+
+## Repository Layout
+
+The extension is built with Vite, React, TypeScript, and `@crxjs/vite-plugin`.
+
+| Path                               | What lives there                                                                              |
+| ---------------------------------- | --------------------------------------------------------------------------------------------- |
+| `manifest.config.ts`               | the MV3 manifest; reads the version from `package.json` and switches on `EXT_TARGET`          |
+| `vite.config.ts`                   | output directory and dev-server CORS origin, on the same variable                             |
+| `src/background/service-worker.ts` | the keyboard command, and the binding mirror the content script reads                         |
+| `src/content/content-script.ts`    | the content-script entry: listeners, observer, scheduled re-apply, shortcut state             |
+| `src/content/selectors.ts`         | the section-to-selector table, the managed `data-ltfb-*` attributes, and the DOM predicates   |
+| `src/content/routes.ts`            | maps a pathname to the sections the extension may touch there                                 |
+| `src/content/blocking.ts`          | hiding, restoring, and the managed-attribute bookkeeping                                      |
+| `src/content/blockingStyles.ts`    | the pre-paint curtain: the ready gate and the generator for `blocking.css`                    |
+| `src/popup/App.tsx`                | the popup UI for global and per-section toggles                                               |
+| `src/shared/settings.ts`           | storage keys, defaults, normalization, and legacy settings migration                          |
+| `src/shared/shortcut.ts`           | parses a `chrome.commands` binding into a keydown matcher for the in-page fallback            |
+| `src/shared/linkedin.ts`           | answers whether a URL is on LinkedIn                                                          |
+| `src/test/`                        | the shared Chrome API mock, the Vitest setup file, and the LinkedIn fixture markup            |
+| `tests/`                           | source-tree guards, run inside Vitest; the `.ts` ones compile under `tsconfig.node.json`      |
+| `e2e/specs/`                       | the deterministic Playwright suite CI runs                                                    |
+| `e2e/real/`, `e2e/manual/`         | the opt-in credentialed lanes CI cannot run                                                   |
+| `scripts/`                         | plain-ESM release, validation and development tooling                                         |
+| `public/icons/`                    | extension icons copied into builds, generated from `store/logo.svg`                           |
+| `store/`                           | listing assets shared across stores: description, screenshots, and the logo                   |
+| `chrome-web-store/`                | Chrome-specific listing assets: privacy justifications and the promo tile                     |
+| `amo/`                             | addons.mozilla.org listing metadata, preview captions, and the source-submission instructions |
+| `docs/`                            | contributor-facing project and implementation notes                                           |
+| `.github/workflows/`               | pull-request validation and the two independent store publish workflows                       |
+
+`dist/`, `dist-firefox/` and `release/` are generated or packaged outputs and are
+ignored by git.
+
+`scripts/` holds the source archiver, the AMO publisher with its listing-asset
+planner and write-throttle budget, the Gecko runtime validator, the icon
+renderer, the Chromium and Gecko launchers, the runtime inspector, and the
+shared browser resolution and `--help` handling the rest of them import.
 
 ## Out Of Scope For Now
 
