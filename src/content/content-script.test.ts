@@ -8,6 +8,7 @@ import { TOGGLE_SHORTCUT_STORAGE_KEY } from '../shared/shortcut'
 import { getChromeMock } from '../test/chrome'
 import { FEED_BODY, getFixtureBody } from '../test/fixtures/linkedin'
 import { clearAllBlocking } from './blocking'
+import { isBlockingReady, READY_FALLBACK_MS } from './blockingStyles'
 
 type ContentScriptModule = typeof import('./content-script')
 
@@ -397,5 +398,45 @@ describe('teardown', () => {
 
     expect(isHidden('#main-feed')).toBe(false)
     expect(document.querySelectorAll('[data-ltfb-feed-hidden]')).toHaveLength(0)
+  })
+})
+
+// The document_start stylesheet hides the feed route's targets while the gate
+// is absent, so anything that leaves it absent leaves LinkedIn blank. These
+// cover the three ways it has to end up set.
+describe('the pre-paint gate', () => {
+  it('is cleared once the settings read lands', async () => {
+    expect(isBlockingReady()).toBe(false)
+
+    await loadContentScript()
+
+    expect(isBlockingReady()).toBe(true)
+  })
+
+  it('is cleared on a timer when the settings read never returns', async () => {
+    vi.useFakeTimers()
+    // The real failure this guards is a callback that never fires, which
+    // otherwise leaves the gate absent for as long as the tab is open.
+    getChromeMock().storage.local.get.mockImplementationOnce(() => {})
+
+    await loadContentScript()
+    expect(isBlockingReady()).toBe(false)
+
+    await vi.advanceTimersByTimeAsync(READY_FALLBACK_MS)
+
+    expect(isBlockingReady()).toBe(true)
+  })
+
+  it('is set by teardown, never cleared by it', async () => {
+    vi.useFakeTimers()
+    getChromeMock().storage.local.get.mockImplementationOnce(() => {})
+
+    const module = await loadContentScript()
+    expect(isBlockingReady()).toBe(false)
+
+    module.cleanupContentScript()
+
+    // An unloaded extension must not leave the page hidden.
+    expect(isBlockingReady()).toBe(true)
   })
 })

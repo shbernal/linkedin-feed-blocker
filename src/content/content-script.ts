@@ -14,6 +14,7 @@ import {
   type ParsedShortcut,
 } from '../shared/shortcut'
 import { applySettings, clearAllBlocking } from './blocking'
+import { markBlockingReady, READY_FALLBACK_MS } from './blockingStyles'
 import { getCurrentRouteSections } from './routes'
 
 type UpdateSettingsMessage = {
@@ -36,6 +37,7 @@ let settings: ExtensionSettings = { ...DEFAULT_SETTINGS }
 let toggleShortcut: ParsedShortcut | null = resolveToggleShortcut(undefined)
 let observer: MutationObserver | null = null
 let reapplyTimeoutId: number | null = null
+let readyFallbackTimeoutId: number | null = null
 let lastShortcutToggleAt = 0
 
 const isUpdateSettingsMessage = (
@@ -63,6 +65,22 @@ const isToggleCurrentPageBlockMessage = (
 
 const applyCurrentSettings = () => {
   applySettings(settings)
+}
+
+const cancelReadyFallback = () => {
+  if (readyFallbackTimeoutId !== null) {
+    window.clearTimeout(readyFallbackTimeoutId)
+    readyFallbackTimeoutId = null
+  }
+}
+
+// The document_start stylesheet hides the feed route's targets until this runs,
+// so whatever happens the gate has to end up cleared. The stylesheet expires on
+// its own if the content script never runs at all; this is the shorter backstop
+// for the case where it did run and the storage read never came back.
+const finishStartup = () => {
+  cancelReadyFallback()
+  markBlockingReady()
 }
 
 const cancelScheduledApply = () => {
@@ -236,8 +254,11 @@ export const initContentScript = () => {
       settings = normalizeSettings(settings, DEFAULT_SETTINGS)
       saveSettings(settings)
       applyCurrentSettings()
+      finishStartup()
     },
   )
+
+  readyFallbackTimeoutId = window.setTimeout(finishStartup, READY_FALLBACK_MS)
 
   chrome.runtime.onMessage.addListener(onRuntimeMessage)
   chrome.storage.onChanged.addListener(onStorageChanged)
@@ -246,6 +267,9 @@ export const initContentScript = () => {
 }
 
 export const cleanupContentScript = () => {
+  // Set, never cleared: an unloaded extension must not leave the page hidden.
+  finishStartup()
+
   chrome.runtime.onMessage.removeListener(onRuntimeMessage)
   chrome.storage.onChanged.removeListener(onStorageChanged)
   document.removeEventListener('keydown', onKeyDown, true)

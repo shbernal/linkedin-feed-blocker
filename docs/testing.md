@@ -117,6 +117,31 @@ routes on `pathname`, and `/jobs/` deliberately carries right-rail markup the
 feed selectors would match, so a route-gating regression fails there instead of
 on a real page.
 
+## Proving The Pre-Paint Curtain
+
+`e2e/specs/pre-paint.spec.ts` carries the two claims jsdom cannot make about
+`src/content/blocking.css`.
+
+The first is that the feed is hidden _before_ any of the extension's JavaScript
+has run, rather than a moment after. `renderFixturePage` ends the body with an
+inline probe that records computed styles while the document is still parsing,
+which is before the content script's `document_end` entry. The spec reads what
+the probe captured. That probe is test scaffolding rather than markup: nothing
+in `src/` sees it, and it targets ids the fixture already carries.
+
+The second is the blank-page failure mode. If the gate is never cleared the page
+stays hidden, which is worse than the flash the stylesheet replaces, so the rule
+expires on its own. The spec drives that state directly, because no test of a
+working extension reaches it. It seeds nothing blocked on purpose: an element
+the content script has already set to `display: none` is not rendered, and an
+element that is not rendered runs no animations, so seeding the defaults would
+test a state the real failure never reaches. If the content script never ran,
+nothing set `display: none` either.
+
+Both were watched failing against a neutered stylesheet before being kept. The
+third spec in the file covers the gate itself and correctly keeps passing there,
+which is what says the two CSS specs are testing the CSS.
+
 ## Fixture Playwright
 
 `playwright.config.ts` runs `e2e/specs/` against the built `dist/` in a
@@ -178,6 +203,16 @@ before matching, because the rule is the kind that gets written down next to
 the code it forbids, and skips test files, which construct these inputs on
 purpose.
 
+`tests/blocking-css.test.ts` fails if `src/content/blocking.css` is not byte
+for byte what `src/content/blockingStyles.ts` generates. The stylesheet is
+checked in because the manifest declares it and the browser injects it at
+`document_start`, but it is built from the same `SECTION_TARGETS` table the
+JavaScript path reads. This guard is the only thing making the checked-in copy
+trustworthy: without it the CSS and the JS could disagree about what a section
+targets and nothing would say so. Regenerate with
+`UPDATE_BLOCKING_CSS=1 pnpm test`. The file is in `.oxfmtrc.json`'s ignore list,
+because reformatting it fails its own guard.
+
 `tests/documented-version.test.ts` fails if the version stated in `README.md`
 or `docs/project-overview.md` is not the one in `package.json`. Nothing else
 propagates a version bump into either file. Every other version literal in the
@@ -221,6 +256,10 @@ glob as the `.ts` suites.
   input that opens a native dialog.
 - `tests/documented-version.test.ts` — the two documents that state the shipped
   version against `package.json`.
+- `tests/blocking-css.test.ts` — the generated `document_start` stylesheet
+  against its generator.
+- `src/content/blockingStyles.test.ts` — the curtain selector list, the two
+  properties an animation can restore, the self-expiry, and the one-way gate.
 - `tests/amo-previews.test.mjs` — the AMO listing-asset planning and the
   checked-in previews manifest.
 

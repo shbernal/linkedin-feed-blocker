@@ -40,6 +40,17 @@ export default defineManifest({
       js: ['src/content/content-script.ts'],
       run_at: 'document_end',
     },
+    // A separate entry so `matches` can be narrower than the script's. The
+    // stylesheet hides the feed route's targets before the first paint, and it
+    // is scoped to that route by the manifest rather than by an attribute the
+    // content script would have to write, which would reintroduce exactly the
+    // race it exists to close. Injected at document_start; the content script
+    // clears the gate once it knows what is actually blocked.
+    {
+      matches: ['*://*.linkedin.com/feed', '*://*.linkedin.com/feed/*'],
+      css: ['src/content/blocking.css'],
+      run_at: 'document_start',
+    },
   ],
   action: {
     default_popup: 'src/popup/index.html',

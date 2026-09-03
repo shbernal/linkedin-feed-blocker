@@ -163,6 +163,31 @@ const PAGE_STYLES = `
   }
 `
 
+// Test scaffolding, not markup: it runs while the document is still parsing,
+// which is before the content script's `document_end` entry and therefore
+// before any of the extension's JavaScript. Reading computed styles here is
+// the only way to prove the document_start stylesheet hid something ahead of
+// the first paint rather than shortly after it. Nothing in `src/` sees it.
+const PARSE_TIME_PROBE = `
+  window.__ltfbParseTime = Object.fromEntries(
+    ['#main-feed', '#right-rail-ad-image'].map(selector => {
+      const element = document.querySelector(selector)
+      if (!element) {
+        return [selector, null]
+      }
+      const styles = getComputedStyle(element)
+      return [
+        selector,
+        {
+          visibility: styles.visibility,
+          contentVisibility: styles.contentVisibility,
+          height: Math.round(element.getBoundingClientRect().height),
+        },
+      ]
+    }),
+  )
+`
+
 export const renderFixturePage = (pathname: string) => `<!doctype html>
 <html lang="en">
   <head>
@@ -172,5 +197,6 @@ export const renderFixturePage = (pathname: string) => `<!doctype html>
   </head>
   <body>
     ${getFixtureBody(pathname)}
+    <script>${PARSE_TIME_PROBE}</script>
   </body>
 </html>`

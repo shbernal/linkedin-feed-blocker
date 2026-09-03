@@ -60,16 +60,28 @@ The current blocking approach is deliberately simple and not very efficient.
   element insertion anywhere on the page.
 - Each run still re-queries every enabled selector group for the current
   supported route.
-- Hiding happens from JavaScript after the page has painted, so blocked sections
-  flash briefly on load. A `document_start` stylesheet would fix that for the
-  selector-only targets, but the predicate-gated My Network sections cannot be
-  expressed in static CSS, so a partial gate is the most that is available.
+- Hiding still happens from JavaScript, after the page has painted. A
+  `document_start` stylesheet now covers the `/feed/` route, so the feed and
+  right rail no longer flash on a full page load, but the three
+  `/mynetwork/grow/` sections match on text content or document position, have
+  no CSS equivalent, and still flash. Nothing covers a client-side navigation
+  into a route either: the gate is already cleared by then, so the flash there
+  is bounded by the observer's scheduled pass rather than by the stylesheet.
+- The curtain hides the union of the feed route's targets, because nothing knows
+  which sections are blocked until the settings read lands. A section the user
+  left unblocked therefore appears a moment after load instead of being hidden a
+  moment after it.
 - Several selectors use `:has(...)` and broad section-level matches. These can
   be expensive and brittle on LinkedIn's dynamic DOM.
 - Selectors are based on current observed markup, including attributes that may
   change without warning.
 - Hiding uses inline `display: none`, which is reversible for managed elements
   but not a nuanced layout-preserving strategy.
+- The pre-paint curtain was measured on a live LinkedIn feed, not just on
+  fixtures: at the first animation frame in which each `/feed/` target existed,
+  the gate was still uncleared and all four were already hidden, with the feed
+  container collapsed to zero height. Because a `requestAnimationFrame` callback
+  runs before its paint, no earlier paint existed for a flash to appear in.
 - Fixtures resemble LinkedIn but are not LinkedIn. They prove the selectors
   still match the markup that was copied; only the opt-in real-site lane can
   notice that LinkedIn changed it.
@@ -84,9 +96,9 @@ Before treating this as maintained, prefer these steps:
    inserted anywhere".
 2. Narrow selectors and document which LinkedIn attributes are expected to be
    stable enough to depend on.
-3. Move selector-only hiding to a `document_start` stylesheet so blocked
-   sections stop flashing, accepting that the predicate-gated My Network
-   sections cannot follow.
+3. Decide whether the `/mynetwork/grow/` sections can be narrowed enough to
+   express in CSS, which is the only way the flash there goes away. The
+   `/feed/` route is already covered by a `document_start` stylesheet.
 4. Extend real smoke coverage to `/mynetwork/grow/` after the Home feed path is
    stable.
 5. Re-copy the fixture markup from live pages whenever a selector changes, so

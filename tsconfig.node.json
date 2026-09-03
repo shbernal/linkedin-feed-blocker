@@ -2,7 +2,9 @@
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
     "target": "ES2022",
-    "lib": ["ES2023"],
+    // DOM because tests/blocking-css.test.ts imports the stylesheet generator
+    // out of src/, the same reason tsconfig.e2e.json carries it.
+    "lib": ["ES2023", "DOM"],
     "moduleDetection": "force",
     "module": "ESNext",
     "moduleResolution": "bundler",

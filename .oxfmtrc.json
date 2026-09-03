@@ -14,11 +14,15 @@
   // coverage/, playwright-report/ and test-results/ are not repeated here:
   // they are in .gitignore and oxfmt honors it. README.md is not, so it needs
   // the explicit entry, which also means nothing formats it.
+  //
+  // src/content/blocking.css is generated and checked byte for byte against its
+  // generator by tests/blocking-css.test.ts. Reformatting it fails that guard.
   "ignorePatterns": [
     "dist/",
     "dist-firefox/",
     "node_modules/",
     "pnpm-lock.yaml",
-    "README.md"
+    "README.md",
+    "src/content/blocking.css"
   ]
 }

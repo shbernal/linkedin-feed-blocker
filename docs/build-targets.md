@@ -45,6 +45,16 @@ manifest key other than the two below diverges.
 - **Dev server CORS.** `pnpm dev` allows `chrome-extension://` origins by
   default and `moz-extension://` origins when `EXT_TARGET=firefox`.
 
+The manifest's `content_scripts` carries two entries, and both are identical
+across targets. The second is CSS only: it injects `src/content/blocking.css` at
+`document_start` on the `/feed/` route, which is what stops the feed flashing
+before the content script's first pass. `web-ext lint` has no objection to it,
+and the built stylesheet is the same bytes in `dist/` and `dist-firefox/`. The
+curtain's behaviour was checked in a real Firefox as well as a real Chromium
+before it landed, because Playwright cannot load an MV3 extension in Gecko and
+`pnpm validate:firefox` cannot reach an extension page to observe it. See
+[Current Implementation](./current-implementation.md).
+
 `strict_min_version` is `140.0`. The floor is set by
 `data_collection_permissions`, which Firefox only understands from 140 onward;
 below that the key is silently ignored and the declaration never reaches the

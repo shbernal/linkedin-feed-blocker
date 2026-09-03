@@ -153,9 +153,26 @@ or packaging changes, run at least `pnpm format`, `pnpm lint`,
 - The content script reapplies blocking from a mutation observer that coalesces
   into a single scheduled pass. Do not reintroduce a polling interval; if a
   surface is missed, fix the trigger or the selector.
-- Hiding is still inline `display: none` plus a managed attribute, which means a
-  brief flash of feed content before the first pass. Moving to a
-  `document_start` stylesheet is the intended next step, not a settled design.
+- Blocking is inline `display: none` plus a managed attribute, applied by the
+  content script. That stays the mechanism for every section, and it stays the
+  only thing that marks an element as hidden by this extension.
+- `src/content/blocking.css` is a separate concern: a `document_start` curtain
+  that hides the `/feed/` route's targets until the content script has read
+  settings, so the feed does not flash before the first pass. It is generated
+  from `SECTION_TARGETS` by `src/content/blockingStyles.ts` and checked byte for
+  byte by `tests/blocking-css.test.ts`; never hand-edit it. It covers `feed` and
+  `rightFeed` only. The three `/mynetwork/grow/` sections match on text content
+  or document position and have no CSS equivalent.
+- The curtain is scoped to the feed route by the manifest's `matches`, not by an
+  attribute the content script writes, which would reintroduce the race it
+  exists to close.
+- `data-ltfb-ready` on `<html>` is one-way. Absent means "not decided yet",
+  never "nothing blocked", so teardown sets it rather than clearing it. The
+  curtain also expires on its own after `CURTAIN_EXPIRY_MS`, because a content
+  script that never runs would otherwise leave LinkedIn permanently blank. That
+  is why the curtain uses `content-visibility` and `visibility` rather than
+  `display: none`: an animation can restore those two and cannot restore
+  `display`.
 - Preserve high-value LinkedIn surfaces by default. In particular, the My
   Network invitation area should stay visible unless the user explicitly asks to
   block it.

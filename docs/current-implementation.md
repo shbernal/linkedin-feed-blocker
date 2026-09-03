@@ -14,6 +14,14 @@ permission, LinkedIn host permissions, keyboard command, and icons.
 The content script matches all `*.linkedin.com` pages, even though blocking is
 currently only useful on `/feed/` and `/mynetwork/grow/`.
 
+`content_scripts` carries a second entry, for CSS only. It injects
+`src/content/blocking.css` at `document_start`, and its `matches` is narrowed to
+`*://*.linkedin.com/feed` and `*://*.linkedin.com/feed/*`. The narrowing is the
+point: the stylesheet has to be route-scoped, and doing it in the manifest means
+the browser decides before any of the extension's code runs. Scoping it with an
+attribute the content script writes would reintroduce the race the stylesheet
+exists to close. Both build targets emit this entry identically.
+
 The two entry files must keep distinct basenames
 (`src/background/service-worker.ts` and `src/content/content-script.ts`). crxjs
 names each output chunk after its entry's basename, so when both were called
@@ -111,13 +119,14 @@ width.
 
 ## Content Script Flow
 
-The content script is split into four modules:
+The content script is split into five modules:
 
 | File                            | Responsibility                                                                             |
 | ------------------------------- | ------------------------------------------------------------------------------------------ |
 | `src/content/selectors.ts`      | `SECTION_TARGETS`, the managed `data-ltfb-*` attribute per section, and the DOM predicates |
 | `src/content/routes.ts`         | maps a pathname to the sections the extension may touch there                              |
 | `src/content/blocking.ts`       | hide, restore, and the managed-attribute bookkeeping                                       |
+| `src/content/blockingStyles.ts` | the pre-paint curtain: the ready gate and the generator for `blocking.css`                 |
 | `src/content/content-script.ts` | the manifest entry: listeners, observer, scheduled re-apply, shortcut state                |
 
 Together they:
@@ -135,6 +144,56 @@ Together they:
 An element LinkedIn itself already set to `display: none` is skipped rather than
 adopted, so disabling a section never reveals something the page meant to keep
 hidden.
+
+### The Pre-Paint Curtain
+
+Blocking runs from JavaScript, which means it runs after the page has painted.
+`src/content/blocking.css` closes that window on the `/feed/` route by hiding
+the route's targets from `document_start` until the content script has read
+settings and applied them.
+
+It is generated from `SECTION_TARGETS` by `src/content/blockingStyles.ts` and
+checked byte for byte against that generator by `tests/blocking-css.test.ts`.
+Generating rather than hand-writing is what keeps the stylesheet and the
+JavaScript path from disagreeing about what a section targets; the guard is what
+makes the checked-in file trustworthy. Regenerate with
+`UPDATE_BLOCKING_CSS=1 pnpm test`.
+
+Only `feed` and `rightFeed` are covered. `networkPuzzle` and `networkPremium`
+match on text content and `networkSuggestions` compares document position
+against the pending-invitations preview, so none of the three has a CSS
+equivalent. The split falls on the route boundary, which is what makes a partial
+migration worth doing: `/feed/` is entirely CSS-expressible and `/feed/` is
+where the flash hurts. The `/mynetwork/grow/` sections are unaffected by any of
+this and keep the JavaScript path alone.
+
+The curtain is not a second blocking mechanism. It hides nothing permanently,
+marks no elements, and stops applying entirely once the gate is cleared.
+`data-ltfb-ready` on `<html>` is the gate, and it is one-way: absent means "not
+decided yet", never "nothing blocked", so `cleanupContentScript()` sets it
+rather than clearing it. An unloaded extension must not leave the page hidden.
+
+Two consequences worth knowing:
+
+- The curtain hides the union of the route's targets, because nothing knows
+  which sections are blocked until the settings read lands. A section the user
+  left unblocked appears a moment after load rather than being hidden a moment
+  after it. `chrome.storage.local` has no synchronous read, so there is no way
+  around this.
+- The rule expires on its own after `CURTAIN_EXPIRY_MS`. Without that, a content
+  script that never runs would leave LinkedIn permanently blank, which is a
+  worse failure than the flash. `READY_FALLBACK_MS` is the shorter
+  JavaScript-side backstop for a storage read that never returns, so the CSS
+  expiry stays the last resort.
+
+The curtain uses `content-visibility: hidden` and `visibility: hidden` rather
+than `display: none`, because `display` cannot be restored by an animation in
+either engine and those two can. They are both needed:
+`content-visibility` collapses a container's box the way `display: none` does
+but does not hide a replaced element, and `visibility` hides the ad image and
+iframe but reserves their space.
+
+### Lifecycle
 
 `content-script.ts` exports `initContentScript()` and `cleanupContentScript()`
 and only bootstraps itself outside test mode, so the pair can be driven directly
