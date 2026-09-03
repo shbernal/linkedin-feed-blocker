@@ -15,6 +15,13 @@ Firefox sits outside that ladder, because Playwright cannot load an MV3
 extension in it at all. `pnpm validate:firefox` drives the built Gecko package
 over WebDriver BiDi instead; see [Build Targets](./build-targets.md).
 
+`pnpm lint` is not a fourth layer. oxlint reads the source without running it,
+so it catches a shape no test can see: a dependency left out of a popup effect
+typechecks, renders, and passes any test that renders once. It runs before the
+three layers, in the same position in CI, and it proves nothing about
+behaviour. Its configuration and the reason behind each suppression live in
+`.oxlintrc.json`.
+
 ## Commands
 
 - `pnpm test` runs the Vitest suite once.
@@ -28,6 +35,8 @@ over WebDriver BiDi instead; see [Build Targets](./build-targets.md).
   config plus `tests/`, and the Playwright harness through project references.
   There is no separate harness typecheck step.
 - `pnpm build` writes the unpacked extension to `dist/`.
+- `pnpm lint` runs oxlint over the source tree. `pnpm lint:fix` applies the
+  fixes it can make on its own. CI runs the first with `--format github`.
 - `pnpm lint:firefox` builds `dist-firefox/` and runs `web-ext`'s static checks
   over it. CI runs this too.
 - `pnpm validate:firefox` drives the built Gecko package in a real Firefox.

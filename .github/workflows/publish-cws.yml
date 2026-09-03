@@ -35,6 +35,14 @@ jobs:
       - name: Check formatting
         run: pnpm format
 
+      # oxlint's correctness rules, plus react-hooks/exhaustive-deps scoped to
+      # the popup. That rule is why this project lints at all: a dependency
+      # left out of an effect is invisible to tsc and to every test that
+      # renders once. `--format github` turns findings into inline
+      # annotations rather than a log line someone has to scroll to.
+      - name: Lint
+        run: pnpm lint --format github
+
       - name: Typecheck
         run: pnpm typecheck
 

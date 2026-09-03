@@ -18,12 +18,14 @@ The `validate` job:
 3. Sets up Node `24` with pnpm caching.
 4. Installs dependencies with `pnpm install --frozen-lockfile`.
 5. Runs `pnpm format`.
-6. Runs `pnpm typecheck`.
-7. Runs `pnpm test:coverage`.
-8. Runs `pnpm build`.
-9. Runs `pnpm lint:firefox`, which builds the Gecko target and runs `web-ext`'s
-   static checks over it. Zero errors is the bar; the expected warnings are
-   listed in [Build Targets](./build-targets.md).
+6. Runs `pnpm lint` with `--format github`, so a finding renders as an inline
+   annotation on the pull request rather than a line in the log.
+7. Runs `pnpm typecheck`.
+8. Runs `pnpm test:coverage`.
+9. Runs `pnpm build`.
+10. Runs `pnpm lint:firefox`, which builds the Gecko target and runs `web-ext`'s
+    static checks over it. Zero errors is the bar; the expected warnings are
+    listed in [Build Targets](./build-targets.md).
 
 `pnpm typecheck` is a single `tsc -b`, which covers the extension, the Node-side
 config plus `tests/`, and the Playwright harness through project references.
@@ -63,8 +65,8 @@ The publish workflow uses the GitHub environment `chrome-web-store`.
 The release job:
 
 1. Checks out the release tag.
-2. Runs the same install, format, typecheck, test, build and end-to-end gates
-   as CI, so a release cannot ship past a red suite.
+2. Runs the same install, format, lint, typecheck, test, build and end-to-end
+   gates as CI, so a release cannot ship past a red suite.
 3. Verifies the configured GitHub repository variables are present.
 4. Verifies the release tag matches `package.json`.
 5. Zips the generated `dist/` directory.
@@ -99,7 +101,8 @@ The release job:
    the checkout, so a missing credential fails the run in seconds instead of
    after the gates and packaging that would otherwise precede the upload.
 2. Checks out the release tag.
-3. Runs the same install, format, typecheck, test and end-to-end gates as CI.
+3. Runs the same install, format, lint, typecheck, test and end-to-end gates as
+   CI.
 4. Verifies the release tag matches `package.json`.
 5. Runs `pnpm package:source`. This happens **before** the build, so the source
    archive cannot pick up build output. `HEAD` is the release tag in this job,
@@ -192,6 +195,7 @@ repositories in the condition when updating it.
 
    ```sh
    pnpm format
+   pnpm lint
    pnpm typecheck
    pnpm test:coverage
    pnpm build

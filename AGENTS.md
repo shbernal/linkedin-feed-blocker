@@ -80,6 +80,8 @@ Use `pnpm`, following the `packageManager` field in `package.json`.
   `pnpm e2e:headed` and `pnpm e2e:ui` are the headed and UI forms.
 - `pnpm build` runs TypeScript checks and creates the Chrome build in `dist/`;
   `pnpm build:firefox` creates the Gecko build in `dist-firefox/`.
+- `pnpm lint` runs oxlint over the source tree; `pnpm lint:fix` applies the
+  fixes it can make on its own.
 - `pnpm lint:firefox` builds the Gecko target and runs `web-ext lint` over it.
 - `pnpm validate:firefox` drives the Gecko build in a real Firefox over
   WebDriver BiDi. Set `FIREFOX_BINARY` to run it against Zen.
@@ -94,14 +96,15 @@ Use `pnpm`, following the `packageManager` field in `package.json`.
 
 For docs-only changes, run a targeted Prettier check on the touched markdown
 files. For source, manifest, popup, content-script, background, settings, icon,
-or packaging changes, run at least `pnpm typecheck`, `pnpm test:coverage`,
-`pnpm build`, `pnpm e2e`, and `pnpm lint:firefox`.
+or packaging changes, run at least `pnpm format`, `pnpm lint`,
+`pnpm typecheck`, `pnpm test:coverage`, `pnpm build`, `pnpm e2e`, and
+`pnpm lint:firefox`.
 
 ## CI And Publishing
 
-- Normal CI runs two jobs: `validate` (`pnpm format`, `pnpm typecheck`,
-  `pnpm test:coverage`, `pnpm build`, `pnpm lint:firefox`) and `e2e`
-  (`pnpm e2e`). Both publish workflows repeat the same gates.
+- Normal CI runs two jobs: `validate` (`pnpm format`, `pnpm lint`,
+  `pnpm typecheck`, `pnpm test:coverage`, `pnpm build`, `pnpm lint:firefox`)
+  and `e2e` (`pnpm e2e`). Both publish workflows repeat the same gates.
 - Both store workflows run only on published GitHub Releases and require the
   release tag to match `package.json` with an optional leading `v`. They are
   independent: neither waits for the other.
@@ -158,6 +161,13 @@ or packaging changes, run at least `pnpm typecheck`, `pnpm test:coverage`,
 - Never add `<input type="color">` or `<input type="file">` to the popup. In a
   Gecko action popup the native dialog steals focus and destroys the popup
   document mid-interaction.
+- oxlint runs its `correctness` category over the tree, plus
+  `react-hooks/exhaustive-deps` and `react-hooks/rules-of-hooks` scoped to
+  `src/popup/`. Those two are the reason the project lints at all: a dependency
+  left out of an effect is invisible to `tsc` and to every test that renders
+  once. Three rules are suppressed in `.oxlintrc.json` and one call site is
+  suppressed inline in `scripts/publish-amo.mjs`, each with its reason next to
+  it. Add to that list only with the same treatment.
 
 ## Testing Guidelines
 

@@ -204,6 +204,9 @@ const request = async (method, endpoint, { json, form } = {}) => {
     const response = await fetch(`${API}${endpoint}`, {
       method,
       headers,
+      // Both are undefined on the GET call sites, which oxlint cannot see
+      // because it does not follow `method` back to the callers.
+      // oxlint-disable-next-line unicorn/no-invalid-fetch-options
       body: json !== undefined ? JSON.stringify(json) : form,
     })
 

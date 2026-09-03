@@ -1,0 +1,56 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    "typescript",
+    "unicorn",
+    "oxc",
+    "react",
+    "jsx-a11y",
+    "import",
+    "promise",
+    "vitest"
+  ],
+  "categories": {
+    "correctness": "error"
+  },
+  "rules": {
+    // Every vi.fn() in src/test/chrome.ts stands in for a chrome.* callback
+    // whose shape the surrounding types already pin. Naming each one again as
+    // a type parameter is noise, not safety.
+    "vitest/require-mock-type-parameters": "off",
+
+    // Inherited from the Jest plugin, where expect() takes one argument.
+    // Vitest's takes a message second, and tests/manifest-targets.test.ts uses
+    // it to name which manifest key differed. Losing that message to pass the
+    // linter is a bad trade.
+    "vitest/valid-expect": "off"
+  },
+  "env": {
+    "builtin": true
+  },
+  "ignorePatterns": ["dist/", "dist-firefox/", "release/", "coverage/"],
+  "overrides": [
+    {
+      // React lives only in the popup. Playwright's fixtures take a `use`
+      // callback, which rules-of-hooks reads as React's `use` hook called
+      // outside a component.
+      "files": ["src/popup/**/*.ts", "src/popup/**/*.tsx"],
+      "plugins": ["react", "react-hooks"],
+      "rules": {
+        // The reason this project lints at all. A dependency left out of an
+        // effect is invisible to tsc and to every test that renders once.
+        "react-hooks/exhaustive-deps": "error",
+        "react-hooks/rules-of-hooks": "error"
+      }
+    },
+    {
+      // Playwright spells "depends on no other fixture" as an empty
+      // destructuring pattern, and parses that signature to build the
+      // dependency graph. Rewriting it changes what Playwright injects.
+      "files": ["e2e/**"],
+      "rules": {
+        "no-empty-pattern": "off"
+      }
+    }
+  ]
+}
