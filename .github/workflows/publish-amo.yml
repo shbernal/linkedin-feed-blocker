@@ -114,9 +114,19 @@ jobs:
           MOZILLA_ADDON_JWT_SECRET: ${{ secrets.MOZILLA_ADDON_JWT_SECRET }}
         run: pnpm publish:amo
 
-      - name: Attach packages to GitHub release
+      # The lock records what the listing now holds, so the next release can
+      # skip re-uploading bytes AMO already has. This job cannot commit it back,
+      # so it travels as a release asset for a maintainer to commit. Nothing
+      # breaks if nobody does: an absent or stale lock degrades to a full
+      # replace, which is what every release did before it existed.
+      - name: Attach packages and the listing lock to GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release upload "$GITHUB_REF_NAME" \
-            "$PACKAGE_ZIP" "$SOURCE_ZIP" --clobber
+          assets=("$PACKAGE_ZIP" "$SOURCE_ZIP")
+
+          if [ -f amo/previews.lock.json ]; then
+            assets+=(amo/previews.lock.json)
+          fi
+
+          gh release upload "$GITHUB_REF_NAME" "${assets[@]}" --clobber

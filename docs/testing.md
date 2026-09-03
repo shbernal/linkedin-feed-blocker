@@ -219,6 +219,14 @@ propagates a version bump into either file. Every other version literal in the
 tree sits inside an example command or a tag-naming sentence, which is why the
 guard names two files instead of walking the docs.
 
+`tests/amo-throttle.test.mjs` covers the budget model in
+`scripts/amo-throttle.mjs`: which calls are billed to which scope, that the wait
+is measured from the send whose expiry frees the window, and that the longest
+full window wins when more than one is. Its main case asserts the property
+rather than the shape — no send is ever made into a window AMO would reject —
+because asserting a particular sequence of waits would only restate the
+implementation.
+
 `tests/amo-previews.test.mjs` covers the AMO listing-asset planning in
 `scripts/amo-previews.mjs` — image types and sizes, manifest parsing, the
 replace-don't-reconcile sync plan, and the drift line — plus a check that every
@@ -260,8 +268,9 @@ glob as the `.ts` suites.
   against its generator.
 - `src/content/blockingStyles.test.ts` — the curtain selector list, the two
   properties an animation can restore, the self-expiry, and the one-way gate.
-- `tests/amo-previews.test.mjs` — the AMO listing-asset planning and the
-  checked-in previews manifest.
+- `tests/amo-previews.test.mjs` — the AMO listing-asset planning, the listing
+  lock and its twelve fail-open cases, and the checked-in previews manifest.
+- `tests/amo-throttle.test.mjs` — the AMO write-throttle budget model.
 
 `tests/helpers/manifest.ts` is not a test. It holds the `EXT_TARGET`-switching
 loader the two manifest guards share, so there is one loader rather than one

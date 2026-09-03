@@ -177,6 +177,133 @@ export const planPreviewSync = (remote, manifest) => ({
   deletes: remote.map(preview => preview.id),
 })
 
+// AMO re-encodes every image on ingest, so the published bytes never match the
+// local ones and the listing itself cannot say whether it is current. The lock
+// records what this repository last pushed, which is the only thing that can:
+// with it a release uploads what changed and spends no submission budget on
+// bytes AMO already has.
+//
+// It is checked in on purpose. It describes the live listing, so a fresh clone
+// has to plan the same way the machine that last published would.
+export const PREVIEW_LOCK = 'amo/previews.lock.json'
+
+/**
+ * Anything unreadable degrades to `null`, which every caller below treats as a
+ * full replace. That direction is the load-bearing one: a lock that fails open
+ * costs one extra upload, and a lock that fails closed silently leaves a
+ * changed screenshot unpublished. A stale listing is worse than a slow release.
+ */
+export const readPreviewLock = raw => {
+  if (typeof raw !== 'string' || raw.trim() === '') {
+    return null
+  }
+
+  let parsed
+
+  try {
+    parsed = JSON.parse(raw)
+  } catch {
+    return null
+  }
+
+  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+    return null
+  }
+
+  const { icon, previews, remoteCount } = parsed
+
+  if (typeof icon !== 'string' || !Array.isArray(previews)) {
+    return null
+  }
+
+  const entries = previews.map(entry =>
+    typeof entry?.file === 'string' && typeof entry?.hash === 'string'
+      ? { file: entry.file, hash: entry.hash }
+      : null,
+  )
+
+  if (entries.some(entry => entry === null)) {
+    return null
+  }
+
+  return {
+    icon,
+    previews: entries,
+    remoteCount: Number.isInteger(remoteCount) ? remoteCount : null,
+  }
+}
+
+export const buildPreviewLock = ({ iconHash, previewHashes, remoteCount }) => ({
+  icon: iconHash,
+  previews: previewHashes,
+  remoteCount,
+})
+
+/**
+ * What a release still has to push.
+ *
+ * Previews are all-or-nothing because `planPreviewSync` replaces rather than
+ * reconciles, for the identity reason above: there is no per-image decision to
+ * make, only whether the set as a whole is already published.
+ */
+export const planListingAssetSync = ({
+  lock,
+  iconHash,
+  previewHashes,
+  remoteCount,
+  syncPreviews,
+}) => {
+  if (!lock) {
+    return {
+      icon: { upload: true, reason: 'no usable lock' },
+      previews: {
+        sync: syncPreviews,
+        reason: syncPreviews ? 'no usable lock' : 'not requested',
+      },
+    }
+  }
+
+  const icon =
+    lock.icon === iconHash
+      ? { upload: false, reason: 'unchanged since the last release' }
+      : { upload: true, reason: 'changed since the last release' }
+
+  if (!syncPreviews) {
+    return { icon, previews: { sync: false, reason: 'not requested' } }
+  }
+
+  const changed =
+    lock.previews.length !== previewHashes.length ||
+    previewHashes.some(
+      (entry, index) =>
+        lock.previews[index]?.file !== entry.file ||
+        lock.previews[index]?.hash !== entry.hash,
+    )
+
+  if (changed) {
+    return { icon, previews: { sync: true, reason: 'the manifest changed' } }
+  }
+
+  // A listing edited by hand on AMO no longer matches what the lock describes,
+  // and the count is the only part of it this can check.
+  if (lock.remoteCount !== null && lock.remoteCount !== remoteCount) {
+    return {
+      icon,
+      previews: {
+        sync: true,
+        reason:
+          `AMO reports ${remoteCount} previews where the lock recorded ` +
+          `${lock.remoteCount}`,
+      },
+    }
+  }
+
+  return {
+    icon,
+    previews: { sync: false, reason: 'unchanged since the last release' },
+  }
+}
+
 // Printed on every release that does not pass `--sync-previews`, so a
 // screenshot change nobody synced stays visible instead of going quiet. Equal
 // counts are not proof the images match: there is nothing to compare bytes

@@ -10,14 +10,23 @@ import process from 'node:process'
 import crypto from 'node:crypto'
 import { printHelpAndExit } from './help.mjs'
 import {
+  buildPreviewLock,
   checkImageBytes,
   describePreviewDrift,
   describeWait,
   imageContentType,
   parsePreviewManifest,
+  planListingAssetSync,
   planPreviewSync,
   planThrottleRetry,
+  PREVIEW_LOCK,
+  readPreviewLock,
 } from './amo-previews.mjs'
+import {
+  createThrottleLedger,
+  scopeFor,
+  SUBMISSION_WINDOWS,
+} from './amo-throttle.mjs'
 
 const API = 'https://addons.mozilla.org/api/v5'
 const GUID = 'linkedin-feed-blocker@shbernal.github.io'
@@ -191,10 +200,36 @@ const parse = text => {
 // to sit out. See `MAX_THROTTLE_WAIT_MS`.
 const THROTTLE_ATTEMPTS = 5
 
+// Paces writes so a 429 is not provoked in the first place. The retry above is
+// still the safety net, because a budget model can only be as right as its
+// scope table; the two answer different questions, one when to send and one
+// when to give up.
+const throttle = createThrottleLedger()
+
+const paceRequest = async scope => {
+  const { waitMs, reason } = throttle.plan(scope)
+
+  if (waitMs <= 0) {
+    return
+  }
+
+  console.log(
+    `pacing ${describeWait(waitMs)} to stay inside AMO's ${reason} limit`,
+  )
+  await sleep(waitMs)
+}
+
 const request = async (method, endpoint, { json, form } = {}) => {
   let waited = 0
+  const scope = scopeFor(method, endpoint)
 
   for (let attempt = 1; ; attempt += 1) {
+    await paceRequest(scope)
+    // Recorded before the response, and whatever the response turns out to be:
+    // a request AMO rejects still spends budget on the windows it did not
+    // violate, so a send that is not counted makes the next plan too generous.
+    throttle.record(scope)
+
     const headers = { Authorization: `JWT ${mintToken()}` }
 
     if (json !== undefined) {
@@ -402,8 +437,36 @@ const attachSource = async versionId => {
 // documents `icon` as multipart-only and unsettable at creation, so it has to
 // be its own call after the add-on record exists.
 //
-// Reapplied unconditionally, like the description: it is one small file that
-// replaces itself in place, so there is no churn to opt out of.
+const sha256 = file =>
+  crypto
+    .createHash('sha256')
+    .update(fs.readFileSync(path.resolve(root, file)))
+    .digest('hex')
+
+const lockState = () => ({
+  iconHash: sha256(ICON),
+  previewHashes: previewManifest().map(entry => ({
+    file: entry.file,
+    hash: sha256(entry.file),
+  })),
+})
+
+const currentLock = () => {
+  const file = path.resolve(root, PREVIEW_LOCK)
+
+  return readPreviewLock(
+    fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : undefined,
+  )
+}
+
+const writeLock = lock => {
+  fs.writeFileSync(
+    path.resolve(root, PREVIEW_LOCK),
+    `${JSON.stringify(lock, null, 2)}\n`,
+  )
+  console.log(`recorded ${PREVIEW_LOCK}`)
+}
+
 const uploadIcon = async () => {
   const form = new FormData()
   form.set('icon', imagePart(ICON))
@@ -419,14 +482,43 @@ const uploadIcon = async () => {
 // lets the release PUT rewrite the description. Every call throws on a non-2xx,
 // so a rejection stops the run instead of half-applying.
 const applyListingAssets = async remotePreviews => {
-  await uploadIcon()
-
   const manifest = previewManifest()
+  const { iconHash, previewHashes } = lockState()
+  const lock = currentLock()
+  const plan = planListingAssetSync({
+    lock,
+    iconHash,
+    previewHashes,
+    remoteCount: remotePreviews.length,
+    syncPreviews,
+  })
 
-  if (!syncPreviews) {
-    console.log(describePreviewDrift(remotePreviews, manifest))
+  if (plan.icon.upload) {
+    await uploadIcon()
+  } else {
+    console.log(`skipped the listing icon: ${plan.icon.reason}`)
+  }
+
+  if (!plan.previews.sync) {
+    if (syncPreviews) {
+      console.log(`skipped the preview sync: ${plan.previews.reason}`)
+    } else {
+      console.log(describePreviewDrift(remotePreviews, manifest))
+    }
+
+    // Still written, so a run that skipped everything records the icon hash the
+    // first lock-less release pushed and the remote count AMO reported.
+    writeLock(
+      buildPreviewLock({
+        iconHash,
+        previewHashes: lock?.previews ?? previewHashes,
+        remoteCount: lock?.remoteCount ?? null,
+      }),
+    )
     return
   }
+
+  console.log(`syncing previews: ${plan.previews.reason}`)
 
   const { uploads, deletes } = planPreviewSync(remotePreviews, manifest)
 
@@ -466,6 +558,17 @@ const applyListingAssets = async remotePreviews => {
     await request('DELETE', `/addons/addon/${GUID}/previews/${id}/`)
     console.log(`removed superseded preview ${id}`)
   }
+
+  // Last, so a run that dies partway leaves the lock describing the listing as
+  // it was rather than as it was meant to become. An out-of-date lock costs a
+  // redundant sync; a premature one skips a sync that never happened.
+  writeLock(
+    buildPreviewLock({
+      iconHash,
+      previewHashes,
+      remoteCount: uploads.length,
+    }),
+  )
 }
 
 const requireEnv = () => {
@@ -518,6 +621,42 @@ const main = async () => {
       imagePart(preview.file)
       console.log(`${preview.file}\n  ${preview.caption['en-US']}`)
     }
+
+    // What a real run would push, decided from the lock exactly as it would be.
+    // The remote count is the one input a dry run cannot have, so the plan is
+    // shown for a listing that still matches the lock; a real run re-decides
+    // with AMO's answer.
+    const { iconHash, previewHashes } = lockState()
+    const lock = currentLock()
+    const plan = planListingAssetSync({
+      lock,
+      iconHash,
+      previewHashes,
+      remoteCount: lock?.remoteCount ?? previewHashes.length,
+      syncPreviews,
+    })
+
+    console.log(`\n--- listing assets ---`)
+    console.log(
+      `lock     ${lock ? PREVIEW_LOCK : `${PREVIEW_LOCK} (unusable)`}`,
+    )
+    console.log(
+      `icon     ${plan.icon.upload ? 'upload' : 'skip'} — ${plan.icon.reason}`,
+    )
+    console.log(
+      `previews ${plan.previews.sync ? 'sync' : 'skip'} — ` +
+        plan.previews.reason,
+    )
+
+    const writes =
+      (plan.previews.sync
+        ? previewHashes.length * 2 + (lock?.remoteCount ?? 0)
+        : 0) + (plan.icon.upload ? 1 : 0)
+    console.log(
+      `budget   ${writes} throttled ${writes === 1 ? 'write' : 'writes'}; ` +
+        `AMO allows ` +
+        SUBMISSION_WINDOWS.map(entry => entry.label).join(', '),
+    )
 
     console.log()
     await verifyListing()

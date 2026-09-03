@@ -112,7 +112,8 @@ The release job:
 8. Runs `pnpm publish:amo`, which uploads the package, waits for AMO's
    server-side validation, creates the version with the reviewer notes, attaches
    the source archive, and reapplies the listing icon.
-9. Attaches both zips to the GitHub Release.
+9. Attaches both zips, and the listing lock if one was written, to the GitHub
+   Release.
 
 `scripts/publish-amo.mjs` drives AMO API v5 directly rather than going through
 `web-ext sign`, which reports listed-channel review state poorly and has been
@@ -156,11 +157,22 @@ with a JWT it mints itself, so it needs no OIDC token. Every request mints its
 own JWT, because AMO caps a token's life at five minutes past `iat` — shorter
 than the validation polling loop can run.
 
-A 429 is retried, but only when the wait is one this run can actually serve: a
-single wait is capped at 70 minutes and a whole run at two hours. Anything
-longer is a throttle bucket that refills on a scale a GitHub job does not live
-on, so the run fails and prints the time to re-run after. See
-[Preview Writes Are Throttled Hard](./amo-listing.md#preview-writes-are-throttled-hard).
+AMO's write throttles are paced rather than only retried. `pnpm publish:amo`
+tracks what it has sent and waits before a call that would land in a full
+window, counting every send whether or not AMO accepted it, because a rejected
+request still spends budget on the windows it did not violate. A 429 the model
+did not predict is still retried, but only when the wait is one this run can
+serve: a single wait is capped at 70 minutes and a whole run at two hours.
+Anything longer is a bucket that refills on a scale a GitHub job does not live
+on, so the run fails and prints the time to re-run after.
+
+The job also uploads only what changed. `amo/previews.lock.json` records the
+hashes of the icon and each preview as last pushed, and an absent or unusable
+lock degrades to a full replace. The job cannot commit the lock back, so it
+attaches it to the release; committing it makes the next release cheaper and
+skipping that costs nothing beyond a redundant upload. See
+[Preview Writes Are Throttled Hard](./amo-listing.md#preview-writes-are-throttled-hard)
+and [The Listing Lock](./amo-listing.md#the-listing-lock).
 
 ## Google Cloud Configuration
 

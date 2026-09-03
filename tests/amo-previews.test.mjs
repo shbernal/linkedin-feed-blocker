@@ -10,9 +10,12 @@ import {
   describePreviewDrift,
   describeWait,
   imageContentType,
+  buildPreviewLock,
   parsePreviewManifest,
+  planListingAssetSync,
   planPreviewSync,
   planThrottleRetry,
+  readPreviewLock,
   throttleWaitMs,
 } from '../scripts/amo-previews.mjs'
 import manifest from '../amo/previews.json' with { type: 'json' }
@@ -242,5 +245,165 @@ describe('the checked-in previews manifest', () => {
 
     expect(size).toBeGreaterThan(0)
     expect(size).toBeLessThanOrEqual(MAX_IMAGE_BYTES)
+  })
+})
+
+describe('readPreviewLock', () => {
+  const valid = JSON.stringify({
+    icon: 'icon-hash',
+    previews: [{ file: 'store/one.png', hash: 'one-hash' }],
+    remoteCount: 1,
+  })
+
+  it('reads a well-formed lock', () => {
+    expect(readPreviewLock(valid)).toEqual({
+      icon: 'icon-hash',
+      previews: [{ file: 'store/one.png', hash: 'one-hash' }],
+      remoteCount: 1,
+    })
+  })
+
+  it('treats a missing remote count as unknown rather than as zero', () => {
+    const lock = readPreviewLock(JSON.stringify({ icon: 'i', previews: [] }))
+
+    expect(lock?.remoteCount).toBe(null)
+  })
+
+  // Every one of these has to fail open. A lock that fails closed leaves a
+  // changed screenshot unpublished and says nothing, which is the failure this
+  // whole mechanism is supposed to prevent; failing open costs one upload.
+  it.each([
+    ['absent', undefined],
+    ['empty', ''],
+    ['whitespace', '   '],
+    ['truncated JSON', '{"icon":"i","previews":['],
+    ['not an object', '"nope"'],
+    ['an array', '[]'],
+    ['missing icon', '{"previews":[]}'],
+    ['a non-string icon', '{"icon":7,"previews":[]}'],
+    ['missing previews', '{"icon":"i"}'],
+    ['non-array previews', '{"icon":"i","previews":{}}'],
+    ['an entry with no file', '{"icon":"i","previews":[{"hash":"h"}]}'],
+    ['an entry with no hash', '{"icon":"i","previews":[{"file":"f"}]}'],
+  ])('degrades to a full replace when the lock is %s', (_label, raw) => {
+    expect(readPreviewLock(raw)).toBe(null)
+  })
+})
+
+describe('planListingAssetSync', () => {
+  const previewHashes = [
+    { file: 'store/one.png', hash: 'one-hash' },
+    { file: 'store/two.png', hash: 'two-hash' },
+  ]
+  const lock = buildPreviewLock({
+    iconHash: 'icon-hash',
+    previewHashes,
+    remoteCount: 2,
+  })
+
+  it('pushes everything when there is no usable lock', () => {
+    const plan = planListingAssetSync({
+      lock: null,
+      iconHash: 'icon-hash',
+      previewHashes,
+      remoteCount: 2,
+      syncPreviews: true,
+    })
+
+    expect(plan.icon.upload).toBe(true)
+    expect(plan.previews.sync).toBe(true)
+  })
+
+  // A missing lock must not turn --sync-previews on by itself: the flag is
+  // still what decides whether previews are touched at all.
+  it('does not sync previews the caller did not ask for', () => {
+    const plan = planListingAssetSync({
+      lock: null,
+      iconHash: 'icon-hash',
+      previewHashes,
+      remoteCount: 2,
+      syncPreviews: false,
+    })
+
+    expect(plan.icon.upload).toBe(true)
+    expect(plan.previews.sync).toBe(false)
+  })
+
+  it('skips both when nothing changed', () => {
+    const plan = planListingAssetSync({
+      lock,
+      iconHash: 'icon-hash',
+      previewHashes,
+      remoteCount: 2,
+      syncPreviews: true,
+    })
+
+    expect(plan.icon.upload).toBe(false)
+    expect(plan.previews.sync).toBe(false)
+  })
+
+  it('pushes the icon alone when only the icon changed', () => {
+    const plan = planListingAssetSync({
+      lock,
+      iconHash: 'a-new-icon',
+      previewHashes,
+      remoteCount: 2,
+      syncPreviews: true,
+    })
+
+    expect(plan.icon.upload).toBe(true)
+    expect(plan.previews.sync).toBe(false)
+  })
+
+  it.each([
+    [
+      'a screenshot was swapped for different bytes',
+      [previewHashes[0], { file: 'store/two.png', hash: 'other-hash' }],
+    ],
+    [
+      'a screenshot was renamed',
+      [previewHashes[0], { file: 'store/three.png', hash: 'two-hash' }],
+    ],
+    ['the order changed', [previewHashes[1], previewHashes[0]]],
+    ['one was removed', [previewHashes[0]]],
+    ['one was added', [...previewHashes, { file: 'store/x.png', hash: 'x' }]],
+  ])('syncs previews when %s', (_label, hashes) => {
+    const plan = planListingAssetSync({
+      lock,
+      iconHash: 'icon-hash',
+      previewHashes: hashes,
+      remoteCount: 2,
+      syncPreviews: true,
+    })
+
+    expect(plan.previews.sync).toBe(true)
+  })
+
+  // The lock describes the live listing, so someone deleting a screenshot in
+  // the AMO dashboard has to invalidate it. The count is the only part of the
+  // listing that can be compared, since AMO re-encodes the bytes.
+  it('syncs previews when AMO no longer holds what the lock recorded', () => {
+    const plan = planListingAssetSync({
+      lock,
+      iconHash: 'icon-hash',
+      previewHashes,
+      remoteCount: 1,
+      syncPreviews: true,
+    })
+
+    expect(plan.previews.sync).toBe(true)
+    expect(plan.previews.reason).toContain('1 previews')
+  })
+
+  it('ignores the remote count when the lock never recorded one', () => {
+    const plan = planListingAssetSync({
+      lock: { ...lock, remoteCount: null },
+      iconHash: 'icon-hash',
+      previewHashes,
+      remoteCount: 99,
+      syncPreviews: true,
+    })
+
+    expect(plan.previews.sync).toBe(false)
   })
 })

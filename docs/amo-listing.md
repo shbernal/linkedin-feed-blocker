@@ -149,12 +149,26 @@ user. Reads are free. This listing has five screenshots, so a sync costs five
 uploads, five caption patches and a delete per superseded image — over an hour's
 budget on its own, and enough to trip the limit partway through.
 
-The script waits out the `Retry-After` header and retries, so a sync works but
-spends most of its wall-clock idle; it prints the call count up front so a slow
-run is not mistaken for a hung one. A 429 is the only status it retries, since
-every other failure means the request itself is wrong. Waits are not short:
-crossing the hourly boundary has been observed on the TikTok listing to cost a
-single wait of just under an hour.
+The script models that budget rather than only reacting to it.
+`scripts/amo-throttle.mjs` tracks what it has sent per scope and waits before a
+call that would land in a full window, so a 429 is not provoked in the first
+place. That matters because a request AMO rejects still spends budget on the
+windows it did not violate: reacting after the fact leaves the retry poorer than
+the request that failed, which is why pacing ahead is the version that
+converges. Every send is counted whether or not AMO accepted it.
+
+The scope table is derived from the calls this script makes rather than copied.
+Safe methods are not billed, which covers the credential check, the validation
+poll and the read that supplies the current preview list. Package uploads go to
+their own scope, whose rates are not documented anywhere this repository can
+cite, so they are deliberately unmodelled and left to the reactive path; a
+release makes one upload and that is not where the budget runs out.
+
+The reactive path stays as the safety net, because a budget model is only as
+right as its scope table. It waits out the `Retry-After` header and retries. A
+429 is the only status it retries, since every other failure means the request
+itself is wrong. Waits are not short: crossing the hourly boundary has been
+observed on the TikTok listing to cost a single wait of just under an hour.
 
 It does not wait out all of them. Which bucket was hit changes the header by
 four orders of magnitude, and the daily one answers with whatever is left of its
@@ -170,6 +184,9 @@ five throttled writes, so this listing is likelier to meet the second cap than
 the first. Past either, the run fails at once and prints when the bucket
 refills, so the answer is to re-run it after that.
 
+The caps and the budget answer different questions and both are needed. The
+budget decides when to send; the caps decide when to give up.
+
 The throttle is not specific to previews. `AddonViewSet` carries the same
 classes, so the listing `PUT` and the icon `PATCH` draw on one shared budget — a
 release already spends about four calls of the ten. **Do not run a preview sync
@@ -177,6 +194,43 @@ in the same hour as a release**: this listing's eleven calls plus those four
 exceed the cap several times over, and the sync is what will stall. This is the
 other reason `--assets-only` is a separate command rather than a flag on the
 release path.
+
+### The Listing Lock
+
+`amo/previews.lock.json` records the sha256 of the listing icon and of each
+preview as this repository last pushed them, plus how many previews AMO reported
+at the time. It is what lets a release upload only what changed instead of
+re-pushing every screenshot and the icon on every version.
+
+It exists because the listing itself cannot answer the question. AMO re-encodes
+images on ingest, so the published bytes never match the local ones, and nothing
+on a preview says which manifest entry produced it. The lock is the only record
+of what was sent.
+
+The lock is checked in, so a fresh clone plans the same way the machine that
+last published would. Nothing has been published from this repository yet, so
+there is no lock in the tree; the first release writes one.
+
+An absent, empty, truncated or malformed lock degrades to a full replace, never
+to skipping. That direction is load-bearing: failing open costs one redundant
+upload, and failing closed silently leaves a changed screenshot unpublished,
+which is the failure the whole mechanism exists to prevent.
+`tests/amo-previews.test.mjs` covers twelve ways a lock can be unusable and
+asserts every one of them fails open.
+
+Two more properties worth knowing:
+
+- `--sync-previews` still decides whether previews are touched at all. A missing
+  lock does not turn it on.
+- The lock is written after the sync, not before, so a run that dies partway
+  leaves it describing the listing as it was rather than as it was meant to
+  become. A stale lock costs a redundant sync; a premature one skips a sync that
+  never happened.
+
+The publish workflow cannot commit the lock back to the repository, so it
+attaches it to the GitHub Release for a maintainer to commit. Nothing breaks if
+nobody does: the next release then sees no lock and does a full replace, which is
+what every release did before the lock existed.
 
 There is no way to raise the ceiling. `GranularUserRateThrottle` honors one
 bypass, the `API_BYPASS_THROTTLING` permission, and that is a group membership

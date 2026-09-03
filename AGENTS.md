@@ -48,10 +48,10 @@ The extension is built with Vite, React, TypeScript, and
 - `e2e/specs/` is the deterministic Playwright suite CI runs; `e2e/real/` and
   `e2e/manual/` are the opt-in credentialed lanes it cannot.
 - `scripts/` holds the plain-ESM release, validation and development tooling:
-  the source archiver, the AMO publisher and its preview logic, the Gecko
-  runtime validator, the icon renderer, the Chromium and Gecko launchers, the
-  runtime inspector, and the shared browser resolution and `--help` handling the
-  rest of them import.
+  the source archiver, the AMO publisher with its listing-asset planner and
+  write-throttle budget, the Gecko runtime validator, the icon renderer, the
+  Chromium and Gecko launchers, the runtime inspector, and the shared browser
+  resolution and `--help` handling the rest of them import.
 - `public/icons/` contains extension icons copied into builds. They are
   generated from `store/logo.svg`, not hand-exported.
 - `store/` contains listing assets shared across stores: the long description,
@@ -131,7 +131,12 @@ or packaging changes, run at least `pnpm format`, `pnpm lint`,
   docs that wait for or report `public` on submission.
 - Every AMO version carries a source archive, and every release must stay
   reproducible from a clean extraction of it. Do not make the build depend on
-  anything outside the archive.
+  anything outside the archive. `amo/previews.lock.json` is read by the
+  publisher, never by the build, which is what keeps it out of that constraint.
+- `amo/previews.lock.json` records what the live AMO listing holds so a release
+  uploads only what changed. Every way it can be unusable must degrade to a full
+  replace, never to skipping: failing open costs one upload, failing closed
+  leaves a changed screenshot unpublished and says nothing.
 - Do not publish releases, push tags, upload packages, or change Chrome Web
   Store or AMO settings unless explicitly asked. `pnpm publish:amo --dry-run`
   uploads nothing and is the safe form.
