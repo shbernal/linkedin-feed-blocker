@@ -9,7 +9,7 @@ import process from 'node:process'
 import { execFileSync } from 'node:child_process'
 import { printHelpAndExit } from './help.mjs'
 
-// A ref never starts with a dash — git would read one as an option — so the
+// A ref never starts with a dash, since git would read one as an option, so the
 // first non-flag argument is the ref. Taking argv[2] positionally instead sends
 // `--help` and the `--` separator straight into `git archive` as a revision.
 const ref =
@@ -67,5 +67,5 @@ const size = fs.statSync(output).size
 
 console.log(`${path.relative(process.cwd(), output)}`)
 console.log(
-  `ref ${git(['rev-parse', '--short', ref])} — ${files} files, ${size} bytes`,
+  `ref ${git(['rev-parse', '--short', ref])}: ${files} files, ${size} bytes`,
 )

@@ -80,7 +80,7 @@ const toKeyCode = (token: string): string | null => {
  *
  * Returns `null` when the string names a key the page can never observe (media
  * keys) or uses a token we do not understand. Callers must treat that as "match
- * nothing" rather than falling back to the default binding — silently answering
+ * nothing" rather than falling back to the default binding. Silently answering
  * the default keys is the exact divergence this module exists to remove.
  */
 export const parseShortcut = (value: string): ParsedShortcut | null => {

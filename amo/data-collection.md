@@ -1,4 +1,4 @@
-# Data Collection And Permission Justifications
+# Data collection and permission justifications
 
 Use this copy for the addons.mozilla.org submission. Keep every answer aligned
 with `manifest.config.ts` and current runtime behavior before submitting a
@@ -7,12 +7,12 @@ build. This is the AMO counterpart to
 same, but AMO asks for them in a different shape.
 
 The body text under each heading is the answer itself and goes into a plain-text
-form field verbatim, so it stays free of Markdown — no backticks, emphasis, or
+form field verbatim, so it stays free of Markdown: no backticks, emphasis, or
 lists. Headings are labels, not answers, and may keep their markup.
 
 Last reviewed against `manifest.config.ts` on 2026-09-03.
 
-## Declared Data Collection
+## Declared data collection
 
 The Firefox manifest declares:
 
@@ -22,17 +22,17 @@ The Firefox manifest declares:
 
 Firefox shows this to the user at install time as a statement that the add-on
 collects no data. The key is only understood from Firefox 140, which is why
-`strict_min_version` is `140.0` — below that floor the key is ignored and the
+`strict_min_version` is `140.0`. Below that floor the key is ignored and the
 disclosure would never reach the user.
 
 `none` is the strongest answer available and it may not be combined with any
 other value. It is only correct while every one of the following holds.
 
-## Basis For The `none` Answer
+## Basis for the `none` answer
 
 - The manifest requests `activeTab`, `storage`, and the host permission
   `*://*.linkedin.com/*`. Nothing else.
-- The entire non-test extension API surface is `storage.local` get/set plus
+- Outside tests, the extension calls only `storage.local` get/set plus
   `storage.onChanged`, `tabs.query` and `tabs.sendMessage`, `runtime.onMessage`
   and `runtime.lastError`, and `commands.getAll` and `commands.onCommand`.
 - `src/` contains no `fetch`, `XMLHttpRequest`, `WebSocket`, `sendBeacon`,
@@ -49,11 +49,11 @@ other value. It is only correct while every one of the following holds.
   `storage.local` so the in-page fallback can match the same keys. That is
   browser state, not browsing data.
 
-If a future change transmits anything off the device — analytics, sync,
-crash reporting, a remote config fetch — `data_collection_permissions` must
+If a future change transmits anything off the device, whether analytics, sync,
+crash reporting or a remote config fetch, `data_collection_permissions` must
 change before that ships. It is a user-facing promise, not a formality.
 
-## Permission Justifications
+## Permission justifications
 
 Send these as reviewer notes if AMO asks why each permission is needed.
 
@@ -80,7 +80,7 @@ right-rail widgets, and the My Network puzzle, Premium, and suggestion modules,
 and to hide or restore whichever of them the user has chosen to block. It runs
 on no other site.
 
-## Review Process
+## Review process
 
 Before submitting a version:
 

@@ -1,4 +1,4 @@
-# Documentation Index
+# Documentation index
 
 This directory contains contributor-facing notes for the experimental LinkedIn
 Feed Blocker extension. Keep user-facing marketing or installation copy out of
@@ -33,11 +33,8 @@ this directory unless the task explicitly calls for it.
 - [Testing](./testing.md) explains the three test layers, the Chrome API mock,
   the shared LinkedIn fixtures and the rule they follow, the coverage map, and
   the local real-site smoke-test lane.
-- [Stabilize My Network Suggestions Blocking](./next-features/block-network-suggestions.md)
-  records why the `networkSuggestions` selector is treated as incomplete and
-  what would make it reliable.
 
-## Which Doc To Update
+## Which doc to update
 
 When behaviour, settings shape, Chrome API usage, selector strategy, validation,
 or publishing assumptions change, one of these needs updating in the same
@@ -58,5 +55,5 @@ change.
 
 Two rules apply to all of them. Keep docs tied to current code: speculative
 roadmap context belongs here only when the task asks for planning
-documentation. And keep `README.md` out of it — that one is user-facing, is
+documentation. And keep `README.md` out of it: that one is user-facing, is
 ignored by the formatter, and is not part of this directory.

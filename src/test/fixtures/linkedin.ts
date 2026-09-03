@@ -2,9 +2,8 @@
 // fixture routes, so both layers exercise the same DOM.
 //
 // A fixture is only worth what it resembles. Every attribute the selectors in
-// `src/content/selectors.ts` key on — `componentkey` values, `data-testid`,
-// `data-component-type`, `role`, `alt` text, and the nesting depth the `:has(>
-// ...)` chains walk — is copied from real LinkedIn pages, not written to fit
+// `src/content/selectors.ts` key on is copied from real LinkedIn pages, not
+// written to fit
 // the selector. Ids and comments are the only additions; they exist so tests
 // have something stable to assert on and nothing targets them. When a selector
 // changes, re-copy the real element rather than adjusting the markup here
@@ -163,7 +162,7 @@ const PAGE_STYLES = `
   }
 `
 
-// Test scaffolding, not markup: it runs while the document is still parsing,
+// A test probe rather than page markup. It runs while the document is parsing,
 // which is before the content script's `document_end` entry and therefore
 // before any of the extension's JavaScript. Reading computed styles here is
 // the only way to prove the document_start stylesheet hid something ahead of

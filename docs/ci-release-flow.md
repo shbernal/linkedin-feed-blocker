@@ -1,4 +1,4 @@
-# CI And Release Flow
+# CI and release flow
 
 This project uses GitHub Actions for pull-request validation and for publishing
 to the Chrome Web Store and addons.mozilla.org. Both stores are fed from one
@@ -37,10 +37,9 @@ Chromium rather than the bundled headless shell, which is why that install step
 exists.
 
 `tests/browser-api-compat.test.ts` runs inside `pnpm test:coverage` and fails if
-any file under `src/` awaits a `chrome.*` call. Gecko exposes `chrome.*` as
-callback-only, so an awaited call resolves to `undefined` there with no error
-while every Chrome-side check still passes; this is the only gate that can catch
-that regression.
+any file under `src/` awaits a `chrome.*` call. It is the only gate that catches
+that regression; see
+[Never await a `chrome.*` call](./firefox-amo.md#never-await-a-chrome-call).
 
 `.github/dependabot.yml` opens weekly update pull requests for npm dependencies
 and GitHub Actions. Development dependencies are grouped into a single pull
@@ -58,7 +57,7 @@ Firefox package to addons.mozilla.org. The two workflows are independent:
 neither waits for the other, and each repeats the validation gates itself so a
 release cannot ship past a red suite through either path.
 
-## Chrome Web Store Publishing
+## Chrome Web Store publishing
 
 The publish workflow uses the GitHub environment `chrome-web-store`.
 
@@ -79,7 +78,7 @@ The release job:
 The two steps that write a response to a file take the status from curl's
 `-w '%{http_code}'` rather than from `--fail-with-body`. With `--fail-with-body`
 the body lands in the file and curl exits non-zero, which under the default
-`bash -e` aborts the step before anything prints it — the TikTok extension's
+`bash -e` aborts the step before anything prints it. The TikTok extension's
 1.4.1 release failed on a 400 whose message was never shown. Whatever Chrome
 answers with is printed before the status is checked.
 
@@ -88,11 +87,11 @@ strips the leading `v` and requires the remaining value to match `package.json`
 exactly. For `v0.2.0`, `package.json` must contain `"version": "0.2.0"`. Both
 publish workflows enforce this independently.
 
-## addons.mozilla.org Publishing
+## addons.mozilla.org publishing
 
 The AMO workflow uses the GitHub environment `addons-mozilla-org` and the
 secrets `MOZILLA_ADDON_JWT_ISSUER` and `MOZILLA_ADDON_JWT_SECRET`. These are
-credentials, not configuration, so they are secrets rather than repository
+credentials, so they are secrets rather than repository
 variables.
 
 The release job:
@@ -121,7 +120,7 @@ seen to exit non-zero on submissions that actually succeeded.
 
 **A successful AMO release ends in review, not live.** A listed version is
 queued for human review, so the expected successful outcome is a file status of
-`unreviewed` and an add-on status of `nominated` until the first approval — not
+`unreviewed` and an add-on status of `nominated` until the first approval, not
 `public`. Until that first approval the public API returns `401` and the listing
 URL returns `404`. See [Firefox And AMO](./firefox-amo.md).
 
@@ -129,7 +128,7 @@ AMO requires a source archive with every version because the package is bundled
 by Vite. That is an ongoing obligation, not a first-submission hurdle; see
 [Source Code Submission](../amo/source-submission.md).
 
-## GitHub Configuration
+## GitHub configuration
 
 The Chrome publish workflow uses the GitHub environment `chrome-web-store` and
 these repository variables:
@@ -154,7 +153,7 @@ The workflow also uses these permissions:
 The AMO workflow uses the GitHub environment `addons-mozilla-org`, the two
 `MOZILLA_ADDON_*` secrets above, and only `contents: write`. It authenticates
 with a JWT it mints itself, so it needs no OIDC token. Every request mints its
-own JWT, because AMO caps a token's life at five minutes past `iat` — shorter
+own JWT, because AMO caps a token's life at five minutes past `iat`, shorter
 than the validation polling loop can run.
 
 AMO's write throttles are paced rather than only retried. `pnpm publish:amo`
@@ -174,7 +173,7 @@ skipping that costs nothing beyond a redundant upload. See
 [Preview Writes Are Throttled Hard](./amo-listing.md#preview-writes-are-throttled-hard)
 and [The Listing Lock](./amo-listing.md#the-listing-lock).
 
-## Google Cloud Configuration
+## Google Cloud configuration
 
 Chrome Web Store publishing is authenticated through Google Cloud Workload
 Identity Federation.
@@ -201,7 +200,7 @@ repositories cannot use the Chrome Web Store service account through this trust
 path. The same provider is shared with the adjacent TikTok blocker, so keep both
 repositories in the condition when updating it.
 
-## Normal Release Procedure
+## Normal release procedure
 
 1. Update `package.json` to the next extension version.
 2. Run local validation:
@@ -244,7 +243,7 @@ Do not run `pnpm publish:amo --sync-previews` in the same hour as a release.
 Both draw on one AMO throttle budget and the sync is what will stall; see
 [AMO Listing](./amo-listing.md).
 
-## When A Publish Job Fails
+## When a publish job fails
 
 The two publish jobs are independent, and a store that rejected a submission
 usually has not recorded the version at all. Re-run the failed job rather than
@@ -255,7 +254,7 @@ gh run rerun <run-id> --repo shbernal/linkedin-feed-blocker
 ```
 
 A re-run replays the original commit, so it does not pick up a fix pushed to
-`master` afterwards — that only reaches the next release. What it is for is a
+`master` afterwards, which only reaches the next release. What it is for is a
 store-side condition that has since cleared.
 
 Two of those are known from the TikTok extension, which publishes through the
@@ -264,12 +263,12 @@ same two workflows:
 - **AMO throttled the submission.** The failure prints when the bucket refills;
   re-run after that. AMO's daily add-on-submission budget is per user and a
   release spends about four calls, so a release cut within a day of the last one
-  — in either repository, since the credential is shared — can land on it.
+  in either repository, since the credential is shared, can land on it.
 - **Chrome answered 400 on the upload.** Read the message the step now prints
   before assuming anything. The TikTok 1.4.1 upload hit one while 1.4.0 was
   still in review and its body was discarded, so whether Chrome refuses an
   upload against an item with a pending submission is a guess that was never
-  settled — if it recurs here, the log will say. Check what is actually live
+  settled. If it recurs here, the log will say. Check what is actually live
   first:
 
   ```sh
@@ -280,7 +279,7 @@ same two workflows:
 Neither case burns the version number: nothing was created on either store, so
 the same tag can be re-run until it lands.
 
-## Useful Checks
+## Useful checks
 
 List recent runs:
 
@@ -308,7 +307,7 @@ List configured repository variables:
 gh variable list --repo shbernal/linkedin-feed-blocker
 ```
 
-## Security Notes
+## Security notes
 
 GitHub repository variables are not secrets. They are suitable here because the
 workflow stores only IDs and configuration names in variables.

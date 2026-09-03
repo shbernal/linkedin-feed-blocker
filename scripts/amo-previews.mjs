@@ -166,7 +166,7 @@ export const planThrottleRetry = (
 // image on ingest, so a local file and its published copy never share a hash,
 // and nothing on a preview says which manifest entry produced it. Reusing a
 // remote preview would therefore mean assuming its bytes are still the ones on
-// disk — and a swapped screenshot that silently never uploads is exactly the
+// disk, and a swapped screenshot that silently never uploads is exactly the
 // failure this is meant to prevent. So a sync replaces rather than reconciles:
 // it uploads the whole manifest and drops whatever was there before.
 //
@@ -316,6 +316,6 @@ export const describePreviewDrift = (remote, manifest) => {
 
   return (
     `previews: ${manifest.length} in the manifest, ${remote.length} on AMO ` +
-    `— ${state}. Pass --sync-previews to reapply them.`
+    `(${state}). Pass --sync-previews to reapply them.`
   )
 }

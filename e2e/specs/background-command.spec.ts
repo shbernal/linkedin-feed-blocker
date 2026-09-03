@@ -8,7 +8,7 @@ type RegisteredCommand = chrome.commands.Command
 /**
  * Guards the regression that shipped: both entry files were named `main.ts`, so
  * crxjs emitted `service-worker-loader.js` importing the *content script* chunk.
- * A service worker still registered, so its presence proves nothing — these
+ * A service worker still registered, so its presence proves nothing. These
  * assertions check that the code running inside it is the background script.
  *
  * Needs the extension loaded but neither a LinkedIn session nor a page, which

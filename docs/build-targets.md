@@ -1,4 +1,4 @@
-# Build Targets
+# Build targets
 
 The same source tree builds two extension packages. The target is selected by
 the `EXT_TARGET` environment variable, which `vite.config.ts` and
@@ -27,7 +27,7 @@ the package is bundled by Vite. It archives `HEAD` by default and takes a ref
 argument for releases: `pnpm package:source v0.2.0`. See
 [AMO Listing](./amo-listing.md).
 
-## Target Differences
+## Target differences
 
 Only the manifest differs. The JavaScript, CSS, HTML, and icons are the same
 bytes in both packages, and `tests/manifest-targets.test.ts` fails if any
@@ -60,7 +60,7 @@ before it landed, because Playwright cannot load an MV3 extension in Gecko and
 below that the key is silently ignored and the declaration never reaches the
 user. Nothing else in the manifest needs a version that high.
 
-## Validating The Firefox Package
+## Validating the Firefox package
 
 `pnpm lint:firefox` is the fastest check that the package is valid for Gecko. It
 catches unsupported manifest keys, bad add-on ids, and reserved keyboard
@@ -83,7 +83,7 @@ binding later would mean changing the README, the in-page fallback default in
 `src/shared/shortcut.ts`, both store listings, and these docs, so treat it as
 settled.
 
-## Firefox Runtime Validation
+## Firefox runtime validation
 
 `pnpm validate:firefox` builds the Firefox package and exercises it in a real
 Firefox, then writes screenshots and a `validation.json` result file to
@@ -105,13 +105,13 @@ on Gecko:
 - the browser has the toggle command bound to `Ctrl+Shift+7`;
 - the background script mirrored that binding into `storage.local`.
 
-The last one is the load-bearing one. Gecko runs the background entry as a plain
+The last one is the one that matters. Gecko runs the background entry as a plain
 script rather than a service worker, and `chrome.commands.getAll` there is
 callback-only. The `toggleShortcut` key only exists if that background script
 ran and its callback fired, so this is the check that proves the Firefox
 background target works at all.
 
-### The Page Checks Need A Signed-In Profile
+### The page checks need a signed-in profile
 
 Unlike the adjacent TikTok blocker, every surface this extension blocks is
 behind a LinkedIn login. Logged out, `/feed/` and `/mynetwork/grow/` both
@@ -135,8 +135,8 @@ with a managed `data-ltfb-*-hidden` attribute and every element it marked
 computes to `display: none`. Requiring a match is what keeps the check from
 going green against a page LinkedIn has renamed out from under it. Those
 attribute names are read out of the built bundle rather than restated in the
-script — they are plain string literals in `src/content/selectors.ts` and
-survive minification — so adding a section puts it under validation with no
+script. They are plain string literals in `src/content/selectors.ts` and survive
+minification, so adding a section puts it under validation with no
 change to the runner.
 
 Useful environment variables:
@@ -159,7 +159,7 @@ covers every Gecko lane. See [Testing](./testing.md).
 ### Zen
 
 `FIREFOX_BINARY=/usr/bin/zen-browser pnpm exec node scripts/validate-firefox.mjs`
-runs the same checks in Zen. Zen installs the Firefox package unchanged — there
+runs the same checks in Zen. Zen installs the Firefox package unchanged. There
 is no third build and no third listing.
 
 Zen refuses to navigate any browsing context to a `moz-extension://` URL, so the
@@ -170,9 +170,9 @@ signed-out Zen profile the run is reduced to "the add-on installs and logs no
 errors". Signing the Zen profile in restores the page-level checks; nothing
 restores the extension-page ones.
 
-Zen is a sanity check, not a release gate. Firefox is the gate.
+Zen is a sanity check. Firefox is the gate.
 
-## Chrome Regression Check
+## Chrome regression check
 
 The Chrome package must not change when the Firefox target does. Build it and
 compare `dist/manifest.json` against the previous build; asset filenames are

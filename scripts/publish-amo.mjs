@@ -195,7 +195,7 @@ const parse = text => {
 // minted inside the loop because a throttle wait is long enough to matter
 // against its five-minute life.
 //
-// "Shortly" is the load-bearing word, and `planThrottleRetry` is what holds it:
+// "Shortly" is the word doing the work, and `planThrottleRetry` holds it:
 // a 429 that will not clear inside this run is a failure to report, not a wait
 // to sit out. See `MAX_THROTTLE_WAIT_MS`.
 const THROTTLE_ATTEMPTS = 5
@@ -282,7 +282,7 @@ const request = async (method, endpoint, { json, form } = {}) => {
 // Tags and categories are closed vocabularies. AMO rejects anything outside
 // them on the PUT that creates the version, which is after the package has been
 // uploaded and validated and after the release that triggered it is already
-// published — so the whole release fails on a metadata typo. Both lists are
+// published, so the whole release fails on a metadata typo. Both lists are
 // public and unauthenticated, so checking up front costs nothing and turns that
 // into a failed dry run.
 const publicList = async endpoint => {
@@ -433,7 +433,7 @@ const attachSource = async versionId => {
 
 // The listing icon is separate metadata from the icons in the package. The
 // manifest `icons` key drives about:addons, not the AMO page, and the JSON PUT
-// that carries the rest of the listing cannot carry a file at all — AMO
+// that carries the rest of the listing cannot carry a file at all. AMO
 // documents `icon` as multipart-only and unsettable at creation, so it has to
 // be its own call after the add-on record exists.
 //
@@ -478,7 +478,7 @@ const uploadIcon = async () => {
 }
 
 // Previews and the icon are edited on the add-on rather than on a version, so
-// AMO accepts them while a version sits in review — the same path that already
+// AMO accepts them while a version sits in review, the same path that already
 // lets the release PUT rewrite the description. Every call throws on a non-2xx,
 // so a rejection stops the run instead of half-applying.
 const applyListingAssets = async remotePreviews => {
@@ -588,7 +588,7 @@ const requireFiles = (...files) => {
   for (const file of files) {
     if (!fs.existsSync(file)) {
       throw new Error(
-        `${path.relative(root, file)} is missing — run pnpm package:firefox ` +
+        `${path.relative(root, file)} is missing. Run pnpm package:firefox ` +
           'and pnpm package:source first',
       )
     }
@@ -613,7 +613,7 @@ const main = async () => {
     // The manifest is parsed and every image resolved and size-checked here,
     // which is the point of printing it: a bad path or an oversized screenshot
     // fails now rather than partway through a real sync. What cannot be shown
-    // is how far the listing has drifted — that needs AMO's side, and a dry run
+    // is how far the listing has drifted, which needs AMO's side, and a dry run
     // makes no authenticated calls. The drift line is printed by a real run.
     console.log('\n--- previews ---')
 
@@ -641,10 +641,10 @@ const main = async () => {
       `lock     ${lock ? PREVIEW_LOCK : `${PREVIEW_LOCK} (unusable)`}`,
     )
     console.log(
-      `icon     ${plan.icon.upload ? 'upload' : 'skip'} — ${plan.icon.reason}`,
+      `icon     ${plan.icon.upload ? 'upload' : 'skip'}: ${plan.icon.reason}`,
     )
     console.log(
-      `previews ${plan.previews.sync ? 'sync' : 'skip'} — ` +
+      `previews ${plan.previews.sync ? 'sync' : 'skip'}: ` +
         plan.previews.reason,
     )
 
@@ -677,7 +677,7 @@ const main = async () => {
   }
 
   // An upload on its own creates nothing on AMO and does not claim the add-on
-  // id — only creating a version does that — so this is a safe way to put a
+  // id, since only creating a version does that, so this is a safe way to put a
   // candidate package through the real validator before cutting a release tag.
   if (validateOnly) {
     requireFiles(packagePath)

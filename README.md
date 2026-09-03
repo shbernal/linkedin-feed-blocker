@@ -14,7 +14,7 @@ tree. Only the manifest differs between the two packages.
 
 The current release is `0.2.0`.
 
-## What It Blocks
+## What it blocks
 
 Supported LinkedIn routes:
 
@@ -35,7 +35,7 @@ page can also be toggled with `Ctrl+Shift+7` on Windows/Linux or
 `chrome://extensions/shortcuts`, or in Firefox's Add-ons Manager, is picked up
 automatically.
 
-## Install Locally
+## Install locally
 
 Build the extension:
 
@@ -47,12 +47,12 @@ pnpm build:firefox    # Firefox, into dist-firefox/
 
 Then load the built directory as a temporary extension:
 
-- **Chrome or Chromium** — open `chrome://extensions`, enable Developer mode,
+- **Chrome or Chromium.** Open `chrome://extensions`, enable Developer mode,
   choose "Load unpacked", and select `dist/`.
-- **Firefox or Zen** — open `about:debugging#/runtime/this-firefox`, choose
+- **Firefox or Zen.** Open `about:debugging#/runtime/this-firefox`, choose
   "Load Temporary Add-on", and select `dist-firefox/manifest.json`.
 
-## Package For The Stores
+## Package for the stores
 
 ```bash
 pnpm package:chrome     # release/linkedin-feed-blocker-<version>.zip

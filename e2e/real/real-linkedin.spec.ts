@@ -179,8 +179,8 @@ test.describe('real LinkedIn selector smoke', () => {
     await expect(feed).toBeVisible({ timeout: smokeTimeout })
     await page.bringToFront()
     // Focus the page without clicking into it. A `body` click lands on whatever
-    // interactive element happens to sit in the middle of the feed — usually a
-    // `role="button"` div — which makes LinkedIn re-render the feed container
+    // interactive element happens to sit in the middle of the feed, usually a
+    // `role="button"` div, which makes LinkedIn re-render the feed container
     // out from under the blocking pass and fails this test roughly one run in
     // three.
     await page.evaluate(() => window.focus())

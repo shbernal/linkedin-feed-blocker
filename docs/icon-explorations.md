@@ -1,4 +1,4 @@
-# Icon Explorations
+# Icon explorations
 
 This file keeps the icon directions the project looked at and did not ship, so a
 later round starts from what was already learned instead of rediscovering it.
@@ -10,19 +10,19 @@ Nothing in the build, the icon pipeline, or either store listing reads them.
 `store/logo.svg` and the promo tile alone, so `pnpm icons --check` continues to
 govern only the mark that ships.
 
-## Round 1 — August 2026
+## Round 1, August 2026
 
 Ran after the mark moved to LinkedIn's brand blue, to test whether something
 more distinctive than a prohibition ring could carry the icon. Five concepts,
 judged against the shipped mark at listing size, 48px, and true 16px.
 
-| #   | Concept                                      | Sketch                                                                         | Verdict                                              |
-| --- | -------------------------------------------- | ------------------------------------------------------------------------------ | ---------------------------------------------------- |
-| 1   | Necktie behind a prohibition ring            | [1-necktie-prohibition.png](./icon-explorations/1-necktie-prohibition.png)     | Rejected — ring survives 16px, tie does not          |
-| 2   | Suited figure covering its eyes, see-no-evil | [2-see-no-evil-suit.png](./icon-explorations/2-see-no-evil-suit.png)           | Rejected for 16px; strongest at listing size         |
-| 3   | Suited figure seated in a lotus pose         | [3-seated-lotus-sketch.png](./icon-explorations/3-seated-lotus-sketch.png)     | **Shipped**, after a vector redraw                   |
-| 4   | Megaphone behind a prohibition ring          | [4-megaphone-prohibition.png](./icon-explorations/4-megaphone-prohibition.png) | Rejected — best ring of the four, unreadable subject |
-| 5   | Feed cards reread as a closing window blind  | [5-closing-blind.png](./icon-explorations/5-closing-blind.png)                 | Runner-up — most legible at 16px of all six          |
+| #   | Concept                                      | Sketch                                                                         | Verdict                                             |
+| --- | -------------------------------------------- | ------------------------------------------------------------------------------ | --------------------------------------------------- |
+| 1   | Necktie behind a prohibition ring            | [1-necktie-prohibition.png](./icon-explorations/1-necktie-prohibition.png)     | Rejected. Ring survives 16px, tie does not          |
+| 2   | Suited figure covering its eyes, see-no-evil | [2-see-no-evil-suit.png](./icon-explorations/2-see-no-evil-suit.png)           | Rejected for 16px; strongest at listing size        |
+| 3   | Suited figure seated in a lotus pose         | [3-seated-lotus-sketch.png](./icon-explorations/3-seated-lotus-sketch.png)     | **Shipped**, after a vector redraw                  |
+| 4   | Megaphone behind a prohibition ring          | [4-megaphone-prohibition.png](./icon-explorations/4-megaphone-prohibition.png) | Rejected. Best ring of the four, unreadable subject |
+| 5   | Feed cards reread as a closing window blind  | [5-closing-blind.png](./icon-explorations/5-closing-blind.png)                 | Runner-up. Most legible at 16px of all six          |
 
 ### What the round established
 
@@ -39,7 +39,7 @@ _quieted_ rather than _blocked_. It remains the strongest fallback if the seated
 figure ever proves too soft, and it is a continuous evolution of the card motif
 rather than a reset.
 
-Concepts 2 and 3 both failed the first 16px test as sketched — a white blob and a
+Concepts 2 and 3 both failed the first 16px test as sketched, a white blob and a
 pale pyramid. Concept 3 was chosen anyway and the failure fixed in the vector
 redraw rather than accepted: see `store/logo.svg` for the geometry and
 [Artwork](../AGENTS.md#artwork) for the rules it now has to hold. Concept 2 has
@@ -53,7 +53,7 @@ passes, and what fixed it was not simplification:
 
 The first three passes merged the arms and crossed legs into one smooth bell on
 the theory that fewer shapes survive better. They read as a mountain, or a shirt
-collar — the pose was gone at every size, including 1024. **Negative space, not
+collar. The pose was gone at every size, including 1024. **Negative space, not
 shape count, is what makes a figure read.** Restoring the tile-coloured gap
 between each arm and the torso, and letting two knee circles break past the ends
 of the leg bar, brought the pose back at 128 and 48 without hurting 16.
@@ -75,7 +75,8 @@ _crossed legs_, reads as a checkmark.
 ### Reproducing the sketches
 
 The sketches are raster output from an image model, so they are illustrations of
-a composition, not artwork that could be shipped. They were generated with the
+a composition rather than artwork that could be shipped. They were generated
+with the
 Codex CLI, one image per invocation:
 
 ```
@@ -110,6 +111,6 @@ pixel-grid overlay:
 
 - <https://claude.ai/code/artifact/ccc678c8-92ed-4ee3-a80b-2e89dbfff20e>
 
-That page is private to the repository owner and is not a durable dependency —
+That page is private to the repository owner and is not a durable dependency.
 a contributor cannot open it. The committed sketches plus this file are the
 public record, and the sheet is regenerable from them.

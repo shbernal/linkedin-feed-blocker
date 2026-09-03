@@ -1,4 +1,4 @@
-# Chrome Web Store Listing
+# Chrome Web Store listing
 
 Listing assets are split by who publishes them. Anything a second store reuses
 unchanged lives in `store/`; anything shaped by the Chrome Web Store Developer
@@ -33,7 +33,7 @@ Store submissions are handled by the GitHub Release workflow documented in
 [`docs/ci-release-flow.md`](./ci-release-flow.md) once the repository variables
 and Google Cloud trust path are configured.
 
-## Screenshot Set
+## Screenshot set
 
 The current Chrome Web Store guidance requires at least one screenshot, allows
 up to five, and accepts 1280x800 or 640x400 images. Prefer full-bleed captures
@@ -76,7 +76,7 @@ current extension behavior. Keep claims narrow: the extension currently targets
 LinkedIn `/feed/` and `/mynetwork/grow/`, and uses local Chrome extension
 storage.
 
-## Privacy Form Process
+## Privacy form process
 
 Before filling the Developer Dashboard privacy form:
 

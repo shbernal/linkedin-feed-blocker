@@ -1,4 +1,4 @@
-# Current Implementation
+# Current implementation
 
 The extension currently has three runtime surfaces that communicate through
 shared settings and Chrome APIs: the popup, background service worker, and
@@ -30,7 +30,7 @@ script chunk instead of the background one and the keyboard command never
 registered. After a build, `dist/service-worker-loader.js` should import the
 `service-worker.ts-*.js` chunk.
 
-## Shared Settings
+## Shared settings
 
 `src/shared/settings.ts` is the storage contract between popup, content script,
 and background-triggered updates.
@@ -59,7 +59,7 @@ Current section keys:
 When adding or removing a section, update shared settings, popup controls,
 content selectors, keyboard toggle behavior, and docs together.
 
-## Background Command Flow
+## Background command flow
 
 `src/background/service-worker.ts` listens for the `toggle-current-page-block`
 command, currently suggested as `Ctrl+Shift+7` (`Command+Shift+7` on macOS).
@@ -87,20 +87,20 @@ Content scripts cannot read `chrome.commands`, so the background script resolves
 the live binding with `chrome.commands.getAll()` on every background start and
 mirrors it into the `toggleShortcut` storage key. `src/shared/shortcut.ts` parses
 that string into a keydown matcher, which is what keeps the in-page fallback
-aligned with the real binding — including the macOS `Command+Shift+7` case and
+aligned with the real binding, including the macOS `Command+Shift+7` case and
 any binding the user has rebound in `chrome://extensions/shortcuts`. An unbound
 command mirrors an empty string, which falls back to the manifest default. A
 binding the page can never observe parses to `null` and the fallback matches
 nothing, rather than silently answering the default keys.
 
-## Chrome API Conventions
+## Chrome API conventions
 
-Every `chrome.*` call site uses the callback form. Gecko exposes `chrome.*` as
-callback-only, so an awaited call resolves to `undefined` there with no error
-while every Chrome check still passes. `tests/browser-api-compat.test.ts` scans
-`src/` for `await chrome.` and fails the test suite on a match.
+Every `chrome.*` call site uses the callback form, and
+`tests/browser-api-compat.test.ts` fails the suite on any `await chrome.` under
+`src/`. See [Never await a `chrome.*` call](./firefox-amo.md#never-await-a-chrome-call)
+for what breaks otherwise and why the polyfill was rejected.
 
-## Popup Flow
+## Popup flow
 
 `src/popup/App.tsx` reads settings from `chrome.storage.local`, normalizes them,
 persists the normalized result, and renders compact toggles for the supported
@@ -117,7 +117,7 @@ On user changes, the popup:
 The popup groups toggles under Home and My Network and is sized around a 320px
 width.
 
-## Content Script Flow
+## Content script flow
 
 The content script is split into five modules:
 
@@ -145,7 +145,7 @@ An element LinkedIn itself already set to `display: none` is skipped rather than
 adopted, so disabling a section never reveals something the page meant to keep
 hidden.
 
-### The Pre-Paint Curtain
+### The pre-paint curtain
 
 Blocking runs from JavaScript, which means it runs after the page has painted.
 `src/content/blocking.css` closes that window on the `/feed/` route by hiding
@@ -210,7 +210,7 @@ Selector application is route-gated: `/feed/` only applies Home targets, and
 `/mynetwork/grow/` only applies My Network targets. Unsupported routes restore
 any elements previously hidden by the extension.
 
-## Current Selector Strategy
+## Current selector strategy
 
 The selector strategy is based on observed LinkedIn DOM attributes and
 structure, not a stable public API.
@@ -234,7 +234,7 @@ Selector shapes are covered by `src/test/fixtures/linkedin.ts` in both the unit
 and fixture-Playwright layers. They remain brittle in the sense that matters:
 LinkedIn can change the markup, and only the real-site lane notices.
 
-## Validation Today
+## Validation today
 
 Available commands:
 

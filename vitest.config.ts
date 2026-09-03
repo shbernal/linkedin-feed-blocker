@@ -21,7 +21,7 @@ export default defineConfig({
       reportsDirectory: 'coverage',
       include: ['src/**/*.{ts,tsx}'],
       exclude: ['src/test/**', 'src/popup/main.tsx'],
-      // A ratchet, not a target: set a couple of points below the measured
+      // A floor that only moves up. Set a couple of points below the measured
       // numbers so an unrelated change cannot quietly erode coverage, while
       // leaving room for small refactors. Raise these when coverage rises.
       // The text reporter omits fully covered files; that is `skipFull`

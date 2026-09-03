@@ -106,17 +106,17 @@ const checks = []
 
 const check = (name, ok, detail) => {
   checks.push({ name, ok: Boolean(ok), detail })
-  console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}${detail ? ` — ${detail}` : ''}`)
+  console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}${detail ? `: ${detail}` : ''}`)
 }
 
 const skip = (name, detail) => {
   checks.push({ name, skipped: true, detail })
-  console.log(`SKIP  ${name}${detail ? ` — ${detail}` : ''}`)
+  console.log(`SKIP  ${name}${detail ? `: ${detail}` : ''}`)
 }
 
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
 
-// Persistent, so a LinkedIn session survives between runs — the page checks
+// Persistent, so a LinkedIn session survives between runs. The page checks
 // have no other way to reach a logged-in feed. `user.js` is rewritten each
 // time, which is how a pref change takes effect without discarding the session.
 const prepareProfile = () => {
@@ -554,7 +554,7 @@ try {
 
   // Logged out, LinkedIn redirects every supported route to its marketing page
   // or an auth wall, so the content script's route check correctly matches
-  // nothing. That is a missing precondition, not a failure — see --help for how
+  // nothing. That is a missing precondition, not a failure. See --help for how
   // to sign the persistent profile in.
   const landing = await readJson(session, linkedInContext, pageStateExpression)
   const signedIn = landing.pathname.startsWith('/feed')

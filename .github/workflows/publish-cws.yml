@@ -124,7 +124,7 @@ jobs:
           # `--fail-with-body` writes the body and then exits non-zero, which
           # under `set -e` aborts the step before the line that prints it. A 400
           # then leaves nothing behind but "curl: (22)", and the store's account
-          # of why is the only thing this step exists to report — that is how the
+          # of why is the only thing this step exists to report, and that is how
           # sibling tiktok-feed-blocker project lost the reason for its 1.4.1
           # failure. Taking the status from `-w` instead keeps the body on the
           # way out, whether or not it is JSON.

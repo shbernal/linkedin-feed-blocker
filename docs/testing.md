@@ -2,13 +2,13 @@
 
 Three layers, in the order you should reach for them:
 
-1. **Vitest** (`src/**/*.test.ts`, `tests/`) — fast jsdom tests over the pure
+1. **Vitest** (`src/**/*.test.ts`, `tests/`): fast jsdom tests over the pure
    logic, the content script, the popup, the background script, and the source
    tree itself. This is the default place for a new test.
-2. **Fixture Playwright** (`e2e/specs/`) — the real unpacked MV3 build in a
+2. **Fixture Playwright** (`e2e/specs/`): the real unpacked MV3 build in a
    real Chromium, driven against local LinkedIn-shaped HTML. Deterministic,
    needs no account, and runs in CI.
-3. **Real-site Playwright** (`e2e/real/`, `e2e/manual/`) — opt-in, headed, and
+3. **Real-site Playwright** (`e2e/real/`, `e2e/manual/`): opt-in, headed, and
    credentialed. The selector-drift canary. CI can never run it.
 
 Firefox sits outside that ladder, because Playwright cannot load an MV3
@@ -54,7 +54,7 @@ behaviour. Its configuration and the reason behind each suppression live in
 - `pnpm manual:linkedin` builds the extension and keeps a headed Chromium
   window open with it loaded.
 
-## Vitest Environment
+## Vitest environment
 
 Configured in `vitest.config.ts`.
 
@@ -70,7 +70,7 @@ Configured in `vitest.config.ts`.
   gitignored scratch area for real-site profiles and throwaway probe specs, and
   a stray Playwright spec there would otherwise fail the unit run.
 
-## Chrome API Mock
+## Chrome API mock
 
 `src/test/chrome.ts` provides the shared mock. Call `getChromeMock()` in a test
 to seed storage, inspect messages, or control tab lookup.
@@ -89,7 +89,7 @@ Supported surfaces:
 which is what popup and content-script code depend on.
 
 Every mocked surface takes a callback, including `chrome.tabs.query`. That is
-deliberate — it is what stops a Gecko-incompatible call from passing. Override
+deliberate. It is what stops a Gecko-incompatible call from passing. Override
 a lookup with `mockImplementation`, not `mockResolvedValue`:
 
 ```ts
@@ -105,9 +105,9 @@ jsdom tests and the Playwright routes render from it. One page shape, two
 layers.
 
 **A fixture is only worth what it resembles.** Every attribute the selectors key
-on — `componentkey` values, `data-testid`, `data-component-type`, `role`, `alt`
-text, and the nesting depth the `:has(> ...)` chains walk — is copied from a
-real LinkedIn page rather than written to fit the selector. Writing the markup a
+on is copied from a real LinkedIn page rather than written to fit the selector.
+That covers the `componentkey` values, `data-testid`, `data-component-type`,
+`role` and `alt` text, and the nesting depth the `:has(> ...)` chains walk. Writing the markup a
 selector expects produces a suite that passes while the extension matches
 nothing in production. When a selector changes, re-copy the real element instead
 of adjusting the fixture until it goes green.
@@ -117,7 +117,7 @@ routes on `pathname`, and `/jobs/` deliberately carries right-rail markup the
 feed selectors would match, so a route-gating regression fails there instead of
 on a real page.
 
-## Proving The Pre-Paint Curtain
+## Proving the pre-paint curtain
 
 `e2e/specs/pre-paint.spec.ts` carries the two claims jsdom cannot make about
 `src/content/blocking.css`.
@@ -126,7 +126,7 @@ The first is that the feed is hidden _before_ any of the extension's JavaScript
 has run, rather than a moment after. `renderFixturePage` ends the body with an
 inline probe that records computed styles while the document is still parsing,
 which is before the content script's `document_end` entry. The spec reads what
-the probe captured. That probe is test scaffolding rather than markup: nothing
+the probe captured. The probe is test machinery rather than page markup: nothing
 in `src/` sees it, and it targets ids the fixture already carries.
 
 The second is the blank-page failure mode. If the gate is never cleared the page
@@ -161,7 +161,7 @@ through the 5s `expect` timeout.
 Real-site smoke tests keep their own configs (`playwright.real.config.ts`,
 `playwright.manual.config.ts`) and are never picked up by `pnpm e2e`.
 
-## Source Convention Guards
+## Source convention guards
 
 `tests/` holds checks about the source tree rather than about runtime behavior.
 They run in the same Vitest command and need Node APIs, so the directory is
@@ -170,15 +170,15 @@ compiled by `tsconfig.node.json`; `tsconfig.app.json` deliberately limits
 source.
 
 `tests/browser-api-compat.test.ts` fails if any file under `src/` awaits a
-`chrome.*` call. Gecko exposes `chrome.*` as callback-only and puts the
-promise-returning variants on `browser.*`, so an awaited call yields `undefined`
-there and the extension breaks silently while every Chrome test stays green.
-Keep those call sites callback-based.
+`chrome.*` call. Keep those call sites callback-based; see
+[Never await a `chrome.*` call](./firefox-amo.md#never-await-a-chrome-call) for
+what an awaited one does in Gecko.
 
 `tests/manifest-targets.test.ts` loads `manifest.config.ts` once per build
 target and asserts what each one emits: a module service worker and no Gecko
 block for Chrome, `background.scripts` and the permanent add-on id for Firefox,
-and — the load-bearing one — that **no other manifest key differs between them**.
+and, the one everything else rests on, that **no other manifest key differs
+between them**.
 One source tree, one set of assets, and a manifest that varies in exactly two
 documented places is the rule the whole dual build rests on. It also checks that
 the manifest's `suggested_key` and `DEFAULT_TOGGLE_SHORTCUT` in
@@ -223,54 +223,54 @@ guard names two files instead of walking the docs.
 `scripts/amo-throttle.mjs`: which calls are billed to which scope, that the wait
 is measured from the send whose expiry frees the window, and that the longest
 full window wins when more than one is. Its main case asserts the property
-rather than the shape — no send is ever made into a window AMO would reject —
-because asserting a particular sequence of waits would only restate the
+rather than the shape, which is that no send is ever made into a window AMO
+would reject. Asserting a particular sequence of waits would only restate the
 implementation.
 
 `tests/amo-previews.test.mjs` covers the AMO listing-asset planning in
-`scripts/amo-previews.mjs` — image types and sizes, manifest parsing, the
-replace-don't-reconcile sync plan, and the drift line — plus a check that every
+`scripts/amo-previews.mjs`: image types and sizes, manifest parsing, the
+replace-don't-reconcile sync plan, and the drift line. It also checks that every
 screenshot `amo/previews.json` names is actually on disk. It is `.mjs` because
 the module under test is: the publish scripts are plain ESM run by node, not
 part of a TypeScript project reference. Vitest picks it up from the same default
 glob as the `.ts` suites.
 
-## Coverage Map
+## Coverage map
 
-- `src/shared/settings.test.ts` — defaults, normalization, the `feedPuzzle` to
+- `src/shared/settings.test.ts`: defaults, normalization, the `feedPuzzle` to
   `rightFeed` rename, the `extensionActive` migration, and active/section sync.
-- `src/shared/shortcut.test.ts` — binding parsing including the macOS `Command`
+- `src/shared/shortcut.test.ts`: binding parsing including the macOS `Command`
   and glyph forms, the unbound fallback, and keydown matching.
-- `src/shared/linkedin.test.ts` — host matching, including lookalike hosts.
-- `src/content/routes.test.ts` — the path-to-sections table.
-- `src/content/selectors.test.ts` — the My Network predicates, including the
+- `src/shared/linkedin.test.ts`: host matching, including lookalike hosts.
+- `src/content/routes.test.ts`: the path-to-sections table.
+- `src/content/selectors.test.ts`: the My Network predicates, including the
   ordering rule that keeps the invitation area visible.
-- `src/content/blocking.test.ts` — hide, restore, managed-attribute
+- `src/content/blocking.test.ts`: hide, restore, managed-attribute
   bookkeeping, idempotence, not adopting elements LinkedIn already hid, and
   route gating.
-- `src/content/content-script.test.ts` — startup, storage changes, runtime
+- `src/content/content-script.test.ts`: startup, storage changes, runtime
   messages, the in-page shortcut fallback and its duplicate-suppression window,
   the coalescing mutation observer, and teardown.
-- `src/background/service-worker.test.ts` — shortcut mirroring and the command
+- `src/background/service-worker.test.ts`: shortcut mirroring and the command
   path from event to active-tab message.
-- `src/popup/App.test.tsx` — loading, every switch, persistence, tab
+- `src/popup/App.test.tsx`: loading, every switch, persistence, tab
   notification, and external storage changes.
-- `tests/browser-api-compat.test.ts` — the callback-only `chrome.*` rule.
-- `tests/manifest-targets.test.ts` — the two build targets and the rule that
+- `tests/browser-api-compat.test.ts`: the callback-only `chrome.*` rule.
+- `tests/manifest-targets.test.ts`: the two build targets and the rule that
   only the background entry and the Gecko block may differ between them.
-- `tests/manifest-entry-names.test.ts` — the rule that no two manifest entries
+- `tests/manifest-entry-names.test.ts`: the rule that no two manifest entries
   share a basename, under both build targets.
-- `tests/popup-native-dialogs.test.ts` — the rule that the popup declares no
+- `tests/popup-native-dialogs.test.ts`: the rule that the popup declares no
   input that opens a native dialog.
-- `tests/documented-version.test.ts` — the two documents that state the shipped
+- `tests/documented-version.test.ts`: the two documents that state the shipped
   version against `package.json`.
-- `tests/blocking-css.test.ts` — the generated `document_start` stylesheet
+- `tests/blocking-css.test.ts`: the generated `document_start` stylesheet
   against its generator.
-- `src/content/blockingStyles.test.ts` — the curtain selector list, the two
+- `src/content/blockingStyles.test.ts`: the curtain selector list, the two
   properties an animation can restore, the self-expiry, and the one-way gate.
-- `tests/amo-previews.test.mjs` — the AMO listing-asset planning, the listing
+- `tests/amo-previews.test.mjs`: the AMO listing-asset planning, the listing
   lock and its twelve fail-open cases, and the checked-in previews manifest.
-- `tests/amo-throttle.test.mjs` — the AMO write-throttle budget model.
+- `tests/amo-throttle.test.mjs`: the AMO write-throttle budget model.
 
 `tests/helpers/manifest.ts` is not a test. It holds the `EXT_TARGET`-switching
 loader the two manifest guards share, so there is one loader rather than one
@@ -282,11 +282,11 @@ not running under `MODE=test`, which is what lets the tests drive
 `initContentScript()` per case. The Playwright suite covers the auto-start path
 for real.
 
-Coverage thresholds in `vitest.config.ts` are a **ratchet, not a target**: they
-sit a couple of points under the measured numbers so an unrelated change cannot
-quietly erode coverage. Raise them when coverage rises.
+The coverage thresholds in `vitest.config.ts` are a floor that only moves up.
+They sit a couple of points under the measured numbers so an unrelated change
+cannot quietly erode coverage while a real refactor still has room.
 
-## Rules That Keep These Layers Honest
+## Rules that keep these layers honest
 
 - Prefer the smallest layer that proves the behaviour: Vitest first, the fixture
   Playwright suite when the claim needs a real extension runtime, and the
@@ -298,15 +298,15 @@ quietly erode coverage. Raise them when coverage rises.
 - Content-script tests must pair `clearAllBlocking()` with
   `cleanupContentScript()` in teardown, or blocking state leaks into the next
   test.
-- Coverage thresholds in `vitest.config.ts` are a ratchet. Raise them when
-  coverage rises; do not lower them to make a change fit.
+- Raise the coverage thresholds when coverage rises. Never lower them to make a
+  change fit.
 - `pnpm validate:firefox` reports a check it could not run as `SKIP`, never as a
   pass. Its page-level checks need a LinkedIn session in the persistent profile,
   and Zen cannot reach extension pages at all. Keep it that way.
 - The My Network invitation area staying visible is covered in both
   deterministic layers. Keep it that way when touching the suggestion rule.
 
-## Manual Validation
+## Manual validation
 
 The deterministic layers prove the selectors match the markup that was copied
 and that the extension runtime behaves. They cannot tell you the popup looks
@@ -329,7 +329,7 @@ Check at least:
   page;
 - disabled sections restore elements hidden by the extension.
 
-## Adding Tests
+## Adding tests
 
 Prefer the smallest layer that proves the behavior.
 
@@ -340,7 +340,7 @@ Prefer the smallest layer that proves the behavior.
 - Popup behavior should use Testing Library queries by accessible name.
 - Content-script behavior should render fixture markup, call
   `initContentScript()`, and assert through `getComputedStyle(...).display` and
-  the managed `data-ltfb-*` attributes — hiding and the bookkeeping that makes
+  the managed `data-ltfb-*` attributes. Hiding and the bookkeeping that makes
   restore possible are two different claims.
 - Content-script tests must run `clearAllBlocking()` alongside
   `cleanupContentScript()` in teardown. The shared `document.body.innerHTML = ''`
@@ -348,7 +348,7 @@ Prefer the smallest layer that proves the behavior.
   blocking state leaks into the next test. That pair is the same one
   `import.meta.hot.dispose` runs, so teardown matches production.
 
-## Driving The Built Extension By Hand
+## Driving the built extension by hand
 
 Three commands get to the starting line of the manual checklist in `AGENTS.md`,
 which otherwise means a build, a browser, an unpacked-extension dialog and a
@@ -369,7 +369,7 @@ real-site profile someone signed in by hand.
 `FIREFOX_BINARY` picks the Gecko binary for all three Gecko lanes, including
 `pnpm validate:firefox`, so a fork that is not Zen needs no new command.
 
-### Inspecting The Running Extension
+### Inspecting the running extension
 
 `pnpm inspect:chrome [url]` prints a JSON snapshot of the live extension: its
 id, the permissions the browser granted, the resolved `chrome.commands`
@@ -391,7 +391,7 @@ profile, which is the only way to see blocking on a real feed. Without it
 LinkedIn redirects to the auth wall, the content script correctly matches
 nothing, and the snapshot says so.
 
-## Persistent Profile
+## Persistent profile
 
 The real-site lane keeps its Chromium profile inside the repository, at
 `.e2e/linkedin-real-profile`. The whole `.e2e/` directory is ignored by git.
@@ -407,7 +407,7 @@ Set `LINKEDIN_REAL_PROFILE_DIR=/absolute/or/relative/path` to point the lane at
 a profile somewhere else, which is the escape hatch for reusing an existing
 signed-in profile rather than the normal path.
 
-### Setup Flow
+### Setup flow
 
 1. Run `pnpm e2e:real:setup` or `pnpm e2e:real:login`.
 2. Sign in to LinkedIn in the Chromium window it opens.
@@ -415,7 +415,7 @@ signed-in profile rather than the normal path.
 4. Visit `https://www.linkedin.com/feed/` once and confirm the feed loads.
 5. Close the Chromium tab or window.
 
-### Real Smoke Test
+### Real smoke test
 
 Run `pnpm e2e:real` after setup. The test opens the persistent profile with the
 built extension loaded, visits `https://www.linkedin.com/feed/`,
@@ -431,7 +431,7 @@ This lane exists for selector drift. It is not a substitute for the fixture
 suite, and the fixture suite is not a substitute for it: only the real site can
 tell you LinkedIn changed its markup.
 
-### Manual LinkedIn Session
+### Manual LinkedIn session
 
 Run `pnpm manual:linkedin` when you want to move around LinkedIn manually with
 the current `dist/` extension loaded in the same persistent profile used by the

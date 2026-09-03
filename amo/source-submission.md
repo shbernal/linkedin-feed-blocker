@@ -1,11 +1,11 @@
-# Source Code Submission
+# Source code submission
 
 AMO requires source code for any add-on whose submitted package is produced by a
 bundler or minifier. This extension is built with Vite, so every version upload
 must be accompanied by a source archive, and a reviewer must be able to rebuild
 the submitted package from it with no differences.
 
-## Producing The Archive
+## Producing the archive
 
 ```sh
 pnpm package:source            # archives HEAD
@@ -24,21 +24,21 @@ archive includes `pnpm-lock.yaml`, which the reviewer build depends on.
 
 `tests/`, `e2e/`, and `scripts/` are in the archive but are not needed to build.
 
-## Reviewer Build Instructions
+## Reviewer build instructions
 
 The quoted block below is the "Notes to Reviewer" field on the version, so the
 instructions are available without opening the archive.
 `scripts/publish-amo.mjs` sends it verbatim; paste it by hand only for a
 submission made outside that script.
 
-That field is a plain-text input, so the block stays free of Markdown — no
+That field is a plain-text input, so the block stays free of Markdown: no
 backticks, emphasis, or fenced code. Commands are indented instead of fenced,
 which renders as code here and reaches the reviewer as indentation. Prose
 outside the block is documentation and keeps its markup.
 
 > Build environment: Debian 12 (bookworm), Node.js 24.18.1.
 >
-> This project uses pnpm, not npm. Do not run npm install — there is no
+> This project uses pnpm, not npm. Do not run npm install, because there is no
 > package-lock.json, and the dependency tree is pinned by pnpm-lock.yaml. The
 > required pnpm version is declared in package.json as "packageManager":
 > "pnpm@11.20.0", and Corepack (bundled with Node 24) installs and pins that
@@ -76,7 +76,7 @@ build runs in, nor to the host.
 Re-run this check before any release that changes dependencies, the Vite config,
 or the manifest config.
 
-## Note On The pnpm Version
+## Note on the pnpm version
 
 `package.json` pins `pnpm@11.20.0` via `packageManager`. A newer pnpm may be
 installed globally on a given machine; both Corepack and pnpm's own version

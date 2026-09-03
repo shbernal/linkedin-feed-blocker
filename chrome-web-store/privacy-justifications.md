@@ -1,16 +1,16 @@
-# Privacy And Permission Justifications
+# Privacy and permission justifications
 
 Use this copy for the Chrome Web Store Developer Dashboard privacy and
 permission form. Keep each answer aligned with `manifest.config.ts` and current
 runtime behavior before submitting a build.
 
 The body text under each heading is the answer itself and goes into a plain-text
-form field verbatim, so it stays free of Markdown — no backticks, emphasis, or
+form field verbatim, so it stays free of Markdown: no backticks, emphasis, or
 lists. Headings are labels, not answers, and may keep their markup.
 
 Last reviewed against `manifest.config.ts` on 2026-09-03.
 
-## Single Purpose Description
+## Single purpose description
 
 LinkedIn Feed Blocker helps users reduce distraction on LinkedIn by blocking
 only supported LinkedIn feed and recommendation surfaces. It currently targets
@@ -19,7 +19,7 @@ while leaving profiles, jobs, messages, search, direct links, and My Network
 invitations available. Users control each supported section from the popup or
 shortcut, and settings are stored locally in Chrome extension storage.
 
-## Permission Justifications
+## Permission justifications
 
 ### `activeTab`
 
@@ -35,7 +35,7 @@ enabled and which supported LinkedIn sections are blocked. The extension stores
 this configuration in chrome.storage.local; it does not use this permission to
 collect or transmit browsing data.
 
-### Host Permission: `*://*.linkedin.com/*`
+### Host permission `*://*.linkedin.com/*`
 
 Access to LinkedIn pages is required because the content script must run there
 to hide or restore selected feed, right-rail, and My Network recommendation

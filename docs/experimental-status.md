@@ -1,11 +1,11 @@
-# Experimental Status
+# Experimental status
 
-This extension has moved beyond a placeholder scaffold, but it should still be
+This extension has moved well past a placeholder, but it should still be
 treated as an experimental implementation.
 
-## Already Done
+## Already done
 
-- MV3 extension scaffold with Vite, React, TypeScript, and
+- MV3 extension built with Vite, React, TypeScript, and
   `@crxjs/vite-plugin`, building the Chromium target to `dist/` and the Gecko
   target to `dist-firefox/` from one source tree.
 - LinkedIn manifest targeting and host permissions, with the background entry
@@ -25,7 +25,8 @@ treated as an experimental implementation.
 - Restore path for elements hidden by the extension's managed data attributes.
 - Vitest suite in jsdom over the settings contract, the shortcut parser, the
   route table, the selector predicates, hide/restore, the content-script wiring,
-  the background command path, and the popup, with a coverage ratchet.
+  the background command path, and the popup, under coverage thresholds that
+  only move up.
 - Fixture-backed Playwright suite that runs the unpacked build in a real
   Chromium against local LinkedIn-shaped pages, with no account and no network.
 - Source-tree guards that fail if any `chrome.*` call site is awaited, or if the
@@ -50,7 +51,7 @@ treated as an experimental implementation.
   published GitHub Release and both repeating the CI gates. Neither waits for
   the other.
 
-## Why It Is Still Rough
+## Why it is still rough
 
 The current blocking approach is deliberately simple and not very efficient.
 
@@ -88,7 +89,7 @@ The current blocking approach is deliberately simple and not very efficient.
 - The publish workflow still depends on repository variables, Google Cloud OIDC
   trust, and Chrome Web Store item access being kept in sync outside the repo.
 
-## Hardening Direction
+## Hardening direction
 
 Before treating this as maintained, prefer these steps:
 
@@ -96,16 +97,25 @@ Before treating this as maintained, prefer these steps:
    inserted anywhere".
 2. Narrow selectors and document which LinkedIn attributes are expected to be
    stable enough to depend on.
-3. Decide whether the `/mynetwork/grow/` sections can be narrowed enough to
+3. Stabilize `networkSuggestions`. My Network suggestions behave like an
+   infinite-scroll recommendation feed, and newly generated sections do not all
+   share the same heading or DOM shape. The current rule hides `auto-component`
+   sections rendered after the pending-invitations preview while excluding the
+   puzzle and Premium ones, which catches many suggested-profile blocks and is
+   good enough for local use. Two things would make it reliable: several real
+   suggested-profile snapshots captured after scrolling, and a signal for
+   separating profile suggestions from other post-invitation modules that is
+   more stable than a generated class.
+4. Decide whether the `/mynetwork/grow/` sections can be narrowed enough to
    express in CSS, which is the only way the flash there goes away. The
    `/feed/` route is already covered by a `document_start` stylesheet.
-4. Extend real smoke coverage to `/mynetwork/grow/` after the Home feed path is
+5. Extend real smoke coverage to `/mynetwork/grow/` after the Home feed path is
    stable.
-5. Re-copy the fixture markup from live pages whenever a selector changes, so
+6. Re-copy the fixture markup from live pages whenever a selector changes, so
    the deterministic suites keep testing the page rather than themselves.
-6. Run manual unpacked-extension checks after build and record any route-specific
+7. Run manual unpacked-extension checks after build and record any route-specific
    caveats here.
-7. Refresh and re-sanitize Chrome Web Store screenshots after selector or UI
+8. Refresh and re-sanitize Chrome Web Store screenshots after selector or UI
    changes.
 
 Until then, optimize for easy inspection, quick iteration, and honest docs over

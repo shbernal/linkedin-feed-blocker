@@ -43,7 +43,7 @@ Options
   --check     re-render to a temporary directory and report which committed
               PNGs would change, without writing any of them
 
-Judge a new mark at 16px, not at 1024 — that is the size the extensions page
+Judge a new mark at 16px, not at 1024. That is the size the extensions page
 favicon uses and where a mark with too much in it falls apart.
 
 Replacing the promo tile means a manual Chrome Web Store dashboard paste and
@@ -91,7 +91,7 @@ try {
     ])
 
     if (!check) {
-      console.log(`${asset.output} — ${asset.width}x${asset.height}`)
+      console.log(`${asset.output}  ${asset.width}x${asset.height}`)
       continue
     }
 

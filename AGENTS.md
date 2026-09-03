@@ -1,11 +1,11 @@
-# Repository Instructions
+# Repository instructions
 
-## Project State
+## Project state
 
 This is an experimental Manifest V3 browser extension for reducing distracting
 LinkedIn surfaces. It builds for Chromium and for Gecko from one source tree and
 ships to the Chrome Web Store and addons.mozilla.org. Treat it as a published
-prototype with release automation, not as a polished extension.
+prototype with release automation rather than a polished extension.
 
 The broader dev-project note is useful background, but the current source and
 repo-local docs are the durable source of truth for implementation details. This
@@ -55,7 +55,7 @@ or packaging changes, run at least `pnpm format`, `pnpm lint`,
 `pnpm typecheck`, `pnpm test:coverage`, `pnpm build`, `pnpm e2e`, and
 `pnpm lint:firefox`.
 
-## Where Things Are Written Down
+## Where things are written down
 
 This file carries the decisions that are cheap to get wrong and expensive to
 discover. Everything else lives in `docs/`, which is one read away and is the
@@ -75,7 +75,7 @@ copy that gets updated. When the two disagree, `docs/` and the source win.
 | icon directions already tried and rejected                     | `docs/icon-explorations.md`      |
 | how to contribute, and what CI does not run                    | `CONTRIBUTING.md`                |
 
-## Rules With Consequences
+## Rules with consequences
 
 Each of these has cost something, here or in a sibling repository. Where a test
 enforces one, it is named: a rule with an enforcer is a different kind of
@@ -114,7 +114,7 @@ statement from a rule that is a request.
   Store or AMO settings unless explicitly asked.** `pnpm publish:amo --dry-run`
   uploads nothing and is the safe form.
 
-## Writing Code Here
+## Writing code here
 
 - Keep changes narrow and follow the existing TypeScript style: strict types, no
   semicolons, single quotes, 2-space indentation, and 80-column oxfmt wrapping.
@@ -140,15 +140,15 @@ statement from a rule that is a request.
 - Content-script tests must pair `clearAllBlocking()` with
   `cleanupContentScript()` in teardown, or blocking state leaks into the next
   test.
-- Coverage thresholds in `vitest.config.ts` are a ratchet. Raise them when
-  coverage rises; do not lower them to make a change fit.
+- The coverage thresholds in `vitest.config.ts` only move up. Raise them when
+  coverage rises; never lower them to make a change fit.
 - oxlint runs its `correctness` category over the tree, plus
   `react-hooks/exhaustive-deps` and `react-hooks/rules-of-hooks` scoped to
   `src/popup/`. Three rules are suppressed in `.oxlintrc.json` and one call site
   inline in `scripts/publish-amo.mjs`, each with its reason next to it. Add to
   that list only with the same treatment.
 
-## Frozen Surfaces
+## Frozen surfaces
 
 Each of these is frozen for a reason, and the reason is not tidiness.
 
@@ -178,7 +178,7 @@ Each of these is frozen for a reason, and the reason is not tidiness.
   rule against it. Understand the tradeoff before touching it: a rounded blue
   tile is close to LinkedIn's own app icon, and both stores restrict listings
   that use another company's branding in a way that suggests affiliation. This
-  is a known and accepted rejection vector, not an oversight to be tidied away.
+  is a known and accepted risk. Do not tidy it away.
   If a reviewer rejects on branding, the graphite mark in `a755e41` is the
   fallback, not a new design. Naming the product stays nominative use.
 - Rejected icon directions are recorded in `docs/icon-explorations.md` with what
@@ -199,17 +199,17 @@ Each of these is frozen for a reason, and the reason is not tidiness.
   pose rather than a silhouette. Keep the tie at 64 units wide, which is exactly
   one device pixel at 16px; narrower and it smears to pink.
 - Detail that cannot survive 16px belongs in the tile colour, cut out of the
-  figure — the closed eyes and the lapels work that way. They carry the suit at
+  figure. The closed eyes and the lapels work that way. They carry the suit at
   listing size and disappear cleanly rather than becoming gravel.
-- Red (`#E5484D`) is now only the tie. It is the accent, not the subject, which
-  is what makes its poor luminance separation from the tile affordable.
-- The mark must work on light and dark backgrounds, which is what the saturated
+- Red (`#E5484D`) is now only the tie. Its poor luminance separation from the
+  tile is affordable because it covers 64 units and nothing else.
+- The mark must work on light and dark backgrounds. That is what the saturated
   tile is for.
 - Replacing a Chrome Web Store listing image is a manual dashboard paste and
   puts the item back through review. Only the AMO listing icon is pushed
   automatically, by `pnpm publish:amo`.
 
-## The Iron Laws
+## The iron laws
 
 - **No journaling.** Comments and documentation describe the current state. They
   do not carry a log of how they got there, and neither does a plan file's
@@ -218,7 +218,7 @@ Each of these is frozen for a reason, and the reason is not tidiness.
   names, no plan or phase numbers, no reference to a working directory that gets
   deleted. Branches are gone after merge; say what the change does.
 - **Do not lose the reader in internals.** Report at the level of what changed
-  and what it costs, not a transcript of the steps.
+  and what it costs, rather than a transcript of the steps.
 - **Relocating is not deleting.** Content moved out of a file has to land
   somewhere in the same change, or it was deleted and should be described that
   way.
