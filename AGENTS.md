@@ -91,11 +91,10 @@ Use `pnpm`, following the `packageManager` field in `package.json`.
   form and uploads nothing.
 - `pnpm icons` re-renders the icon set and the promo tile from their SVG
   sources; `--check` reports drift without writing. It needs `rsvg-convert`.
-- `pnpm format` checks Prettier formatting.
+- `pnpm format` checks oxfmt formatting; `pnpm format:write` applies it.
 - `pnpm preview` previews the Vite build.
 
-For docs-only changes, run a targeted Prettier check on the touched markdown
-files. For source, manifest, popup, content-script, background, settings, icon,
+For docs-only changes, run `pnpm format` over the touched markdown files. For source, manifest, popup, content-script, background, settings, icon,
 or packaging changes, run at least `pnpm format`, `pnpm lint`,
 `pnpm typecheck`, `pnpm test:coverage`, `pnpm build`, `pnpm e2e`, and
 `pnpm lint:firefox`.
@@ -127,7 +126,7 @@ or packaging changes, run at least `pnpm format`, `pnpm lint`,
 ## Coding Guidelines
 
 - Keep changes narrow and follow the existing TypeScript style: strict types, no
-  semicolons, single quotes, 2-space indentation, and 80-column Prettier
+  semicolons, single quotes, 2-space indentation, and 80-column oxfmt
   wrapping.
 - Treat `ExtensionSettings` and `PageSection` as the contract between popup,
   content script, background messages, and storage. Update all related surfaces

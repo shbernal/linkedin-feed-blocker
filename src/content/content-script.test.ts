@@ -38,7 +38,8 @@ const isHidden = (selector: string) => {
 
 const storedSettings = () => {
   return getChromeMock().storage.local.snapshot()[SETTINGS_STORAGE_KEY] as
-    ExtensionSettings | undefined
+    | ExtensionSettings
+    | undefined
 }
 
 const pressKey = (init: KeyboardEventInit, target: EventTarget = document) => {

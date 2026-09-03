@@ -1,0 +1,24 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "semi": false,
+  "singleQuote": true,
+  "trailingComma": "all",
+  "printWidth": 80,
+  "tabWidth": 2,
+  "useTabs": false,
+  "bracketSpacing": true,
+  "bracketSameLine": false,
+  "arrowParens": "avoid",
+  "endOfLine": "lf",
+  "sortPackageJson": false,
+  // coverage/, playwright-report/ and test-results/ are not repeated here:
+  // they are in .gitignore and oxfmt honors it. README.md is not, so it needs
+  // the explicit entry, which also means nothing formats it.
+  "ignorePatterns": [
+    "dist/",
+    "dist-firefox/",
+    "node_modules/",
+    "pnpm-lock.yaml",
+    "README.md"
+  ]
+}

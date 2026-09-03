@@ -39,20 +39,9 @@
     "e2e:real:login": "pnpm run e2e:real:setup",
     "e2e:real": "tsc -b && vite build && RUN_REAL_LINKEDIN_E2E=1 playwright test -c playwright.real.config.ts --grep-invert @setup --headed",
     "manual:linkedin": "tsc -b && vite build && playwright test -c playwright.manual.config.ts --headed",
-    "format": "prettier --check .",
+    "format": "oxfmt --check .",
+    "format:write": "oxfmt .",
     "preview": "vite preview"
-  },
-  "prettier": {
-    "semi": false,
-    "singleQuote": true,
-    "trailingComma": "all",
-    "printWidth": 80,
-    "tabWidth": 2,
-    "useTabs": false,
-    "bracketSpacing": true,
-    "bracketSameLine": false,
-    "arrowParens": "avoid",
-    "endOfLine": "lf"
   },
   "dependencies": {
     "react": "^19.2.8",
@@ -71,8 +60,8 @@
     "@vitejs/plugin-react": "^6.1.1",
     "@vitest/coverage-v8": "^4.1.11",
     "jsdom": "^30.0.1",
+    "oxfmt": "^0.66.0",
     "oxlint": "^1.81.0",
-    "prettier": "^3.9.6",
     "typescript": "^7.0.2",
     "vite": "^8.2.2",
     "vitest": "^4.1.11",
