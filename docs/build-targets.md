@@ -132,16 +132,27 @@ redirect to `/login/`, the content script's route check correctly matches
 nothing, and there is nothing to hide.
 
 That is why the profile is persistent, at
-`node_modules/.tmp/gecko-profiles/<binary>`. Run once with
-`FIREFOX_VALIDATE_HEADED=1`, sign in to LinkedIn in the window it opens, and the
-page checks run on every later invocation. Until then they are reported as
-`SKIP`, never as passes.
+`node_modules/.tmp/gecko-profiles/<binary>`. Sign it in by hand once, and the
+page checks run on every later invocation; until then they are reported as
+`SKIP`, never as passes:
+
+```sh
+/usr/bin/firefox --profile node_modules/.tmp/gecko-profiles/firefox --no-remote
+```
+
+Sign in to LinkedIn in that window and close it. The run only writes `user.js`
+and clears a stale lock, so it never disturbs the session. Zen keys off the
+binary's basename, so its profile is `gecko-profiles/zen-browser`.
+
+`FIREFOX_VALIDATE_HEADED=1` is for watching a run, not for signing in. The
+script ends by killing the browser as soon as the checks finish, which is well
+under a minute — long enough to see the run, not to get through a login.
 
 With a signed-in profile the run also covers: sections hidden on both supported
-routes, pending invitations still visible on My Network, popup toggles
-persisting to `storage.local` and surviving a reload, sections toggling
-independently, hidden elements restored when a section is disabled, and
-`Ctrl+Shift+7` re-blocking the current page.
+routes, pending invitations still visible on My Network, hidden elements
+restored when a section is disabled, and `Ctrl+Shift+7` re-blocking the current
+page. The popup and storage checks stay skipped whatever the profile holds,
+because they need an extension page.
 
 A route counts as blocked only when the extension marked at least one element
 with a managed `data-ltfb-*-hidden` attribute and every element it marked

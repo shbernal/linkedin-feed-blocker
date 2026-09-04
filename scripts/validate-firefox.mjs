@@ -5,9 +5,10 @@
 //
 // Unlike the adjacent TikTok blocker, the surfaces this extension blocks are
 // behind a LinkedIn login, so the page checks need an authenticated profile.
-// The profile is persistent for exactly that reason: run headed once, sign in,
-// and every later run reuses the session. Without one the extension-level
-// checks still run and the page checks report SKIP.
+// The profile is persistent for exactly that reason: sign it in by hand once
+// and every later run reuses the session. This run cannot host the sign-in
+// itself, because it ends by killing the browser as soon as the checks finish.
+// Without a session the page checks report SKIP.
 import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
@@ -26,10 +27,15 @@ in-page shortcut, and that pending invitations stay visible. Writes screenshots
 and validation.json under test-results/firefox/<binary>, and exits non-zero if
 any check fails. Requires a dist-firefox/ build.
 
-The profile is persistent, at node_modules/.tmp/gecko-profiles/<binary>. Run
-once with FIREFOX_VALIDATE_HEADED=1, sign in to LinkedIn in the window it
-opens, and the page checks run on every later invocation. Until then they are
-reported as SKIP, never as passes.
+The profile is persistent, at node_modules/.tmp/gecko-profiles/<binary>. Sign
+it in by hand once and the page checks run on every later invocation; until
+then they are reported as SKIP, never as passes:
+
+  /usr/bin/firefox --profile node_modules/.tmp/gecko-profiles/firefox --no-remote
+
+Sign in to LinkedIn in that window and close it. FIREFOX_VALIDATE_HEADED=1 is
+for watching a run, not for signing in: this script kills the browser as soon
+as the checks finish, which is well under a minute.
 
 The popup, storage and command checks skip on every current Gecko browser:
 WebDriver BiDi will not navigate a content context to a moz-extension:// URL,
@@ -39,8 +45,7 @@ Environment
   FIREFOX_BINARY           Firefox-family binary to drive
                            (default: /usr/bin/firefox); set this to validate
                            Zen or another fork
-  FIREFOX_VALIDATE_HEADED  set to 1 to watch the run, and to sign in; headless
-                           otherwise
+  FIREFOX_VALIDATE_HEADED  set to 1 to watch the run; headless otherwise
   FIREFOX_VALIDATE_PORT    remote debugging port (default: 9334)
   FIREFOX_PROFILE_DIR      override the persistent profile directory
 
@@ -586,7 +591,8 @@ try {
   if (!signedIn) {
     skip(
       'LinkedIn session is signed in',
-      `landed on ${landing.pathname}; run headed once and sign in to enable ` +
+      `landed on ${landing.pathname}; sign in with ${binary} --profile ` +
+        `${path.relative(process.cwd(), profileDir)} --no-remote to enable ` +
         'the page checks',
     )
   } else {
