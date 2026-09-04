@@ -15,18 +15,24 @@ type LaunchBrowserProfileContextOptions = {
 
 export const extensionPath = path.resolve(process.cwd(), 'dist')
 
+// Shared with `scripts/browsers.mjs`, which resolves the same binary for the
+// dev launchers and the inspector. It is a JSON file rather than an export
+// because `scripts/` is plain ESM run by node and is not part of a TypeScript
+// project reference, so neither side can import the other.
+const chromiumCandidates: string[] = JSON.parse(
+  fs.readFileSync(
+    new URL('../../scripts/chromium-paths.json', import.meta.url),
+    'utf8',
+  ),
+)
+
 export const resolveChromiumExecutable = () => {
   const explicitExecutable = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE
   if (explicitExecutable) {
     return explicitExecutable
   }
 
-  return [
-    '/usr/bin/chromium',
-    '/usr/bin/chromium-browser',
-    '/usr/bin/google-chrome',
-    '/usr/bin/google-chrome-stable',
-  ].find(candidate => fs.existsSync(candidate))
+  return chromiumCandidates.find(candidate => fs.existsSync(candidate))
 }
 
 export const launchBrowserProfileContext = async ({

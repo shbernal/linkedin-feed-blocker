@@ -2,19 +2,17 @@
 //
 // Playwright's bundled Chromium is the headless shell, which cannot load an
 // extension at all, so anything that needs `--load-extension` has to be handed
-// a real system Chromium. The same list lives in
-// `e2e/fixtures/extensionRuntime.ts` for the Playwright lane, which cannot
-// import this file: `scripts/` is plain ESM run by node and is not part of a
-// TypeScript project reference.
+// a real system Chromium. The candidate paths live in `chromium-paths.json`
+// rather than here because `e2e/fixtures/extensionRuntime.ts` needs the same
+// list and cannot import this file: `scripts/` is plain ESM run by node and is
+// not part of a TypeScript project reference. Both read the JSON instead.
 import fs from 'node:fs'
 import process from 'node:process'
 
-const CHROMIUM_CANDIDATES = [
-  '/usr/bin/chromium',
-  '/usr/bin/chromium-browser',
-  '/usr/bin/google-chrome',
-  '/usr/bin/google-chrome-stable',
-]
+/** @type {string[]} */
+const CHROMIUM_CANDIDATES = JSON.parse(
+  fs.readFileSync(new URL('./chromium-paths.json', import.meta.url), 'utf8'),
+)
 
 /**
  * A real Chromium, or `undefined` to let Playwright fall back to

@@ -60,7 +60,10 @@ ignored by git.
 `scripts/` holds the source archiver, the AMO publisher with its listing-asset
 planner and write-throttle budget, the Gecko runtime validator, the icon
 renderer, the Chromium and Gecko launchers, the runtime inspector, and the
-shared browser resolution and `--help` handling the rest of them import.
+shared browser resolution and `--help` handling the rest of them import. The
+system Chromium paths that resolution tries sit beside it in
+`scripts/chromium-paths.json`, because the Playwright fixtures need the same
+list and cannot import plain ESM out of `scripts/`.
 
 ## Out of scope for now
 
