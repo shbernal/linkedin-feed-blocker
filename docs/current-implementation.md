@@ -193,6 +193,15 @@ either engine and those two can. They are both needed:
 but does not hide a replaced element, and `visibility` hides the ad image and
 iframe but reserves their space.
 
+The reserved space is the curtain's accepted cost. Until the content script's
+`display: none` collapses them, the ad iframe holds a 250px gap and the discover
+promo a 24px one. Choosing one property per target does not close it: measured
+in Chromium, neither property collapses a replaced element's own box, and the
+promo's 24px is the container's own padding, which `content-visibility` leaves
+standing. Only collapsing the box would, and that is exactly what cannot be
+animated back. A blank gap for a few hundred milliseconds is a much better
+failure than a visible ad.
+
 ### Lifecycle
 
 `content-script.ts` exports `initContentScript()` and `cleanupContentScript()`
