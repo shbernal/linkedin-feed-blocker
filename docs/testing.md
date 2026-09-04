@@ -325,8 +325,11 @@ looks like proof while proving nothing.
 - Raise the coverage thresholds when coverage rises. Never lower them to make a
   change fit.
 - `pnpm validate:firefox` reports a check it could not run as `SKIP`, never as a
-  pass. Its page-level checks need a LinkedIn session in the persistent profile,
-  and Zen cannot reach extension pages at all. Keep it that way.
+  pass, and every check inside a conditional block has a matching skip. Its
+  page-level checks need a LinkedIn session in the persistent profile, and no
+  Gecko browser can reach extension pages over BiDi. Keep it that way: a check
+  that is neither run nor skipped leaves the report looking complete while the
+  surface it covers quietly shrinks.
 - The My Network invitation area staying visible is covered in both
   deterministic layers. Keep it that way when touching the suggestion rule.
 

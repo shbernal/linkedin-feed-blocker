@@ -97,19 +97,32 @@ without geckodriver, a signed build, or an extra dependency. The profile pins
 `extensions.webextensions.uuids` so the popup's `moz-extension://` URL is known
 before the extension is installed.
 
-Four checks run with no account at all, and they are the ones that matter most
-on Gecko:
+Two checks need neither an account nor an extension page, and they are what a
+signed-out run actually proves: the add-on installs under the expected id, and
+the run logs no extension console errors.
 
-- the add-on installs under the expected id;
+Four more need the popup page but no account, and they are the ones that would
+matter most on Gecko:
+
 - the popup renders every control, in order;
+- settings start from defaults, with every section blocked;
 - the browser has the toggle command bound to `Ctrl+Shift+7`;
 - the background script mirrored that binding into `storage.local`.
 
 The last one is the one that matters. Gecko runs the background entry as a plain
 script rather than a service worker, and `chrome.commands.getAll` there is
 callback-only. The `toggleShortcut` key only exists if that background script
-ran and its callback fired, so this is the check that proves the Firefox
+ran and its callback fired, so it is the only check that would prove the Firefox
 background target works at all.
+
+None of those four run today. WebDriver BiDi refuses to navigate a content
+browsing context to a `moz-extension://` URL, so the popup page cannot be
+opened and all four report `SKIP`. Measured on 2026-09-04: stock Firefox
+refuses the navigation headless and headed alike, and Zen refuses it in a tab
+and then cannot open the fallback window either. Signing the profile in changes
+nothing, because the obstacle is the navigation and not the account. Until BiDi
+grows a way in, the Gecko background target has no automated coverage in any
+lane, and `pnpm dev:firefox` with the manual checklist is what covers it.
 
 ### The page checks need a signed-in profile
 
@@ -162,10 +175,11 @@ covers every Gecko lane. See [Testing](./testing.md).
 runs the same checks in Zen. Zen installs the Firefox package unchanged. There
 is no third build and no third listing.
 
-Zen refuses to navigate any browsing context to a `moz-extension://` URL, so the
-popup, storage, and command checks are skipped there and reported as `SKIP`.
-This extension has no in-page control of its own, so unlike the TikTok blocker
-there is no overlay switch to drive the remaining checks through: on a
+The `moz-extension://` navigation refusal above is not a Zen quirk, so the
+popup, storage, and command checks skip in Zen the way they skip in Firefox;
+Zen only reports it differently, as an unsupported `openWindow()` when the
+runner falls back from a tab to a window. This extension has no in-page control of its own, so unlike the TikTok
+blocker there is no overlay switch to drive the remaining checks through: on a
 signed-out Zen profile the run is reduced to "the add-on installs and logs no
 errors". Signing the Zen profile in restores the page-level checks; nothing
 restores the extension-page ones.

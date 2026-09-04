@@ -31,6 +31,10 @@ once with FIREFOX_VALIDATE_HEADED=1, sign in to LinkedIn in the window it
 opens, and the page checks run on every later invocation. Until then they are
 reported as SKIP, never as passes.
 
+The popup, storage and command checks skip on every current Gecko browser:
+WebDriver BiDi will not navigate a content context to a moz-extension:// URL,
+and signing in does not change that.
+
 Environment
   FIREFOX_BINARY           Firefox-family binary to drive
                            (default: /usr/bin/firefox); set this to validate
@@ -237,8 +241,10 @@ const waitForJson = async (
   return latest
 }
 
-// Zen refuses moz-extension:// navigations in a freshly created tab, so fall
-// back to a separate window when a tab will not take the URL.
+// A freshly created tab refuses a moz-extension:// navigation, so fall back to
+// a separate window when a tab will not take the URL. Neither route works for
+// extension pages on current Gecko; the fallback is what makes that report as
+// one skip rather than a crash, and it still matters for ordinary URLs.
 const openContext = async (session, url) => {
   for (const type of ['tab', 'window']) {
     const created = await session.send('browsingContext.create', { type })
@@ -460,8 +466,12 @@ try {
     installed.extension,
   )
 
-  // Zen refuses to navigate any context to a moz-extension:// URL, so the
-  // extension-page checks are skipped there and the in-page surfaces still run.
+  // WebDriver BiDi refuses to navigate a content context to a moz-extension://
+  // URL. Observed on stock Firefox headless and headed, and on Zen, so the
+  // extension-page checks skip and the in-page surfaces still run. Every check
+  // inside the block below has a matching skip in the else: a check that is
+  // neither run nor skipped leaves the report looking complete while the
+  // surface it covers quietly shrinks.
   let popupContext = null
   try {
     popupContext = await openContext(
@@ -542,6 +552,20 @@ try {
       'background script mirrors the shortcut into storage',
       mirrored.toggleShortcut === toggleShortcut,
       JSON.stringify(mirrored.toggleShortcut),
+    )
+  } else {
+    skip('popup renders every section control', 'needs an extension page')
+    skip(
+      'settings start from defaults, with every section blocked',
+      'needs an extension page',
+    )
+    skip(
+      'browser registers the toggle command shortcut',
+      'needs an extension page',
+    )
+    skip(
+      'background script mirrors the shortcut into storage',
+      'needs an extension page',
     )
   }
 

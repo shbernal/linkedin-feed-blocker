@@ -56,8 +56,9 @@ assuming CI has them covered is how a regression ships:
 
 - `pnpm validate:firefox`, the Gecko runtime lane. Playwright cannot load an
   MV3 extension in Firefox at all, so nothing automated covers that target's
-  runtime. It also reports a check it could not run as `SKIP`, never as a pass;
-  read the output rather than the exit code.
+  runtime. It reports a check it could not run as `SKIP`, never as a pass, and
+  on a signed-out profile most of it skips: read the output rather than the
+  exit code.
 - `pnpm e2e:real` and `pnpm manual:linkedin`, the real-site lanes. They need a
   LinkedIn session and are the only thing that can notice LinkedIn changed its
   markup.
