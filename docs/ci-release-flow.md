@@ -118,11 +118,26 @@ The release job:
 `web-ext sign`, which reports listed-channel review state poorly and has been
 seen to exit non-zero on submissions that actually succeeded.
 
+**Step 8 is only half proven in CI.** The job has run once, for v0.2.0. With the
+`addons-mozilla-org` secrets it authenticated, uploaded the package and got a
+passing validation back, so the credential path and the upload are known to work
+from Actions. It then failed on the version-creating `PUT`, because the slug it
+asked for was taken; see [The Slug Is Not The Repo
+Name](./amo-listing.md#the-slug-is-not-the-repo-name). That `PUT` and everything
+after it — the source attach, the listing icon, the lock, and step 9's asset
+upload — have only ever run from a maintainer's machine, which is how 0.2.0
+reached AMO. Expect the next release to be the first end-to-end run of the back
+half, and read a failure there as untested rather than broken.
+
+`pnpm publish:amo --check` re-proves the credentials on their own. It makes one
+authenticated `GET` and prints the account it resolved to; nothing is uploaded.
+
 **A successful AMO release ends in review, not live.** A listed version is
 queued for human review, so the expected successful outcome is a file status of
-`unreviewed` and an add-on status of `nominated` until the first approval, not
-`public`. Until that first approval the public API returns `401` and the listing
-URL returns `404`. See [Firefox And AMO](./firefox-amo.md).
+`unreviewed`, not `public`. The add-on itself already reads `public` from 0.2.0's
+approval and keeps reading that while the new file waits, so the add-on status
+is not what says whether the release landed. See
+[Firefox And AMO](./firefox-amo.md).
 
 AMO requires a source archive with every version because the package is bundled
 by Vite. That is an ongoing obligation, not a first-submission hurdle; see

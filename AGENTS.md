@@ -164,9 +164,10 @@ Each of these is frozen for a reason, and the reason is not tidiness.
 - **The icon PNGs, `store/logo-source.png`, and the promo tile.** Edit the SVG
   source and run `pnpm icons`; `pnpm icons --check` reports drift.
 - **`amo/previews.lock.json`.** Written by the publisher, describing the live
-  AMO listing. Not in the tree yet: nothing has been published from here, and a
-  lock claiming otherwise would make the first release skip the uploads it
-  exists to make. Every way it can be unusable degrades to a full replace, never to
+  AMO listing. Not in the tree yet: 0.2.0 went up before the lock existed, so
+  the next release writes the first one. Do not hand-write it — a lock claiming
+  more than was pushed makes a release skip the uploads it exists to make.
+  Every way it can be unusable degrades to a full replace, never to
   skipping: failing open costs one upload, failing closed leaves a changed
   screenshot unpublished and says nothing.
 

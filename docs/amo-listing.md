@@ -209,8 +209,9 @@ on a preview says which manifest entry produced it. The lock is the only record
 of what was sent.
 
 The lock is checked in, so a fresh clone plans the same way the machine that
-last published would. Nothing has been published from this repository yet, so
-there is no lock in the tree; the first release writes one.
+last published would. There is none in the tree: 0.2.0 was published before the
+lock existed, so no run has ever written one. The next release writes the first,
+and it will describe a listing whose icon AMO already holds.
 
 An absent, empty, truncated or malformed lock degrades to a full replace, never
 to skipping. Getting that direction right is the whole point: failing open costs

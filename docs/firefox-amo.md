@@ -113,11 +113,13 @@ A listed AMO version is queued for human review. It does not go live on upload
 the way a Chrome Web Store publish does.
 
 The successful outcome of a release is a file status of `unreviewed`, shown as
-"Awaiting Review" in the developer dashboard, and an add-on status of
-`nominated` until the first version is approved. Any tooling that waits for
+"Awaiting Review" in the developer dashboard. Any tooling that waits for
 `public` will fail every release, and any tooling that reports `public` on
 submission is lying about the outcome. Review can take days.
 
-Until that first approval the add-on is not public, so the public API returns
-`401` for it and the listing URL returns `404`. That is the expected state after
-a successful first submission, not a failed one.
+The add-on status is the part that changes with the listing's history, and it is
+easy to misread as a failure. 0.2.0 is approved, so the add-on now sits at
+`public` and stays there while a newer file waits in review: a release that
+reports `public` for the add-on and `unreviewed` for its file has succeeded.
+Before that first approval the add-on read `nominated` instead, and was not
+public at all — the API answered `401` for it and the listing URL `404`.
