@@ -116,7 +116,7 @@ const secret = process.env.MOZILLA_ADDON_JWT_SECRET
 // The reviewer notes are the same text as the documented build instructions, so
 // they are lifted from the doc rather than restated here. Drift between what a
 // reviewer is told and what the repository documents is the failure this avoids.
-const REVIEWER_SECTION = '## Reviewer Build Instructions'
+const REVIEWER_SECTION = '## Reviewer build instructions'
 
 const approvalNotes = () => {
   const doc = read('amo/source-submission.md')
