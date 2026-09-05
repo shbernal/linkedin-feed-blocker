@@ -209,9 +209,10 @@ on a preview says which manifest entry produced it. The lock is the only record
 of what was sent.
 
 The lock is checked in, so a fresh clone plans the same way the machine that
-last published would. There is none in the tree: 0.2.0 was published before the
-lock existed, so no run has ever written one. The next release writes the first,
-and it will describe a listing whose icon AMO already holds.
+last published would. The release job cannot commit it, so it writes one and
+attaches it to the GitHub Release; committing it back is a manual step after
+every release. The lock in the tree is 0.3.0's, and its `remoteCount` is `null`
+because that release did not sync previews.
 
 An absent, empty, truncated or malformed lock degrades to a full replace, never
 to skipping. Getting that direction right is the whole point: failing open costs

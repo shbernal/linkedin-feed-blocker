@@ -1,0 +1,26 @@
+{
+  "icon": "f8148db09a92ff4d8a8064d209a6ee0c1749d39b2763fd39401fa0b35d94bbb0",
+  "previews": [
+    {
+      "file": "store/screenshots/linkedin-feedblocker-1-home-feed-blocked.png",
+      "hash": "bcb0f4cff0a740126cac59cb0990d11a670a5701b6be65300a5222d27da94b82"
+    },
+    {
+      "file": "store/screenshots/linkedin-feedblocker-2-popup-controls.png",
+      "hash": "e75c187dabf2295895a6ec64bbef6decae9d41ac51d9c0d4c9c82afbf0a345df"
+    },
+    {
+      "file": "store/screenshots/linkedin-feedblocker-3-my-network-blocked.png",
+      "hash": "cc8bcc8a5b32960e33faac8e2e1df17b7d14649ebdaef6742e4909fe2b4ebbaa"
+    },
+    {
+      "file": "store/screenshots/linkedin-feedblocker-4-invitations-preserved.png",
+      "hash": "bf6ba22fe56dd2267edc3830005724840810eb3218c95aa0adb1d5e31cd4b246"
+    },
+    {
+      "file": "store/screenshots/linkedin-feedblocker-5-github-contribute.png",
+      "hash": "203947bc9bcb749da5a7ed0834544990eff215d2749c02bccf05b08c6af7e190"
+    }
+  ],
+  "remoteCount": null
+}

@@ -118,16 +118,9 @@ The release job:
 `web-ext sign`, which reports listed-channel review state poorly and has been
 seen to exit non-zero on submissions that actually succeeded.
 
-**Step 8 is only half proven in CI.** The job has run once, for v0.2.0. With the
-`addons-mozilla-org` secrets it authenticated, uploaded the package and got a
-passing validation back, so the credential path and the upload are known to work
-from Actions. It then failed on the version-creating `PUT`, because the slug it
-asked for was taken; see [The Slug Is Not The Repo
-Name](./amo-listing.md#the-slug-is-not-the-repo-name). That `PUT` and everything
-after it — the source attach, the listing icon, the lock, and step 9's asset
-upload — have only ever run from a maintainer's machine, which is how 0.2.0
-reached AMO. Expect the next release to be the first end-to-end run of the back
-half, and read a failure there as untested rather than broken.
+The whole of step 8 has run from Actions, on 0.3.0: authenticate, upload,
+validate, create the version, attach the source, apply the listing icon, write
+the lock. A failure in any of it is a regression rather than an untried path.
 
 `pnpm publish:amo --check` re-proves the credentials on their own. It makes one
 authenticated `GET` and prints the account it resolved to; nothing is uploaded.

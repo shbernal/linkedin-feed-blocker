@@ -164,11 +164,11 @@ Each of these is frozen for a reason, and the reason is not tidiness.
 - **The icon PNGs, `store/logo-source.png`, and the promo tile.** Edit the SVG
   source and run `pnpm icons`; `pnpm icons --check` reports drift.
 - **`amo/previews.lock.json`.** Written by the publisher, describing the live
-  AMO listing. Not in the tree yet: 0.2.0 went up before the lock existed, so
-  the next release writes the first one. Do not hand-write it — a lock claiming
-  more than was pushed makes a release skip the uploads it exists to make.
-  Every way it can be unusable degrades to a full replace, never to
-  skipping: failing open costs one upload, failing closed leaves a changed
+  AMO listing. A release regenerates it and attaches it to the GitHub Release
+  for a maintainer to commit back, so take it from there rather than editing it:
+  a lock claiming more than was pushed makes a release skip the uploads it
+  exists to make. Every way it can be unusable degrades to a full replace, never
+  to skipping: failing open costs one upload, failing closed leaves a changed
   screenshot unpublished and says nothing.
 
 ## Artwork
