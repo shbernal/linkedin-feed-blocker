@@ -12,7 +12,7 @@ search, profiles, direct links, and My Network invitations available.
 It builds for Chrome and Chromium, and for Firefox and Zen, from one source
 tree. Only the manifest differs between the two packages.
 
-The current release is `0.2.0`.
+The current release is `0.3.0`.
 
 ## What it blocks
 
