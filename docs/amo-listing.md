@@ -133,8 +133,8 @@ exists on a maiden submission.
 | Icon     | `PATCH /addons/addon/{guid}/` (`icon`) | every release               |
 | Previews | `POST`/`DELETE .../previews/{id}/`     | only with `--sync-previews` |
 
-Captions are a second call. See the throttle note below for why that is forced
-rather than chosen.
+Captions are a second call, made only once AMO has finished resizing every
+upload. See the throttle note below for why both are forced rather than chosen.
 
 Constraints, which the script checks locally so a bad file fails before anything
 is uploaded: PNG or JPEG only, not animated, under 4MB. The icon must also be
@@ -211,8 +211,15 @@ of what was sent.
 The lock is checked in, so a fresh clone plans the same way the machine that
 last published would. The release job cannot commit it, so it writes one and
 attaches it to the GitHub Release; committing it back is a manual step after
-every release. The lock in the tree is 0.3.0's, and its `remoteCount` is `null`
-because that release did not sync previews.
+every release.
+
+A run that skips the preview sync still writes the lock. It records the icon it
+pushed and the preview count AMO reported, but lists no preview as pushed unless
+an earlier lock already did. With `--sync-previews`, the previews are replaced
+unless AMO's count matches both the count the lock recorded and the number of
+previews it lists, and a lock with no recorded count replaces them too. The
+count is the only part of the listing that can be compared, so a lock that
+cannot account for it fails open like an unreadable one.
 
 An absent, empty, truncated or malformed lock degrades to a full replace, never
 to skipping. Getting that direction right is the whole point: failing open costs
@@ -247,6 +254,16 @@ The two calls per image are not avoidable. `caption` is writable when a preview
 is created, but `TranslationSerializerField` deserializes a dictionary only. A
 bare string needs the `l10n_flat_input_output` gate, and multipart cannot carry
 one, so the localized caption has to follow as JSON.
+
+That second call also has to wait. AMO resizes each upload in a background task
+(`resize_preview`) that loads the preview, resizes the image, and saves the
+whole row, so a caption written in between is saved over with the empty one the
+task loaded, while the caption call itself still returns success. The same save
+fills in the preview's `image_size`, so the script uploads every preview, polls
+until each reports its dimensions, captions them, removes the superseded ones,
+and then reads the captions back. Polling is a read and costs no budget. If any
+caption is missing, the run fails without recording the lock, and the next
+`--sync-previews` replaces the set again.
 
 ### Why previews are opt-in
 

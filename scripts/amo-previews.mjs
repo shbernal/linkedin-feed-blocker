@@ -240,6 +240,43 @@ export const buildPreviewLock = ({ iconHash, previewHashes, remoteCount }) => ({
 })
 
 /**
+ * The lock a run leaves when it does not sync previews. Nothing was pushed, so
+ * it lists only the previews an earlier lock already vouched for, and records
+ * the count AMO reported so a later sync can tell whether the listing still
+ * holds them.
+ */
+export const lockAfterSkippedSync = ({ lock, iconHash, remoteCount }) =>
+  buildPreviewLock({
+    iconHash,
+    previewHashes: lock?.previews ?? [],
+    remoteCount,
+  })
+
+/**
+ * AMO resizes an uploaded preview in a background task, and `image_size` stays
+ * empty until that task saves the row. Returns the ids still waiting on it.
+ */
+export const pendingResizes = (remote, ids) =>
+  ids.filter(
+    id => !(remote.find(preview => preview.id === id)?.image_size?.length > 0),
+  )
+
+/**
+ * The uploaded previews whose published caption is not the one that was sent,
+ * including any AMO no longer lists at all.
+ */
+export const missingCaptions = (remote, uploaded) =>
+  uploaded
+    .filter(({ id, caption }) => {
+      const published = remote.find(preview => preview.id === id)?.caption
+
+      return Object.entries(caption).some(
+        ([locale, text]) => published?.[locale] !== text,
+      )
+    })
+    .map(({ id }) => id)
+
+/**
  * What a release still has to push.
  *
  * Previews are all-or-nothing because `planPreviewSync` replaces rather than
@@ -284,9 +321,35 @@ export const planListingAssetSync = ({
     return { icon, previews: { sync: true, reason: 'the manifest changed' } }
   }
 
-  // A listing edited by hand on AMO no longer matches what the lock describes,
-  // and the count is the only part of it this can check.
-  if (lock.remoteCount !== null && lock.remoteCount !== remoteCount) {
+  // The count is the only part of the listing this can check, so a lock that
+  // cannot account for it is treated like an unreadable one.
+  if (lock.remoteCount === null) {
+    return {
+      icon,
+      previews: {
+        sync: true,
+        reason: 'the lock never recorded a remote count',
+      },
+    }
+  }
+
+  // A run that skipped the sync records AMO's count without pushing anything,
+  // so a count that disagrees with the lock's own previews means it lists
+  // screenshots AMO was never sent.
+  if (remoteCount !== lock.previews.length) {
+    return {
+      icon,
+      previews: {
+        sync: true,
+        reason:
+          `AMO reports ${remoteCount} previews where the lock lists ` +
+          `${lock.previews.length}`,
+      },
+    }
+  }
+
+  // A listing edited by hand on AMO no longer matches what the lock describes.
+  if (lock.remoteCount !== remoteCount) {
     return {
       icon,
       previews: {

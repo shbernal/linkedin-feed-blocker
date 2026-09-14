@@ -15,7 +15,10 @@ import {
   describePreviewDrift,
   describeWait,
   imageContentType,
+  lockAfterSkippedSync,
+  missingCaptions,
   parsePreviewManifest,
+  pendingResizes,
   planListingAssetSync,
   planPreviewSync,
   planThrottleRetry,
@@ -477,6 +480,29 @@ const uploadIcon = async () => {
   return addon
 }
 
+const fetchPreviews = async () =>
+  (await request('GET', `/addons/addon/${GUID}/`)).previews ?? []
+
+const awaitResizedPreviews = async ids => {
+  for (let attempt = 1; attempt <= POLL_ATTEMPTS; attempt += 1) {
+    const pending = pendingResizes(await fetchPreviews(), ids)
+
+    if (pending.length === 0) {
+      return
+    }
+
+    console.log(
+      `waiting for AMO to resize ${pending.length} previews ` +
+        `(${attempt}/${POLL_ATTEMPTS})`,
+    )
+    await sleep(POLL_INTERVAL_MS)
+  }
+
+  throw new Error(
+    `timed out waiting for AMO to resize previews ${ids.join(', ')}`,
+  )
+}
+
 // Previews and the icon are edited on the add-on rather than on a version, so
 // AMO accepts them while a version sits in review, the same path that already
 // lets the release PUT rewrite the description. Every call throws on a non-2xx,
@@ -509,10 +535,10 @@ const applyListingAssets = async remotePreviews => {
     // Still written, so a run that skipped everything records the icon hash the
     // first lock-less release pushed and the remote count AMO reported.
     writeLock(
-      buildPreviewLock({
+      lockAfterSkippedSync({
+        lock,
         iconHash,
-        previewHashes: lock?.previews ?? previewHashes,
-        remoteCount: lock?.remoteCount ?? null,
+        remoteCount: remotePreviews.length,
       }),
     )
     return
@@ -534,6 +560,8 @@ const applyListingAssets = async remotePreviews => {
       'an hour, so a single wait can approach that',
   )
 
+  const uploaded = []
+
   for (const upload of uploads) {
     const form = new FormData()
     form.set('image', imagePart(upload.file))
@@ -543,20 +571,42 @@ const applyListingAssets = async remotePreviews => {
       form,
     })
 
-    // `caption` is writable on create, but a localized value would have to
-    // survive multipart as a bare string and land in whatever AMO treats as the
-    // default locale. Sending it as JSON afterwards keeps the `{"en-US": ...}`
-    // shape the rest of the listing is written in.
-    await request('PATCH', `/addons/addon/${GUID}/previews/${preview.id}/`, {
-      json: { caption: upload.caption },
-    })
-
+    uploaded.push({ id: preview.id, caption: upload.caption })
     console.log(`uploaded preview ${upload.position} from ${upload.file}`)
+  }
+
+  // AMO resizes each upload in a background task that loads the preview,
+  // resizes it, then saves the whole row, so a caption written in between is
+  // saved over with the empty one the task loaded. That save is also what fills
+  // in `image_size`, which makes it the signal that captioning is safe.
+  await awaitResizedPreviews(uploaded.map(entry => entry.id))
+
+  // `caption` is writable on create, but a localized value would have to
+  // survive multipart as a bare string and land in whatever AMO treats as the
+  // default locale. Sending it as JSON afterwards keeps the `{"en-US": ...}`
+  // shape the rest of the listing is written in.
+  for (const { id, caption } of uploaded) {
+    await request('PATCH', `/addons/addon/${GUID}/previews/${id}/`, {
+      json: { caption },
+    })
+    console.log(`captioned preview ${id}`)
   }
 
   for (const id of deletes) {
     await request('DELETE', `/addons/addon/${GUID}/previews/${id}/`)
     console.log(`removed superseded preview ${id}`)
+  }
+
+  // A successful caption call is not proof the caption stuck, so the lock waits
+  // on reading them back. Without it the next sync replaces the set again.
+  const uncaptioned = missingCaptions(await fetchPreviews(), uploaded)
+
+  if (uncaptioned.length > 0) {
+    throw new Error(
+      `AMO does not show the caption sent for previews ` +
+        `${uncaptioned.join(', ')}. ${PREVIEW_LOCK} was not recorded, so the ` +
+        'next --sync-previews replaces the set again',
+    )
   }
 
   // Last, so a run that dies partway leaves the lock describing the listing as

@@ -11,7 +11,10 @@ import {
   describeWait,
   imageContentType,
   buildPreviewLock,
+  lockAfterSkippedSync,
+  missingCaptions,
   parsePreviewManifest,
+  pendingResizes,
   planListingAssetSync,
   planPreviewSync,
   planThrottleRetry,
@@ -395,15 +398,132 @@ describe('planListingAssetSync', () => {
     expect(plan.previews.reason).toContain('1 previews')
   })
 
-  it('ignores the remote count when the lock never recorded one', () => {
+  it('syncs previews when the lock never recorded a remote count', () => {
     const plan = planListingAssetSync({
       lock: { ...lock, remoteCount: null },
       iconHash: 'icon-hash',
       previewHashes,
-      remoteCount: 99,
+      remoteCount: 2,
       syncPreviews: true,
     })
 
-    expect(plan.previews.sync).toBe(false)
+    expect(plan.previews.sync).toBe(true)
+  })
+
+  // A run that skips the sync records the count AMO reported without pushing
+  // anything, so a lock whose count disagrees with its own previews lists
+  // screenshots AMO was never sent.
+  it('syncs previews when AMO holds fewer than the lock lists', () => {
+    const plan = planListingAssetSync({
+      lock: { ...lock, remoteCount: 0 },
+      iconHash: 'icon-hash',
+      previewHashes,
+      remoteCount: 0,
+      syncPreviews: true,
+    })
+
+    expect(plan.previews.sync).toBe(true)
+    expect(plan.previews.reason).toContain('the lock lists 2')
+  })
+})
+
+describe('lockAfterSkippedSync', () => {
+  const previewHashes = [
+    { file: 'store/one.png', hash: 'one-hash' },
+    { file: 'store/two.png', hash: 'two-hash' },
+  ]
+
+  it('lists no previews as pushed when there was no lock', () => {
+    expect(
+      lockAfterSkippedSync({
+        lock: null,
+        iconHash: 'icon-hash',
+        remoteCount: 0,
+      }),
+    ).toEqual({ icon: 'icon-hash', previews: [], remoteCount: 0 })
+  })
+
+  it('keeps the previews the lock listed and records what AMO reports', () => {
+    const lock = buildPreviewLock({
+      iconHash: 'old-icon',
+      previewHashes,
+      remoteCount: 2,
+    })
+
+    expect(
+      lockAfterSkippedSync({ lock, iconHash: 'icon-hash', remoteCount: 1 }),
+    ).toEqual({ icon: 'icon-hash', previews: previewHashes, remoteCount: 1 })
+  })
+
+  // Without a lock, a run that skips the sync pushes the icon and no previews,
+  // and what it writes must not stop a later --sync-previews.
+  it('leaves a lock that a later sync does not skip', () => {
+    const written = lockAfterSkippedSync({
+      lock: null,
+      iconHash: 'icon-hash',
+      remoteCount: 0,
+    })
+    const plan = planListingAssetSync({
+      lock: readPreviewLock(JSON.stringify(written)),
+      iconHash: 'icon-hash',
+      previewHashes,
+      remoteCount: 0,
+      syncPreviews: true,
+    })
+
+    expect(plan.icon.upload).toBe(false)
+    expect(plan.previews.sync).toBe(true)
+  })
+})
+
+describe('pendingResizes', () => {
+  it('waits on previews AMO has not resized or does not list yet', () => {
+    const remote = [
+      { id: 1, image_size: [1280, 800] },
+      { id: 2, image_size: [] },
+    ]
+
+    expect(pendingResizes(remote, [1, 2, 3])).toEqual([2, 3])
+  })
+
+  it('is done once every upload reports its dimensions', () => {
+    const remote = [
+      { id: 1, image_size: [1280, 800] },
+      { id: 2, image_size: [1280, 800] },
+    ]
+
+    expect(pendingResizes(remote, [1, 2])).toEqual([])
+  })
+})
+
+describe('missingCaptions', () => {
+  const uploaded = [
+    { id: 1, caption: { 'en-US': 'first' } },
+    { id: 2, caption: { 'en-US': 'second' } },
+  ]
+
+  it('accepts captions published as they were sent', () => {
+    const remote = [
+      { id: 1, caption: { 'en-US': 'first' } },
+      { id: 2, caption: { 'en-US': 'second' } },
+    ]
+
+    expect(missingCaptions(remote, uploaded)).toEqual([])
+  })
+
+  // AMO reports a caption its resize task saved over as `null`.
+  it('names a preview whose caption AMO lost', () => {
+    const remote = [
+      { id: 1, caption: { 'en-US': 'first' } },
+      { id: 2, caption: null },
+    ]
+
+    expect(missingCaptions(remote, uploaded)).toEqual([2])
+  })
+
+  it('names a preview whose caption differs or that AMO no longer lists', () => {
+    const remote = [{ id: 1, caption: { 'en-US': 'other' } }]
+
+    expect(missingCaptions(remote, uploaded)).toEqual([1, 2])
   })
 })
