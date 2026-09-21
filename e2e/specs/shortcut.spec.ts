@@ -8,6 +8,7 @@ const NOTHING_BLOCKED: ExtensionSettings = {
   networkPuzzle: false,
   networkPremium: false,
   networkSuggestions: false,
+  jobSidebar: false,
 }
 
 // `chrome.commands` is not exposed to content scripts, so the in-page keydown

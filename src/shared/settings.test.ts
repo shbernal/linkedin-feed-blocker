@@ -17,6 +17,7 @@ const allBlocked: ExtensionSettings = {
   networkPuzzle: true,
   networkPremium: true,
   networkSuggestions: true,
+  jobSidebar: true,
 }
 
 const nothingBlocked: ExtensionSettings = {
@@ -26,6 +27,7 @@ const nothingBlocked: ExtensionSettings = {
   networkPuzzle: false,
   networkPremium: false,
   networkSuggestions: false,
+  jobSidebar: false,
 }
 
 describe('defaults', () => {
@@ -131,6 +133,7 @@ describe('normalizeSettings', () => {
         networkPuzzle: false,
         networkPremium: false,
         networkSuggestions: false,
+        jobSidebar: false,
       }),
     ).toEqual(nothingBlocked)
   })

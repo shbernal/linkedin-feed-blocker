@@ -8,6 +8,12 @@ const isNetworkGrowRoute = (pathname: string) => {
   return pathname === '/mynetwork/grow' || pathname === '/mynetwork/grow/'
 }
 
+// A single job posting, `/jobs/view/<id>/`. The jobs home and the search
+// results carry no promo rail and stay unclaimed.
+const isJobViewRoute = (pathname: string) => {
+  return /^\/jobs\/view\/[^/]+\/?$/.test(pathname)
+}
+
 /**
  * Sections the extension is allowed to touch on a given path. Anything not
  * listed here is left alone, and previously hidden elements are restored, so
@@ -20,6 +26,10 @@ export const getRouteSections = (pathname: string): PageSection[] => {
 
   if (isNetworkGrowRoute(pathname)) {
     return ['networkPuzzle', 'networkPremium', 'networkSuggestions']
+  }
+
+  if (isJobViewRoute(pathname)) {
+    return ['jobSidebar']
   }
 
   return []

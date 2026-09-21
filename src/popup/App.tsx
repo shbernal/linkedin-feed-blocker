@@ -179,6 +179,22 @@ function App() {
               </span>
             </label>
           </div>
+
+          <div className="section-group">
+            <h3 className="section-title">Jobs</h3>
+
+            <label className="switch-row switch-row-child">
+              <span className="switch-label">Block sidebar</span>
+              <span className="switch switch-small">
+                <input
+                  type="checkbox"
+                  checked={settings.jobSidebar}
+                  onChange={() => toggleSection('jobSidebar')}
+                />
+                <span className="slider"></span>
+              </span>
+            </label>
+          </div>
         </div>
       </div>
     </div>

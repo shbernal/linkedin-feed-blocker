@@ -55,6 +55,7 @@ Current section keys:
 | `networkPuzzle`      | My Network puzzle section            |
 | `networkPremium`     | My Network Premium upsell section    |
 | `networkSuggestions` | My Network suggestions sections      |
+| `jobSidebar`         | Job posting right-rail promos        |
 
 When adding or removing a section, update shared settings, popup controls,
 content selectors, keyboard toggle behavior, and docs together.
@@ -162,7 +163,9 @@ makes the checked-in file trustworthy. Regenerate with
 Only `feed` and `rightFeed` are covered. `networkPuzzle` and `networkPremium`
 match on text content and `networkSuggestions` compares document position
 against the pending-invitations preview, so none of the three has a CSS
-equivalent. The split falls on the route boundary, which is what makes a partial
+equivalent. `jobSidebar` could be expressed in CSS but is left out: the curtain
+hides its targets on every route until settings land, which would blank
+unrelated `aside` elements to save a one-frame flash on a job page. The split falls on the route boundary, which is what makes a partial
 migration worth doing: `/feed/` is entirely CSS-expressible and `/feed/` is
 where the flash hurts. The `/mynetwork/grow/` sections are unaffected by any of
 this and keep the JavaScript path alone.
@@ -214,9 +217,12 @@ Supported route toggling is narrow:
 - `/feed/` toggles `feed` and `rightFeed`.
 - `/mynetwork/grow/` toggles `networkPuzzle`, `networkPremium`, and
   `networkSuggestions`.
+- `/jobs/view/<id>/` toggles `jobSidebar`. The jobs home and search results are
+  not claimed.
 
 Selector application is route-gated: `/feed/` only applies Home targets, and
-`/mynetwork/grow/` only applies My Network targets. Unsupported routes restore
+`/mynetwork/grow/` only applies My Network targets, and a job posting only
+applies the job sidebar. Unsupported routes restore
 any elements previously hidden by the extension.
 
 ## Current selector strategy

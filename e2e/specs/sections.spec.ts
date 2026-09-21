@@ -10,6 +10,7 @@ const NOTHING_BLOCKED: ExtensionSettings = {
   networkPuzzle: false,
   networkPremium: false,
   networkSuggestions: false,
+  jobSidebar: false,
 }
 
 const EVERYTHING_BLOCKED: ExtensionSettings = {
@@ -19,6 +20,7 @@ const EVERYTHING_BLOCKED: ExtensionSettings = {
   networkPuzzle: true,
   networkPremium: true,
   networkSuggestions: true,
+  jobSidebar: true,
 }
 
 const only = (...sections: PageSection[]): ExtensionSettings => {
@@ -150,6 +152,26 @@ test('keeps the three My Network sections independent', async ({
   await expectHidden(page, '#network-premium')
   await expectVisible(page, '#network-puzzle')
   await expectVisible(page, '#network-people')
+})
+
+test('blocks and restores the job posting sidebar', async ({
+  clearSettings,
+  seedSettings,
+  newLinkedInPage,
+}) => {
+  await clearSettings()
+  await seedSettings(only('jobSidebar'))
+
+  const page = await newLinkedInPage()
+  await page.goto('https://www.linkedin.com/jobs/view/4458347375/')
+
+  await expectHidden(page, '#job-sidebar')
+  await expectVisible(page, '#job-details')
+
+  await seedSettings(NOTHING_BLOCKED)
+
+  await expectVisible(page, '#job-sidebar')
+  await expect(page.locator('[data-ltfb-job-sidebar-hidden]')).toHaveCount(0)
 })
 
 // The route table is the outer gate. A selector that would match here must

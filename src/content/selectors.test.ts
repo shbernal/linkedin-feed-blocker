@@ -20,7 +20,7 @@ const render = (html: string) => {
 
 describe('the section table', () => {
   it('gives every section a managed attribute and at least one target', () => {
-    expect(ALL_SECTIONS).toHaveLength(5)
+    expect(ALL_SECTIONS).toHaveLength(6)
     ALL_SECTIONS.forEach(section => {
       expect(HIDDEN_ATTR_BY_SECTION[section]).toMatch(/^data-ltfb-[a-z-]+$/)
       expect(SECTION_TARGETS[section].length).toBeGreaterThan(0)

@@ -6,6 +6,7 @@ export const HIDDEN_ATTR_BY_SECTION: Record<PageSection, string> = {
   networkPuzzle: 'data-ltfb-network-puzzle-hidden',
   networkPremium: 'data-ltfb-network-premium-hidden',
   networkSuggestions: 'data-ltfb-network-suggestions-hidden',
+  jobSidebar: 'data-ltfb-job-sidebar-hidden',
 }
 
 export const ALL_SECTIONS = Object.keys(HIDDEN_ATTR_BY_SECTION) as PageSection[]
@@ -123,5 +124,11 @@ export const SECTION_TARGETS: Record<PageSection, readonly SectionTarget[]> = {
       selector: 'section[componentkey^="auto-component-"]',
       matches: isNetworkSuggestionsSection,
     },
+  ],
+  // The job page's right rail holds only promos: a Premium upsell and a "Post
+  // a job" card. The link fallback covers locales that translate the label.
+  jobSidebar: [
+    'aside[aria-label="Aside"]',
+    'aside:has(a[href*="/talent/job-posting-redirect/"])',
   ],
 }

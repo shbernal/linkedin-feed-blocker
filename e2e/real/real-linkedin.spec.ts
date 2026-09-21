@@ -48,6 +48,7 @@ const allSectionsOff = (): ExtensionSettings => ({
   networkPuzzle: false,
   networkPremium: false,
   networkSuggestions: false,
+  jobSidebar: false,
 })
 
 const onlyFeedOn = (): ExtensionSettings => ({
@@ -72,6 +73,7 @@ const onlyNetworkSuggestionsOn = (): ExtensionSettings => ({
   ...allSectionsOff(),
   active: true,
   networkSuggestions: true,
+  jobSidebar: true,
 })
 
 const loginUrlPattern = /\/login|checkpoint|uas\/login/

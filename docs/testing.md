@@ -352,6 +352,8 @@ Check at least:
   does not flash before the first pass;
 - `/mynetwork/grow/` `networkPuzzle`, `networkPremium` and `networkSuggestions`
   blocking behaves as expected while invitations remain visible;
+- a `/jobs/view/<id>/` posting loses its right-rail sidebar while the posting
+  itself stays;
 - the command in `manifest.config.ts` toggles the currently supported LinkedIn
   page;
 - disabled sections restore elements hidden by the extension.

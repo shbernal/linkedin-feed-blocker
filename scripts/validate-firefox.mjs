@@ -106,6 +106,7 @@ const popupControlLabels = [
   'Block puzzle',
   'Block Premium',
   'Block suggestions',
+  'Block sidebar',
 ]
 
 // Matches `DEFAULT_TOGGLE_SHORTCUT` and the manifest's `suggested_key`.
@@ -678,6 +679,7 @@ try {
         afterToggle.extensionSettings?.networkPuzzle === true &&
         afterToggle.extensionSettings?.networkPremium === true &&
         afterToggle.extensionSettings?.networkSuggestions === true &&
+        afterToggle.extensionSettings?.jobSidebar === true &&
         afterToggle.extensionSettings?.active === true,
       JSON.stringify(afterToggle.extensionSettings),
     )

@@ -16,6 +16,7 @@ const NOTHING_BLOCKED: ExtensionSettings = {
   networkPuzzle: false,
   networkPremium: false,
   networkSuggestions: false,
+  jobSidebar: false,
 }
 
 const EVERYTHING_BLOCKED: ExtensionSettings = {
@@ -25,6 +26,7 @@ const EVERYTHING_BLOCKED: ExtensionSettings = {
   networkPuzzle: true,
   networkPremium: true,
   networkSuggestions: true,
+  jobSidebar: true,
 }
 
 const only = (...sections: PageSection[]): ExtensionSettings => {
@@ -215,6 +217,37 @@ describe('the My Network grow page', () => {
         expect(isHidden(selector)).toBe(false)
       },
     )
+  })
+})
+
+describe('a job posting', () => {
+  beforeEach(() => {
+    renderRoute('/jobs/view/4458347375/')
+  })
+
+  it('hides the promo sidebar and leaves the posting alone', () => {
+    applySettings(only('jobSidebar'))
+
+    expect(hiddenBy('jobSidebar')).toEqual(['job-sidebar'])
+    expect(isHidden('#job-details')).toBe(false)
+  })
+
+  // The label is the one English string in the selector. The "Post a job"
+  // link is what still identifies the rail where LinkedIn translates it.
+  it('finds the sidebar by its Post a job link when the label differs', () => {
+    element('#job-sidebar').setAttribute('aria-label', 'Barre latérale')
+
+    applySettings(only('jobSidebar'))
+
+    expect(hiddenBy('jobSidebar')).toEqual(['job-sidebar'])
+  })
+
+  it('restores the sidebar when the section is turned off', () => {
+    applySettings(EVERYTHING_BLOCKED)
+    applySettings(NOTHING_BLOCKED)
+
+    expect(isHidden('#job-sidebar')).toBe(false)
+    expect(hiddenBy('jobSidebar')).toEqual([])
   })
 })
 

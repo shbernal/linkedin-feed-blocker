@@ -20,10 +20,17 @@ describe('getRouteSections', () => {
     ])
   })
 
+  it('maps a job posting to the job sidebar', () => {
+    expect(getRouteSections('/jobs/view/4458347375/')).toEqual(['jobSidebar'])
+    expect(getRouteSections('/jobs/view/4458347375')).toEqual(['jobSidebar'])
+  })
+
   // Anything not listed is left alone entirely, which is what keeps a
   // selector meant for one surface from firing on another.
   it('claims no sections on unsupported routes', () => {
     expect(getRouteSections('/jobs/')).toEqual([])
+    expect(getRouteSections('/jobs/collections/recommended/')).toEqual([])
+    expect(getRouteSections('/jobs/view/')).toEqual([])
     expect(getRouteSections('/mynetwork/')).toEqual([])
     expect(getRouteSections('/feed/update/12345/')).toEqual([])
     expect(getRouteSections('/')).toEqual([])

@@ -101,6 +101,56 @@ export const NETWORK_GROW_BODY = `
 `
 
 /**
+ * `/jobs/view/<id>/`: a single job posting. The rail markup is the real
+ * `aside` with LinkedIn's classes, avatars and tracking tokens removed.
+ */
+export const JOB_VIEW_BODY = `
+<main id="job-details">
+  <h1>Forward Deployed Engineer (AI Solutions)</h1>
+  <p>Paris, Île-de-France, France</p>
+</main>
+<aside id="job-sidebar" aria-label="Aside">
+  <div>
+    <div>
+      <section componentkey="auto-component-0b34672f-9a04-49bb-b91a-ff7f8d7e8642">
+        <div>
+          <div data-display-contents="true">
+            <div componentkey="auto-component-5b4e0766-fc00-4e3a-acbb-190b6bd46505">
+              <div>
+                <p>Job search smarter with Premium</p>
+                <p>Premium members are up to 2.6x more likely to get hired.</p>
+                <a
+                  aria-disabled="false"
+                  href="https://www.linkedin.com/premium/redeem/?upsellOrderOrigin=Tracking%3Av1%3Ajob_right_rail_upsell_winback%3AJob+Seeker%3AIn-Product"
+                >
+                  <span><span>Get 50% Off Sales Nav</span></span>
+                </a>
+                <p>Cancel anytime. No hidden fees.</p>
+              </div>
+              <button
+                type="button"
+                aria-label="Dismiss Job search smarter with Premium"
+              ></button>
+            </div>
+          </div>
+        </div>
+      </section>
+      <div>
+        <p>Looking for talent?</p>
+        <a
+          aria-disabled="false"
+          href="https://www.linkedin.com/talent/job-posting-redirect/?trk=flagship3_job_detail"
+          target="_blank"
+        >
+          <span><span>Post a job</span></span>
+        </a>
+      </div>
+    </div>
+  </div>
+</aside>
+`
+
+/**
  * `/jobs/`: an unsupported route. It deliberately carries right-rail markup the
  * feed selectors would match, so a route-gating regression fails here instead
  * of on a real page.
@@ -133,6 +183,10 @@ export const JOBS_BODY = `
 export const getFixtureBody = (pathname: string) => {
   if (pathname.startsWith('/mynetwork/grow')) {
     return NETWORK_GROW_BODY
+  }
+
+  if (pathname.startsWith('/jobs/view/')) {
+    return JOB_VIEW_BODY
   }
 
   if (pathname.startsWith('/jobs')) {

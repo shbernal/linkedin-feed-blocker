@@ -9,6 +9,7 @@ const NOTHING_BLOCKED: ExtensionSettings = {
   networkPuzzle: false,
   networkPremium: false,
   networkSuggestions: false,
+  jobSidebar: false,
 }
 
 const EVERYTHING_BLOCKED: ExtensionSettings = {
@@ -18,6 +19,7 @@ const EVERYTHING_BLOCKED: ExtensionSettings = {
   networkPuzzle: true,
   networkPremium: true,
   networkSuggestions: true,
+  jobSidebar: true,
 }
 
 const SECTION_LABELS = [
@@ -26,6 +28,7 @@ const SECTION_LABELS = [
   'Block puzzle',
   'Block Premium',
   'Block suggestions',
+  'Block sidebar',
 ]
 
 // The checkbox itself is visually replaced by the slider, so the click has to

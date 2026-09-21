@@ -10,11 +10,13 @@ import { SECTION_TARGETS } from './selectors'
 export const READY_ATTR = 'data-ltfb-ready'
 
 /**
- * The sections the stylesheet can cover. Three of the five cannot be expressed
+ * The sections the stylesheet can cover. Three of the six cannot be expressed
  * in CSS at all: `networkPuzzle` and `networkPremium` match on text content,
  * and `networkSuggestions` compares document position against the pending
  * invitations preview. They keep the JavaScript path and are unaffected by any
- * of this.
+ * of this. `jobSidebar` could be expressed, but the curtain hides its targets
+ * on every route until settings land, and a one-frame promo flash on a job
+ * page is not worth an `aside` blanking across the rest of LinkedIn.
  *
  * The split falls on the route boundary, which is what makes a partial
  * migration worth doing: `/feed/` is entirely CSS-expressible and `/feed/` is

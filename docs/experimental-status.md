@@ -13,15 +13,16 @@ treated as an experimental implementation.
 - Background keyboard command for toggling the current supported LinkedIn page.
 - In-page shortcut fallback matched against the browser's real command binding
   rather than a hard-coded `Ctrl+Shift+7`.
-- Popup UI with a master toggle and per-section toggles for Home and My Network.
+- Popup UI with a master toggle and per-section toggles for Home, My Network, and
+  job postings.
 - Persistent settings in `chrome.storage.local` with legacy active-flag
   migration.
 - Content script split into selector, route, blocking, and wiring modules with
   an exported init/cleanup pair.
 - Content-script selectors for Home feed, Home right rail, My Network puzzle,
-  My Network Premium, and My Network suggestions.
-- Route-gated selector application for the currently supported Home and My
-  Network routes.
+  My Network Premium, My Network suggestions, and the job posting sidebar.
+- Route-gated selector application for the currently supported Home, My
+  Network, and job posting routes.
 - Restore path for elements hidden by the extension's managed data attributes.
 - Vitest suite in jsdom over the settings contract, the shortcut parser, the
   route table, the selector predicates, hide/restore, the content-script wiring,
@@ -56,7 +57,7 @@ treated as an experimental implementation.
 The current blocking approach is deliberately simple and not very efficient.
 
 - The content script is injected on all LinkedIn pages, while the useful targets
-  are currently only `/feed/` and `/mynetwork/grow/`.
+  are currently only `/feed/`, `/mynetwork/grow/`, and `/jobs/view/<id>/`.
 - Blocking re-runs from a subtree-wide `MutationObserver`, which fires on any
   element insertion anywhere on the page.
 - Each run still re-queries every enabled selector group for the current

@@ -8,6 +8,7 @@ export type ExtensionSettings = {
   networkPuzzle: boolean
   networkPremium: boolean
   networkSuggestions: boolean
+  jobSidebar: boolean
 }
 
 export type PageSection =
@@ -16,6 +17,7 @@ export type PageSection =
   | 'networkPuzzle'
   | 'networkPremium'
   | 'networkSuggestions'
+  | 'jobSidebar'
 
 export const DEFAULT_SETTINGS: ExtensionSettings = {
   active: true,
@@ -24,6 +26,7 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   networkPuzzle: true,
   networkPremium: true,
   networkSuggestions: true,
+  jobSidebar: true,
 }
 
 const PAGE_SECTIONS: PageSection[] = [
@@ -32,6 +35,7 @@ const PAGE_SECTIONS: PageSection[] = [
   'networkPuzzle',
   'networkPremium',
   'networkSuggestions',
+  'jobSidebar',
 ]
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {
@@ -77,6 +81,7 @@ export const setAllPages = (
     networkPuzzle: enabled,
     networkPremium: enabled,
     networkSuggestions: enabled,
+    jobSidebar: enabled,
   })
 }
 
@@ -99,6 +104,7 @@ export const normalizeSettings = (
       networkPuzzle: legacyActive ? fallback.networkPuzzle : false,
       networkPremium: legacyActive ? fallback.networkPremium : false,
       networkSuggestions: legacyActive ? fallback.networkSuggestions : false,
+      jobSidebar: legacyActive ? fallback.jobSidebar : false,
     })
   }
 
@@ -115,6 +121,7 @@ export const normalizeSettings = (
       value.networkSuggestions,
       fallback.networkSuggestions,
     ),
+    jobSidebar: readBoolean(value.jobSidebar, fallback.jobSidebar),
   })
 }
 

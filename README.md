@@ -20,6 +20,7 @@ Supported LinkedIn routes:
 
 - `https://www.linkedin.com/feed/`
 - `https://www.linkedin.com/mynetwork/grow/`
+- `https://www.linkedin.com/jobs/view/<id>/`
 
 Current blocking targets:
 
@@ -28,6 +29,7 @@ Current blocking targets:
 - My Network puzzle section
 - My Network Premium upsell section
 - My Network suggestions sections
+- Job posting sidebar (Premium upsell and "Post a job" promo)
 
 Each supported section can be toggled from the popup. The current supported
 page can also be toggled with `Ctrl+Shift+7` on Windows/Linux or
