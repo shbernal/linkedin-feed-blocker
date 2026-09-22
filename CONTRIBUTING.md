@@ -29,6 +29,35 @@ pnpm dev:chrome     # builds and opens dist/ in a real Chromium
 `pnpm dev:firefox` and `pnpm dev:zen` do the same for the Gecko build. All three
 use a throwaway profile, so they cannot disturb a signed-in session.
 
+The extension builds for Chrome and Chromium, and for Firefox and Zen, from one
+source tree. Only the manifest differs between the two packages.
+
+```sh
+pnpm build           # Chrome, into dist/
+pnpm build:firefox   # Firefox, into dist-firefox/
+```
+
+To load a build into your everyday browser instead:
+
+- **Chrome or Chromium.** Open `chrome://extensions`, enable Developer mode,
+  choose "Load unpacked", and select `dist/`.
+- **Firefox or Zen.** Open `about:debugging#/runtime/this-firefox`, choose
+  "Load Temporary Add-on", and select `dist-firefox/manifest.json`.
+
+LinkedIn selectors are brittle. After a change to what gets blocked, load the
+build and look at the real pages, or run the real-site lane below.
+
+## Test layers
+
+`pnpm test` runs the Vitest suite in jsdom. `pnpm e2e` runs the unpacked build
+in a real Chromium against local LinkedIn-shaped fixtures. `pnpm lint:firefox`
+builds the Gecko package and runs `web-ext`'s static checks over it.
+
+Playwright cannot load an MV3 extension in Firefox, so `pnpm validate:firefox`
+drives the built Gecko package over WebDriver BiDi instead. The real-LinkedIn
+Playwright lanes depend on a signed-in browser profile and on whatever LinkedIn
+serves that day. [docs/testing.md](./docs/testing.md) covers all of it.
+
 ## What to run
 
 | If you touched                                 | Run                                                             |
@@ -94,6 +123,31 @@ green while the extension quietly does nothing on the real site.
 
 This is the rule most likely to be broken by someone trying to make a test pass,
 and it is the one whose breakage is hardest to notice.
+
+## Releases and store packages
+
+Releases are cut by a maintainer. Publishing a GitHub Release submits to both
+the Chrome Web Store and addons.mozilla.org;
+[docs/ci-release-flow.md](./docs/ci-release-flow.md) has the workflows and the
+GitHub, GCP and Mozilla configuration they need. To build the packages locally:
+
+```sh
+pnpm package:chrome     # release/linkedin-feed-blocker-<version>.zip
+pnpm package:firefox    # release/linkedin-feed-blocker-firefox-<version>.zip
+pnpm package:source     # release/linkedin-feed-blocker-source-<version>.zip
+```
+
+AMO needs the source archive with every upload because Vite bundles the
+package. Shared listing copy and screenshots live under `store/`,
+Chrome-specific listing assets under `chrome-web-store/`, and AMO metadata
+under `amo/`.
+
+## README media
+
+The demo GIF, the before/after, and the popup under `.github/readme/` are
+recorded from real LinkedIn pages with personal content blurred.
+[docs/media-capture.md](./docs/media-capture.md) explains how to regenerate
+them.
 
 ## Commit messages
 

@@ -1,109 +1,79 @@
+<div align="center">
+
+<img src="public/icons/icon128.png" width="96" alt="">
+
 # LinkedIn Feed Blocker
 
-[![Release](https://img.shields.io/github/v/release/shbernal/linkedin-feed-blocker?label=Release)](https://github.com/shbernal/linkedin-feed-blocker/releases/latest)
-[![CI](https://github.com/shbernal/linkedin-feed-blocker/actions/workflows/ci.yml/badge.svg)](https://github.com/shbernal/linkedin-feed-blocker/actions/workflows/ci.yml)
-[![License](https://img.shields.io/github/license/shbernal/linkedin-feed-blocker)](https://github.com/shbernal/linkedin-feed-blocker/blob/master/LICENSE)
-[![GitHub Stars](https://img.shields.io/github/stars/shbernal/linkedin-feed-blocker?style=social)](https://github.com/shbernal/linkedin-feed-blocker)
+Hide LinkedIn's Home feed, the widgets beside it, and the My Network puzzles,
+Premium upsells, and people suggestions. Your invitations, jobs, messages,
+search, and profiles stay where they are.
 
-LinkedIn Feed Blocker is an experimental browser extension for reducing
-distracting LinkedIn surfaces while keeping useful areas like jobs, messages,
-search, profiles, direct links, and My Network invitations available.
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/foncphmfnndmjembiamdmciojcdjnlpc?logo=googlechrome&logoColor=white&label=Chrome%20Web%20Store&color=0a66c2)](https://chromewebstore.google.com/detail/linkedin-feed-blocker/foncphmfnndmjembiamdmciojcdjnlpc)
+[![Firefox Add-ons](https://img.shields.io/amo/v/quiet-linkedin?logo=firefoxbrowser&logoColor=white&label=Firefox%20Add-ons&color=0a66c2)](https://addons.mozilla.org/firefox/addon/quiet-linkedin/)
+[![License: MIT](https://img.shields.io/github/license/shbernal/linkedin-feed-blocker)](LICENSE)
 
-It builds for Chrome and Chromium, and for Firefox and Zen, from one source
-tree. Only the manifest differs between the two packages.
+<img src=".github/readme/demo.gif" width="820" alt="Recording of LinkedIn Home with the extension: the feed and right rail disappear with Ctrl+Shift+7, come back, disappear again, then My Network opens with the invitations kept and the puzzle, Premium and suggestion modules gone">
 
-The current release is `0.3.0`.
+</div>
 
-## What it blocks
+## Before and after
 
-Supported LinkedIn routes:
+<img src=".github/readme/before-after.png" alt="Side by side: LinkedIn Home with its feed and right-rail widgets, and the same page with both gone">
 
-- `https://www.linkedin.com/feed/`
-- `https://www.linkedin.com/mynetwork/grow/`
-- `https://www.linkedin.com/jobs/view/<id>/`
+Names, faces, and posts in these captures are blurred on purpose. They belong
+to real people.
 
-Current blocking targets:
+## What gets blocked
 
-- Home main feed
-- Home right-rail widgets and ad-like distractions
-- My Network puzzle section
-- My Network Premium upsell section
-- My Network suggestions sections
-- Job posting sidebar (Premium upsell and "Post a job" promo)
+| Page            | Hidden                                             | Left alone                      |
+| --------------- | -------------------------------------------------- | ------------------------------- |
+| **Home**        | The feed, and the puzzles, follow suggestions and ads in the right rail | Your profile card, posting, the nav bar |
+| **My Network**  | The daily puzzle, the Premium upsell, and every suggestion module | Your pending invitations |
+| **Job posting** | The Premium upsell and "Post a job" promo in the sidebar | The job itself, and applying |
 
-Each supported section can be toggled from the popup. The current supported
-page can also be toggled with `Ctrl+Shift+7` on Windows/Linux or
-`Command+Shift+7` on macOS. Rebinding the shortcut in
-`chrome://extensions/shortcuts`, or in Firefox's Add-ons Manager, is picked up
-automatically.
+Every other LinkedIn page is untouched. Each row has its own switch, and turning
+one off puts back exactly what was there.
 
-## Install locally
+## Two ways to flip a switch
 
-Build the extension:
+<table>
+  <tr>
+    <td width="320" valign="top">
+      <img src=".github/readme/popup.png" width="320" alt="The extension popup: a Block all sections switch, then Block feed and Block right feed under Home, Block puzzle, Block Premium and Block suggestions under My Network, and Block sidebar under Jobs, all on">
+    </td>
+    <td valign="top">
 
-```bash
-pnpm install
-pnpm build            # Chrome, into dist/
-pnpm build:firefox    # Firefox, into dist-firefox/
-```
+**The popup.** One switch for everything, and one per section, grouped by page.
 
-Then load the built directory as a temporary extension:
+**The keyboard.** <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>7</kbd> toggles the
+page you are on (<kbd>⌘</kbd> + <kbd>Shift</kbd> + <kbd>7</kbd> on macOS).
+Rebind it at `chrome://extensions/shortcuts`, or from the gear menu in Firefox's
+`about:addons`, and the extension follows the new keys.
 
-- **Chrome or Chromium.** Open `chrome://extensions`, enable Developer mode,
-  choose "Load unpacked", and select `dist/`.
-- **Firefox or Zen.** Open `about:debugging#/runtime/this-firefox`, choose
-  "Load Temporary Add-on", and select `dist-firefox/manifest.json`.
+</td>
+  </tr>
+</table>
 
-## Package for the stores
+## Privacy
 
-```bash
-pnpm package:chrome     # release/linkedin-feed-blocker-<version>.zip
-pnpm package:firefox    # release/linkedin-feed-blocker-firefox-<version>.zip
-pnpm package:source     # release/linkedin-feed-blocker-source-<version>.zip
-```
-
-Shared listing copy and screenshots live under `store/`; Chrome-specific listing
-assets live under `chrome-web-store/`, and addons.mozilla.org metadata under
-`amo/`. AMO requires the source archive alongside every upload because the
-package is bundled by Vite.
-
-Submissions to both stores are automated from published GitHub Releases. See
-`docs/ci-release-flow.md` for the release workflows and required
-GitHub/GCP/Mozilla configuration.
-
-## Development
-
-Use `pnpm`, matching the `packageManager` field in `package.json`.
-
-```bash
-pnpm dev
-pnpm typecheck
-pnpm test
-pnpm e2e
-pnpm build
-pnpm lint:firefox
-pnpm format
-```
-
-`pnpm test` runs the Vitest suite in jsdom. `pnpm e2e` runs the unpacked build
-in a real Chromium against local LinkedIn-shaped fixtures. `pnpm lint:firefox`
-builds the Gecko package and runs `web-ext`'s static checks over it. CI runs all
-three, plus formatting, typechecking and the build.
-
-Playwright cannot load an MV3 extension in Firefox, so `pnpm validate:firefox`
-drives the built Gecko package over WebDriver BiDi instead. Real LinkedIn
-Playwright checks exist for local smoke testing, but they depend on an
-authenticated browser profile and live LinkedIn behavior.
+Your settings stay in the browser's local extension storage. The extension
+makes no network requests, runs no backend, and asks only for `storage`,
+`activeTab`, and access to `linkedin.com`. The Firefox build declares that it
+collects no data.
 
 ## Status
 
-This is a published prototype, not a polished extension. LinkedIn selectors are
-brittle, and runtime behavior should be manually validated after changes by
-loading the built directory as an unpacked extension or running the real-site
-smoke lane.
+Version 0.3.0 works in Chrome, Chromium, Firefox, and Zen. LinkedIn changes its
+markup often, and when it does a section can reappear until the extension
+catches up. If something LinkedIn shows you should be blocked and isn't, or the
+other way round, [open an issue](https://github.com/shbernal/linkedin-feed-blocker/issues).
 
-The extension stores settings in `chrome.storage.local` and does not add an
-external backend.
+To build it yourself or send a change, start at
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
 LinkedIn is a trademark of LinkedIn Corporation. This project is not affiliated
 with or endorsed by LinkedIn.
+
+## License
+
+[MIT](LICENSE)
