@@ -10,6 +10,8 @@ search, and profiles stay where they are.
 
 [![Chrome Web Store](https://img.shields.io/chrome-web-store/v/foncphmfnndmjembiamdmciojcdjnlpc?logo=googlechrome&logoColor=white&label=Chrome%20Web%20Store&color=0a66c2)](https://chromewebstore.google.com/detail/linkedin-feed-blocker/foncphmfnndmjembiamdmciojcdjnlpc)
 [![Firefox Add-ons](https://img.shields.io/amo/v/quiet-linkedin?logo=firefoxbrowser&logoColor=white&label=Firefox%20Add-ons&color=0a66c2)](https://addons.mozilla.org/firefox/addon/quiet-linkedin/)
+[![Chrome users](https://img.shields.io/chrome-web-store/users/foncphmfnndmjembiamdmciojcdjnlpc?label=Chrome%20users)](https://chromewebstore.google.com/detail/linkedin-feed-blocker/foncphmfnndmjembiamdmciojcdjnlpc)
+[![Firefox users](https://img.shields.io/amo/users/quiet-linkedin?label=Firefox%20users)](https://addons.mozilla.org/firefox/addon/quiet-linkedin/)
 [![License: MIT](https://img.shields.io/github/license/shbernal/linkedin-feed-blocker)](LICENSE)
 
 <img src=".github/readme/demo.gif" width="820" alt="Recording of LinkedIn Home with the extension: the feed and right rail disappear with Ctrl+Shift+7, come back, disappear again, then My Network opens with the invitations kept and the puzzle, Premium and suggestion modules gone">
