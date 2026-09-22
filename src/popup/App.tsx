@@ -113,6 +113,34 @@ function App() {
           </label>
 
           <div className="section-group">
+            <h3 className="section-title">Top bar</h3>
+
+            <label className="switch-row switch-row-child">
+              <span className="switch-label">Block red dots</span>
+              <span className="switch switch-small">
+                <input
+                  type="checkbox"
+                  checked={settings.navBadges}
+                  onChange={() => toggleSection('navBadges')}
+                />
+                <span className="slider"></span>
+              </span>
+            </label>
+
+            <label className="switch-row switch-row-child">
+              <span className="switch-label">Block Premium link</span>
+              <span className="switch switch-small">
+                <input
+                  type="checkbox"
+                  checked={settings.navPremium}
+                  onChange={() => toggleSection('navPremium')}
+                />
+                <span className="slider"></span>
+              </span>
+            </label>
+          </div>
+
+          <div className="section-group">
             <h3 className="section-title">Home</h3>
 
             <label className="switch-row switch-row-child">

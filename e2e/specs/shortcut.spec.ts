@@ -9,6 +9,8 @@ const NOTHING_BLOCKED: ExtensionSettings = {
   networkPremium: false,
   networkSuggestions: false,
   jobSidebar: false,
+  navBadges: false,
+  navPremium: false,
 }
 
 // `chrome.commands` is not exposed to content scripts, so the in-page keydown

@@ -9,6 +9,8 @@ export type ExtensionSettings = {
   networkPremium: boolean
   networkSuggestions: boolean
   jobSidebar: boolean
+  navBadges: boolean
+  navPremium: boolean
 }
 
 export type PageSection =
@@ -18,6 +20,8 @@ export type PageSection =
   | 'networkPremium'
   | 'networkSuggestions'
   | 'jobSidebar'
+  | 'navBadges'
+  | 'navPremium'
 
 export const DEFAULT_SETTINGS: ExtensionSettings = {
   active: true,
@@ -27,6 +31,8 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   networkPremium: true,
   networkSuggestions: true,
   jobSidebar: true,
+  navBadges: true,
+  navPremium: true,
 }
 
 const PAGE_SECTIONS: PageSection[] = [
@@ -36,6 +42,8 @@ const PAGE_SECTIONS: PageSection[] = [
   'networkPremium',
   'networkSuggestions',
   'jobSidebar',
+  'navBadges',
+  'navPremium',
 ]
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {
@@ -82,6 +90,8 @@ export const setAllPages = (
     networkPremium: enabled,
     networkSuggestions: enabled,
     jobSidebar: enabled,
+    navBadges: enabled,
+    navPremium: enabled,
   })
 }
 
@@ -105,6 +115,8 @@ export const normalizeSettings = (
       networkPremium: legacyActive ? fallback.networkPremium : false,
       networkSuggestions: legacyActive ? fallback.networkSuggestions : false,
       jobSidebar: legacyActive ? fallback.jobSidebar : false,
+      navBadges: legacyActive ? fallback.navBadges : false,
+      navPremium: legacyActive ? fallback.navPremium : false,
     })
   }
 
@@ -122,6 +134,8 @@ export const normalizeSettings = (
       fallback.networkSuggestions,
     ),
     jobSidebar: readBoolean(value.jobSidebar, fallback.jobSidebar),
+    navBadges: readBoolean(value.navBadges, fallback.navBadges),
+    navPremium: readBoolean(value.navPremium, fallback.navPremium),
   })
 }
 

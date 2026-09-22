@@ -18,6 +18,8 @@ const allBlocked: ExtensionSettings = {
   networkPremium: true,
   networkSuggestions: true,
   jobSidebar: true,
+  navBadges: true,
+  navPremium: true,
 }
 
 const nothingBlocked: ExtensionSettings = {
@@ -28,6 +30,8 @@ const nothingBlocked: ExtensionSettings = {
   networkPremium: false,
   networkSuggestions: false,
   jobSidebar: false,
+  navBadges: false,
+  navPremium: false,
 }
 
 describe('defaults', () => {
@@ -134,6 +138,8 @@ describe('normalizeSettings', () => {
         networkPremium: false,
         networkSuggestions: false,
         jobSidebar: false,
+        navBadges: false,
+        navPremium: false,
       }),
     ).toEqual(nothingBlocked)
   })

@@ -10,6 +10,8 @@ const NOTHING_BLOCKED: ExtensionSettings = {
   networkPremium: false,
   networkSuggestions: false,
   jobSidebar: false,
+  navBadges: false,
+  navPremium: false,
 }
 
 type ParseTimeStyles = Record<

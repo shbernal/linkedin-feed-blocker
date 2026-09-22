@@ -17,6 +17,8 @@ const NOTHING_BLOCKED: ExtensionSettings = {
   networkPremium: false,
   networkSuggestions: false,
   jobSidebar: false,
+  navBadges: false,
+  navPremium: false,
 }
 
 const EVERYTHING_BLOCKED: ExtensionSettings = {
@@ -27,9 +29,13 @@ const EVERYTHING_BLOCKED: ExtensionSettings = {
   networkPremium: true,
   networkSuggestions: true,
   jobSidebar: true,
+  navBadges: true,
+  navPremium: true,
 }
 
 const SECTION_LABELS = [
+  'Block red dots',
+  'Block Premium link',
   'Block feed',
   'Block right feed',
   'Block puzzle',

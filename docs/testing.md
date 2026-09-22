@@ -117,6 +117,12 @@ routes on `pathname`, and `/jobs/` deliberately carries right-rail markup the
 feed selectors would match, so a route-gating regression fails there instead of
 on a real page.
 
+Every fixture route also carries a top bar, because every LinkedIn page does.
+LinkedIn serves two of them, so the fixtures hold both: the newer bar on the
+claimed routes and the older one on `/jobs/`, which is the route with no page
+sections and therefore where a top bar that only worked on a claimed route
+would show up.
+
 ## Proving the pre-paint curtain
 
 `e2e/specs/pre-paint.spec.ts` carries the two claims jsdom cannot make about

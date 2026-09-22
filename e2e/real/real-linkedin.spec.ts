@@ -49,6 +49,8 @@ const allSectionsOff = (): ExtensionSettings => ({
   networkPremium: false,
   networkSuggestions: false,
   jobSidebar: false,
+  navBadges: false,
+  navPremium: false,
 })
 
 const onlyFeedOn = (): ExtensionSettings => ({
@@ -74,6 +76,8 @@ const onlyNetworkSuggestionsOn = (): ExtensionSettings => ({
   active: true,
   networkSuggestions: true,
   jobSidebar: true,
+  navBadges: true,
+  navPremium: true,
 })
 
 const loginUrlPattern = /\/login|checkpoint|uas\/login/

@@ -13,16 +13,18 @@ treated as an experimental implementation.
 - Background keyboard command for toggling the current supported LinkedIn page.
 - In-page shortcut fallback matched against the browser's real command binding
   rather than a hard-coded `Ctrl+Shift+7`.
-- Popup UI with a master toggle and per-section toggles for Home, My Network, and
-  job postings.
+- Popup UI with a master toggle and per-section toggles for the top bar, Home,
+  My Network, and job postings.
 - Persistent settings in `chrome.storage.local` with legacy active-flag
   migration.
 - Content script split into selector, route, blocking, and wiring modules with
   an exported init/cleanup pair.
 - Content-script selectors for Home feed, Home right rail, My Network puzzle,
-  My Network Premium, My Network suggestions, and the job posting sidebar.
+  My Network Premium, My Network suggestions, the job posting sidebar, and the
+  top bar's notification dots and Premium upsell.
 - Route-gated selector application for the currently supported Home, My
-  Network, and job posting routes.
+  Network, and job posting routes, plus the two top bar sections, which apply
+  on every LinkedIn page because the top bar is on every LinkedIn page.
 - Restore path for elements hidden by the extension's managed data attributes.
 - Vitest suite in jsdom over the settings contract, the shortcut parser, the
   route table, the selector predicates, hide/restore, the content-script wiring,

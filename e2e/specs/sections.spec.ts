@@ -11,6 +11,8 @@ const NOTHING_BLOCKED: ExtensionSettings = {
   networkPremium: false,
   networkSuggestions: false,
   jobSidebar: false,
+  navBadges: false,
+  navPremium: false,
 }
 
 const EVERYTHING_BLOCKED: ExtensionSettings = {
@@ -21,6 +23,8 @@ const EVERYTHING_BLOCKED: ExtensionSettings = {
   networkPremium: true,
   networkSuggestions: true,
   jobSidebar: true,
+  navBadges: true,
+  navPremium: true,
 }
 
 const only = (...sections: PageSection[]): ExtensionSettings => {
@@ -172,6 +176,73 @@ test('blocks and restores the job posting sidebar', async ({
 
   await expectVisible(page, '#job-sidebar')
   await expect(page.locator('[data-ltfb-job-sidebar-hidden]')).toHaveCount(0)
+})
+
+test('blocks and restores the top bar dot and Premium link', async ({
+  clearSettings,
+  seedSettings,
+  newLinkedInPage,
+}) => {
+  await clearSettings()
+  await seedSettings(only('navBadges', 'navPremium'))
+
+  const page = await newLinkedInPage()
+  await page.goto('https://www.linkedin.com/feed/')
+
+  await expectHidden(page, '#top-bar-home-badge')
+  await expectHidden(page, '#top-bar-premium')
+  // The dot goes, the nav item it sits on does not, and a badge that means a
+  // person did something is left alone.
+  await expectVisible(page, 'button[aria-label="Home, 1 new notification"]')
+  await expectVisible(page, '#top-bar-messaging-badge')
+
+  await seedSettings(NOTHING_BLOCKED)
+
+  await expectVisible(page, '#top-bar-home-badge')
+  await expectVisible(page, '#top-bar-premium')
+  await expect(page.locator('[data-ltfb-nav-badges-hidden]')).toHaveCount(0)
+})
+
+// `/jobs/` claims no page sections and serves the older top bar. Both halves
+// matter: the top bar is not route-gated, and it has two shapes.
+test('blocks the older top bar on a route with no page sections', async ({
+  clearSettings,
+  seedSettings,
+  newLinkedInPage,
+}) => {
+  await clearSettings()
+  await seedSettings(only('navBadges', 'navPremium'))
+
+  const page = await newLinkedInPage()
+  await page.goto('https://www.linkedin.com/jobs/')
+
+  await expectHidden(page, '#classic-top-bar-home-badge')
+  await expectHidden(page, '#classic-top-bar-premium')
+  await expectVisible(page, 'a[href*="/notifications/"]')
+})
+
+// The dot arrives with the notification, long after the first pass, so this
+// is the mutation observer's case rather than the initial pass's.
+test('blocks a dot that appears after the first pass', async ({
+  clearSettings,
+  seedSettings,
+  newLinkedInPage,
+}) => {
+  await clearSettings()
+  await seedSettings(only('navBadges'))
+
+  const page = await newLinkedInPage()
+  await page.goto('https://www.linkedin.com/feed/')
+  await expectHidden(page, '#top-bar-home-badge')
+
+  await page.evaluate(() => {
+    const badge = document.createElement('span')
+    badge.id = 'late-notifications-badge'
+    badge.setAttribute('data-color-scheme', 'light')
+    document.querySelector('svg#bell-fill-medium')?.after(badge)
+  })
+
+  await expectHidden(page, '#late-notifications-badge')
 })
 
 // The route table is the outer gate. A selector that would match here must

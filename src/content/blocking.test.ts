@@ -17,6 +17,8 @@ const NOTHING_BLOCKED: ExtensionSettings = {
   networkPremium: false,
   networkSuggestions: false,
   jobSidebar: false,
+  navBadges: false,
+  navPremium: false,
 }
 
 const EVERYTHING_BLOCKED: ExtensionSettings = {
@@ -27,6 +29,8 @@ const EVERYTHING_BLOCKED: ExtensionSettings = {
   networkPremium: true,
   networkSuggestions: true,
   jobSidebar: true,
+  navBadges: true,
+  navPremium: true,
 }
 
 const only = (...sections: PageSection[]): ExtensionSettings => {
@@ -248,6 +252,52 @@ describe('a job posting', () => {
 
     expect(isHidden('#job-sidebar')).toBe(false)
     expect(hiddenBy('jobSidebar')).toEqual([])
+  })
+})
+
+describe('the top bar', () => {
+  it('hides the Home dot and the Premium link on the feed', () => {
+    renderRoute('/feed/')
+
+    applySettings(only('navBadges', 'navPremium'))
+
+    expect(hiddenBy('navBadges')).toEqual(['top-bar-home-badge'])
+    expect(hiddenBy('navPremium')).toEqual(['top-bar-premium'])
+  })
+
+  // A badge on Messaging means a person sent something, which is the same
+  // reason the My Network invitation area stays.
+  it('leaves the Messaging badge and the nav items themselves alone', () => {
+    renderRoute('/feed/')
+
+    applySettings(EVERYTHING_BLOCKED)
+
+    expect(isHidden('#top-bar-messaging-badge')).toBe(false)
+    expect(isHidden('button[aria-label="Home, 1 new notification"]')).toBe(
+      false,
+    )
+  })
+
+  // The older bar is served on `/jobs/`, which claims no page sections: the
+  // top bar is not route-gated and has to be blocked there too.
+  it('hides both in the older bar, on a route with no page sections', () => {
+    renderRoute('/jobs/')
+
+    applySettings(only('navBadges', 'navPremium'))
+
+    expect(hiddenBy('navBadges')).toEqual(['classic-top-bar-home-badge'])
+    expect(hiddenBy('navPremium')).toEqual(['classic-top-bar-premium'])
+  })
+
+  it('restores both when the sections are turned off', () => {
+    renderRoute('/feed/')
+    applySettings(EVERYTHING_BLOCKED)
+    applySettings(NOTHING_BLOCKED)
+
+    expect(isHidden('#top-bar-home-badge')).toBe(false)
+    expect(isHidden('#top-bar-premium')).toBe(false)
+    expect(hiddenBy('navBadges')).toEqual([])
+    expect(hiddenBy('navPremium')).toEqual([])
   })
 })
 

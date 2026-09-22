@@ -13,6 +13,118 @@
 const TRANSPARENT_GIF =
   'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
 
+/**
+ * The top bar LinkedIn serves on `/feed/` and most routes now: every class is
+ * generated, so the only stable names in it are the icons' `svg` ids. The dot
+ * is the empty `span` after the icon, captured here from a Home item that had
+ * one. Notifications is shown without a badge, which is how an item with
+ * nothing pending renders.
+ */
+export const TOP_BAR_BODY = `
+<header>
+  <div data-testid="primary-nav">
+    <nav>
+      <ul>
+        <li>
+          <button aria-label="Home, 1 new notification">
+            <span>
+              <svg id="home-medium" viewBox="0 0 24 24" width="24" height="24">
+                <path d="M23 9v2h-2v7a3 3 0 0 1-3 3h-4v-6h-4v6H6a3 3 0 0 1-3-3v-7H1V9l11-7z"></path>
+              </svg>
+              <span id="top-bar-home-badge" data-color-scheme="light"></span>
+            </span>
+            <span><span>Home</span></span>
+          </button>
+        </li>
+        <li>
+          <a href="https://www.linkedin.com/messaging/" aria-label="Messaging, 0 new notifications">
+            <span>
+              <svg id="messages-medium" viewBox="0 0 24 24" width="24" height="24">
+                <path d="M16 4H8a7 7 0 0 0 0 14h4v4l8.16-5.39A6.78 6.78 0 0 0 23 11a7 7 0 0 0-7-7"></path>
+              </svg>
+              <span id="top-bar-messaging-badge" data-color-scheme="light"></span>
+            </span>
+            <span><span>Messaging</span></span>
+          </a>
+        </li>
+        <li>
+          <a href="https://www.linkedin.com/notifications/" aria-label="Notifications, 0 new notifications">
+            <span>
+              <svg id="bell-fill-medium" viewBox="0 0 24 24" width="24" height="24">
+                <path d="M22 19h-8.28a2 2 0 1 1-3.44 0H2v-1a4.52 4.52 0 0 1 1.17-2.83l1-1.17h15.7l1 1.17A4.42 4.42 0 0 1 22 18z"></path>
+              </svg>
+            </span>
+            <span><span>Notifications</span></span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <div>
+      <!-- React nests a second anchor with the same href inside this one, which
+           the HTML parser cannot reproduce. Both carry the destination the
+           selector reads, so the fixture keeps the outer one. -->
+      <a
+        id="top-bar-premium"
+        tabindex="0"
+        href="https://www.linkedin.com/premium/products/?upsellOrderOrigin=Tracking&upsellSlotId=NAV_SPOTLIGHT"
+        >Claim 1 free month of Premium Page</a
+      >
+    </div>
+  </div>
+</header>
+`
+
+/**
+ * The older Ember top bar, still served on `/notifications/` and elsewhere.
+ * Here the badge is a sibling of the icon inside the link, and the link's
+ * destination is what names the item.
+ */
+export const CLASSIC_TOP_BAR_BODY = `
+<header id="global-nav" class="global-nav">
+  <nav class="global-nav__nav" aria-label="Primary Navigation">
+    <ul class="global-nav__primary-items">
+      <li class="global-nav__primary-item">
+        <a class="global-nav__primary-link" href="https://www.linkedin.com/feed/?nis=true&">
+          <div class="global-nav__primary-link-notif artdeco-notification-badge">
+            <span id="classic-top-bar-home-badge" class="notification-badge notification-badge--show">
+              <span aria-hidden="true" class="notification-badge__no-count"></span>
+              <span class="a11y-text">new feed updates notifications</span>
+            </span>
+            <div class="ivm-image-view-model global-nav__icon-ivm">
+              <div class="ivm-view-attr__img-wrapper">
+                <li-icon aria-hidden="true" type="home" size="large"></li-icon>
+              </div>
+            </div>
+          </div>
+          <span class="global-nav__primary-link-text">Home</span>
+        </a>
+      </li>
+      <li class="global-nav__primary-item">
+        <a class="global-nav__primary-link" href="https://www.linkedin.com/notifications/?filter=all&refresh=true">
+          <div class="ivm-image-view-model global-nav__icon-ivm">
+            <div class="ivm-view-attr__img-wrapper">
+              <li-icon aria-hidden="true" type="bell-active" active="true" size="large"></li-icon>
+            </div>
+          </div>
+          <span class="global-nav__primary-link-text" title="Notifications">Notifications</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+  <div id="classic-top-bar-premium" class="premium-upsell-link">
+    <a
+      href="http://www.linkedin.com/premium/products/?upsellOrderOrigin=Tracking&upsellSlotId=NAV_SPOTLIGHT"
+      class="link-without-visited-state global-nav__primary-link global-nav__primary-link--premium-upsell premium-upsell-link--truncate"
+      data-view-name="premium-upsell-link"
+    >
+      <span class="global-nav__primary-link--two-line">
+        <span class="global-nav__primary-link--no-icon">Claim 1 free month of Premium Page</span>
+      </span>
+    </a>
+  </div>
+</header>
+`
+
 /** `/feed/`: the main feed column plus the right rail. */
 export const FEED_BODY = `
 <div class="scaffold-layout__inner">
@@ -180,7 +292,16 @@ export const JOBS_BODY = `
 </div>
 `
 
-export const getFixtureBody = (pathname: string) => {
+// The top bar is on every page, so every fixture route carries one. `/jobs`
+// carries the older bar: it is the route with no page sections, so it is where
+// a top bar that only works on a claimed route would show up.
+const getFixtureTopBar = (pathname: string) => {
+  return pathname.startsWith('/jobs') && !pathname.startsWith('/jobs/view/')
+    ? CLASSIC_TOP_BAR_BODY
+    : TOP_BAR_BODY
+}
+
+const getFixturePageBody = (pathname: string) => {
   if (pathname.startsWith('/mynetwork/grow')) {
     return NETWORK_GROW_BODY
   }
@@ -194,6 +315,10 @@ export const getFixtureBody = (pathname: string) => {
   }
 
   return FEED_BODY
+}
+
+export const getFixtureBody = (pathname: string) => {
+  return `${getFixtureTopBar(pathname)}${getFixturePageBody(pathname)}`
 }
 
 const PAGE_STYLES = `
@@ -213,6 +338,17 @@ const PAGE_STYLES = `
   aside,
   section {
     min-height: 120px;
+  }
+
+  /* The real dot is a 16px box painted by a generated class. Giving the
+     fixture's one a size is what makes "is it visible" a question with an
+     answer, for an element whose markup is empty. */
+  header span[data-color-scheme] {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    background: #cb112d;
   }
 `
 

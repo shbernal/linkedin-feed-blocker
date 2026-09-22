@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { getCurrentRouteSections, getRouteSections } from './routes'
+import {
+  getActiveSections,
+  getCurrentActiveSections,
+  getCurrentRouteSections,
+  getRouteSections,
+} from './routes'
 
 describe('getRouteSections', () => {
   it('maps the home feed to the two feed sections', () => {
@@ -48,5 +53,33 @@ describe('getCurrentRouteSections', () => {
 
     window.history.replaceState({}, '', '/jobs/')
     expect(getCurrentRouteSections()).toEqual([])
+  })
+})
+
+describe('getActiveSections', () => {
+  // The top bar is on every page, so it is the one thing an unclaimed route
+  // still blocks. It stays out of `getRouteSections` because that list is
+  // what the keyboard shortcut toggles.
+  it('adds the top bar to every path, claimed or not', () => {
+    expect(getActiveSections('/jobs/')).toEqual(['navBadges', 'navPremium'])
+    expect(getActiveSections('/notifications/')).toEqual([
+      'navBadges',
+      'navPremium',
+    ])
+    expect(getActiveSections('/feed/')).toEqual([
+      'navBadges',
+      'navPremium',
+      'feed',
+      'rightFeed',
+    ])
+  })
+
+  it('reads the sections for the current pathname', () => {
+    window.history.replaceState({}, '', '/jobs/view/4458347375/')
+    expect(getCurrentActiveSections()).toEqual([
+      'navBadges',
+      'navPremium',
+      'jobSidebar',
+    ])
   })
 })

@@ -1,5 +1,5 @@
 import type { ExtensionSettings, PageSection } from '../shared/settings'
-import { getCurrentRouteSections } from './routes'
+import { getCurrentActiveSections } from './routes'
 import {
   ALL_SECTIONS,
   HIDDEN_ATTR_BY_SECTION,
@@ -63,10 +63,10 @@ export const clearAllBlocking = () => {
 }
 
 export const applySettings = (settings: ExtensionSettings) => {
-  const routeSections = new Set(getCurrentRouteSections())
+  const activeSections = new Set(getCurrentActiveSections())
 
   ALL_SECTIONS.forEach(section => {
-    if (!routeSections.has(section) || !settings[section]) {
+    if (!activeSections.has(section) || !settings[section]) {
       showSection(section)
       return
     }

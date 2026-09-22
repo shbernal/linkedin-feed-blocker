@@ -56,6 +56,8 @@ Current section keys:
 | `networkPremium`     | My Network Premium upsell section    |
 | `networkSuggestions` | My Network suggestions sections      |
 | `jobSidebar`         | Job posting right-rail promos        |
+| `navBadges`          | Top bar Home and Notifications dots  |
+| `navPremium`         | Top bar Premium upsell link          |
 
 When adding or removing a section, update shared settings, popup controls,
 content selectors, keyboard toggle behavior, and docs together.
@@ -225,6 +227,13 @@ Selector application is route-gated: `/feed/` only applies Home targets, and
 applies the job sidebar. Unsupported routes restore
 any elements previously hidden by the extension.
 
+`navBadges` and `navPremium` are the exception, and `routes.ts` names them
+`GLOBAL_SECTIONS`: the top bar is the same on every LinkedIn page, so
+`getActiveSections()` adds them to whatever the path claims and `applySettings`
+works from that. They stay out of `getRouteSections()` because that list is also
+what the keyboard shortcut toggles, and a press on an unclaimed route should
+stay inert rather than silently flipping the top bar.
+
 ## Current selector strategy
 
 The selector strategy is based on observed LinkedIn DOM attributes and
@@ -244,6 +253,17 @@ Current examples:
 - My Network suggestions targets auto-component sections inside LinkedIn's
   `<main>` or aria-labelled main content after the pending invitations preview,
   excluding sections already controlled by the puzzle and Premium toggles.
+- The top bar comes in two shapes and both are a `<header>`: a newer one whose
+  classes are all generated, and the older Ember one under `#global-nav`. The
+  dots target the newer bar through the icons' `svg` ids, because Home there is
+  a `<button>` with no destination, and the older bar through each item's href.
+  Only Home and Notifications are claimed; a Messaging or invitation badge means
+  a person did something. Only the badge is hidden, never the nav item.
+- The top bar Premium upsell targets a `/premium/products` link inside the
+  header, plus the older bar's wrapper, whose margin would otherwise hold the
+  gap open. A subscriber's own Premium links point elsewhere and are left
+  alone. Nothing here keys on the upsell's wording, which changes with the
+  offer and with the interface language.
 
 Selector shapes are covered by `src/test/fixtures/linkedin.ts` in both the unit
 and fixture-Playwright layers. They remain brittle in the sense that matters:

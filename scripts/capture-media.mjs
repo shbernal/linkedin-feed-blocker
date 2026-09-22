@@ -274,6 +274,8 @@ const allSections = enabled => ({
   networkPremium: enabled,
   networkSuggestions: enabled,
   jobSidebar: enabled,
+  navBadges: enabled,
+  navPremium: enabled,
 })
 
 const page = await context.newPage()
