@@ -1,9 +1,9 @@
 // Saves real LinkedIn pages once, so the README media can be recorded from them
-// offline as many times as it takes. LinkedIn signs an automated session out
-// after a couple of page loads, so recording against the live site costs a
-// manual sign-in per attempt. This script makes the smallest visit that yields
-// everything the recording needs: Home and My Network, once each, with the
-// extension not loaded, so the saved markup is LinkedIn's own.
+// offline as many times as it takes. LinkedIn signs a session out within a page
+// load or two once the browser navigates programmatically, so this script never
+// navigates. It opens a window, you sign in if asked and click through to Home
+// and My Network yourself, and it saves each page as you arrive on it. The
+// extension is not loaded, so the saved markup is LinkedIn's own.
 //
 // Each page is saved as its DOM with scripts removed and every readable
 // stylesheet inlined, next to a HAR of every response the visit received. The
@@ -21,17 +21,18 @@ const defaultProfileDir = '.e2e/linkedin-real-profile'
 printHelpAndExit(`
 Usage: pnpm media:snapshot [--help]
 
-Opens LinkedIn Home and My Network in a headed Chromium on the signed-in
-real-site profile, without the extension, and saves each page's DOM plus a HAR
-of every response. pnpm media:capture records the README media from this
+Opens a headed Chromium on the real-site profile, without the extension, and
+waits for you to visit LinkedIn Home and My Network (Grow) by hand. It saves
+each page's DOM when you land on it, plus a HAR of every response, and exits
+once both are saved. pnpm media:capture records the README media from this
 snapshot and never contacts LinkedIn.
 
 The snapshot holds your own session's pages: names, faces, and posts. It lives
 under .e2e/, which git ignores. The capture blurs personal content before
 anything is written for publication.
 
-Sign the profile in first with pnpm e2e:real:setup. LinkedIn signs automated
-sessions out quickly, so the script stops rather than saving a login page.
+If the profile is signed out, sign in in the same window. Stay in the first
+tab: the script watches that one.
 
 Environment
   MEDIA_SNAPSHOT_DIR              output directory (default: ${defaultSnapshotDir})
@@ -83,6 +84,9 @@ const serializePage = () => {
   const drop = [
     'script',
     'noscript',
+    // Its Trusted Types rule refuses the capture's overlay, and with the
+    // page's scripts gone there is nothing left for it to protect.
+    'meta[http-equiv="Content-Security-Policy" i]',
     '[data-media-inlined]',
     'link[rel="preload"]',
     'link[rel="modulepreload"]',
@@ -122,29 +126,50 @@ const context = await chromium.launchPersistentContext(profileDir, {
   recordHar: { path: path.join(snapshotDir, 'assets.har.zip') },
 })
 
+const pageKey = url => {
+  const { origin, pathname } = new URL(url)
+  return `${origin}${pathname.endsWith('/') ? pathname : `${pathname}/`}`
+}
+const pending = new Map(PAGES.map(entry => [pageKey(entry.url), entry]))
+
 let failed = false
 try {
   const page = context.pages()[0] ?? (await context.newPage())
-  for (const { name, url } of PAGES) {
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45_000 })
+  await page.setContent(
+    `<p style="font: 18px sans-serif; margin: 40px">Open LinkedIn in this tab
+    and visit ${PAGES.map(entry => entry.url).join(' and ')}.</p>`,
+  )
+  console.log(
+    `Visit these by hand, in the first tab:\n${PAGES.map(
+      entry => `  ${entry.url}`,
+    ).join('\n')}`,
+  )
+  while (pending.size > 0) {
+    await page.waitForURL(url => pending.has(pageKey(url.href)), {
+      timeout: 0,
+    })
     await page.waitForTimeout(SETTLE_MS)
-    if (new URL(page.url()).pathname !== new URL(url).pathname) {
-      console.error(
-        `${name}: landed on ${page.url()}, not ${url}. The profile is signed ` +
-          'out; run pnpm e2e:real:setup and try again.',
-      )
-      failed = true
-      break
+    const entry = pending.get(pageKey(page.url()))
+    if (!entry) {
+      continue
     }
     fs.writeFileSync(
-      path.join(snapshotDir, `${name}.html`),
+      path.join(snapshotDir, `${entry.name}.html`),
       await page.evaluate(serializePage),
     )
-    console.log(`saved ${name}`)
+    pending.delete(pageKey(entry.url))
+    console.log(`saved ${entry.name}`)
   }
+} catch (error) {
+  console.error(
+    `Stopped before saving ${[...pending.values()]
+      .map(entry => entry.name)
+      .join(', ')}: ${error.message.split('\n')[0]}`,
+  )
+  failed = true
 } finally {
   // The HAR is written when the context closes.
-  await context.close()
+  await context.close().catch(() => {})
 }
 
 if (failed) {

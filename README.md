@@ -29,7 +29,7 @@ to real people.
 
 | Page            | Hidden                                             | Left alone                      |
 | --------------- | -------------------------------------------------- | ------------------------------- |
-| **Home**        | The feed, and the puzzles, follow suggestions and ads in the right rail | Your profile card, posting, the nav bar |
+| **Home**        | The feed, the post composer above it, and the puzzles, follow suggestions and ads in the right rail | Your profile card and the nav bar |
 | **My Network**  | The daily puzzle, the Premium upsell, and every suggestion module | Your pending invitations |
 | **Job posting** | The Premium upsell and "Post a job" promo in the sidebar | The job itself, and applying |
 

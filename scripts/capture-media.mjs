@@ -129,7 +129,23 @@ if (process.env.MEDIA_CAPTURE_CAPPED === '1') {
 // Everything that identifies a person: the signed-in member's own card and
 // avatar, the authors and bodies of posts, and the people on My Network. These
 // images are published, and none of those people agreed to be in them.
-const BLUR_SELECTORS = []
+const BLUR_SELECTORS = [
+  'header img',
+  '#workspace img:not(#feedRightNavGamesComponentRef img)',
+  // The member's own card and company page on the Home sidebar.
+  'aside[aria-label="Sidebar"] a[href*="/in/"]',
+  'aside[aria-label="Sidebar"] a[href*="/admin/"]',
+  // Posts, and the composer with the member's avatar.
+  '[data-testid="mainFeed"] [role="listitem"]',
+  // "Add to your feed" people and companies.
+  'aside[aria-label="Aside"] a[href*="/in/"]',
+  'aside[aria-label="Aside"] a[href*="/company/"]',
+  // My Network: invitations, the puzzle card that greets the member by name,
+  // and "People who viewed your profile".
+  '[componentkey^="urn:li:invitation:"]',
+  'section[aria-label="Primary content"] a[href*="/games/"]',
+  '[data-testid="carousel"]',
+]
 
 // Runs in the page before the content script. It blurs personal content and
 // draws a cursor and a caption pill, since headless Chromium draws no pointer.
@@ -143,7 +159,7 @@ const demoInit = blurSelectors => {
     const style = document.createElement('style')
     style.id = 'demo-style'
     style.textContent = `
-      ${blurSelectors.join(',\n')} { filter: blur(7px) !important; }
+      ${blurSelectors.join(',\n')} { filter: blur(9px) !important; }
       #demo-cursor { position: fixed; z-index: 2147483647; left: 0; top: 0;
         width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%;
         background: rgba(255,255,255,.9); border: 2px solid #1d2226;
@@ -218,10 +234,21 @@ await context.route(/^https:\/\/www\.linkedin\.com\//, route => {
   if (!file) {
     return route.fallback()
   }
+  // pnpm media:snapshot drops the CSP meta tag; an older snapshot may have it.
+  // The nav bar links to /mynetwork, which live LinkedIn redirects to Grow.
+  // Linking to Grow directly keeps the redirect out of the HAR, which may hold
+  // a stale answer for it.
+  const body = fs
+    .readFileSync(file, 'utf8')
+    .replace(/<meta[^>]*http-equiv="Content-Security-Policy"[^>]*>/gi, '')
+    .replaceAll(
+      'href="https://www.linkedin.com/mynetwork"',
+      `href="${NETWORK_URL}"`,
+    )
   return route.fulfill({
     status: 200,
     contentType: 'text/html; charset=utf-8',
-    body: fs.readFileSync(file),
+    body,
   })
 })
 await context.addInitScript(demoInit, BLUR_SELECTORS)
@@ -376,7 +403,7 @@ await page.waitForTimeout(1200)
 
 await caption('My Network')
 await moveTo(
-  page.locator('header a[href*="/mynetwork/"]').first(),
+  page.locator(`header a[href="${NETWORK_URL}"]`).first(),
   'network-link',
 )
 await click()

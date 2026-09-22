@@ -103,6 +103,12 @@ for (const state of ['unblocked', 'blocked']) {
     '#f4f2ee',
     '-extent',
     '1200x750',
+    // The panels are LinkedIn's own background colour, so without an edge
+    // they dissolve into the composite's.
+    '-bordercolor',
+    '#d6d3cd',
+    '-border',
+    '1',
     `before-after-${state}.png`,
   ])
 }

@@ -30,6 +30,9 @@ this directory unless the task explicitly calls for it.
 - [Icon Explorations](./icon-explorations.md) records the icon directions the
   project tried and rejected, what each one cost at 16px, and how the sketches
   were generated. It is history, not a description of the shipped mark.
+- [Media Capture](./media-capture.md) explains how the README's demo GIF,
+  before/after, and popup image are recorded from a saved LinkedIn snapshot,
+  and what gets blurred.
 - [Testing](./testing.md) explains the three test layers, the Chrome API mock,
   the shared LinkedIn fixtures and the rule they follow, the coverage map, and
   the local real-site smoke-test lane.
@@ -52,6 +55,7 @@ change.
 | test layers, commands, the Chrome API mock, the fixtures, the coverage map   | `testing.md`                |
 | the repository layout, scope, or shipped status                              | `project-overview.md`       |
 | a rejected icon direction, or what a mark costs at 16px                      | `icon-explorations.md`      |
+| the README media, the snapshot, or what the capture blurs                    | `media-capture.md`          |
 
 Two rules apply to all of them. Keep docs tied to current code: speculative
 roadmap context belongs here only when the task asks for planning
