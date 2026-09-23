@@ -2,20 +2,20 @@
   "icon": "f8148db09a92ff4d8a8064d209a6ee0c1749d39b2763fd39401fa0b35d94bbb0",
   "previews": [
     {
-      "file": "store/screenshots/linkedin-feedblocker-1-home-feed-blocked.png",
-      "hash": "bcb0f4cff0a740126cac59cb0990d11a670a5701b6be65300a5222d27da94b82"
+      "file": "store/screenshots/linkedin-feedblocker-1-before-after.png",
+      "hash": "4a04f2963f8fce1fbdaacc06bac22d71e096dfb53374ed879bda82863e2f03be"
     },
     {
-      "file": "store/screenshots/linkedin-feedblocker-2-popup-controls.png",
-      "hash": "e75c187dabf2295895a6ec64bbef6decae9d41ac51d9c0d4c9c82afbf0a345df"
+      "file": "store/screenshots/linkedin-feedblocker-2-home-feed-blocked.png",
+      "hash": "b24ac90f90e2949e849b210115b1a044e71a848ec34faf4a9d8abbb2fdf83613"
     },
     {
-      "file": "store/screenshots/linkedin-feedblocker-3-my-network-blocked.png",
-      "hash": "cc8bcc8a5b32960e33faac8e2e1df17b7d14649ebdaef6742e4909fe2b4ebbaa"
+      "file": "store/screenshots/linkedin-feedblocker-3-popup-controls.png",
+      "hash": "d2e779b6c1eb6a9b9cc85df7c832018ee25be69d972f86813eacb54bb43b52e7"
     },
     {
-      "file": "store/screenshots/linkedin-feedblocker-4-invitations-preserved.png",
-      "hash": "bf6ba22fe56dd2267edc3830005724840810eb3218c95aa0adb1d5e31cd4b246"
+      "file": "store/screenshots/linkedin-feedblocker-4-my-network-blocked.png",
+      "hash": "a472620eb9a0eb6ae0d7907f12c88a5b1f89e7e11a2be25e7eedf2b2def2b34f"
     },
     {
       "file": "store/screenshots/linkedin-feedblocker-5-github-contribute.png",
