@@ -64,14 +64,16 @@ outside the block is documentation and keeps its markup.
 The build is deterministic. Verified by extracting the source archive into a
 fresh directory and running the instructions above:
 
+- Node 24.21.0 with pnpm 11.20.0, on the Arch host, the local development
+  environment, against the 0.3.1 archive
 - Node 24.18.1 with Corepack-provisioned pnpm 11.20.0, in a `node:24-bookworm`
-  container, the reviewer default
-- Node 26.4.0 with pnpm 11.20.0, on the Arch host, the local development
-  environment
+  container, the reviewer default, against the 0.3.0 archive
 
-Both produced a `dist-firefox/` identical to the local build: same 13 files,
+Each produced a `dist-firefox/` identical to the local build: the same file set,
 same SHA-256 for every one. The output is not sensitive to the directory the
-build runs in, nor to the host.
+build runs in, nor to the host. The file count is deliberately not stated here,
+because a chunk split changes it without changing anything a reviewer cares
+about.
 
 Re-run this check before any release that changes dependencies, the Vite config,
 or the manifest config.
