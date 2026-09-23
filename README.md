@@ -68,7 +68,7 @@ collects no data.
 
 ## Status
 
-Version 0.3.0 works in Chrome, Chromium, Firefox, and Zen. LinkedIn changes its
+Version 0.3.1 works in Chrome, Chromium, Firefox, and Zen. LinkedIn changes its
 markup often, and when it does a section can reappear until the extension
 catches up. If something LinkedIn shows you should be blocked and isn't, or the
 other way round, [open an issue](https://github.com/shbernal/linkedin-feed-blocker/issues).

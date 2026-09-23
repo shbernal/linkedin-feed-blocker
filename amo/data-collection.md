@@ -67,8 +67,9 @@ or background scanning of unrelated tabs.
 ### `storage`
 
 Saves the user's local settings: whether blocking is enabled, and whether the
-Home feed, the Home right rail, and the My Network puzzle, Premium, and
-suggestion sections are each blocked. It also holds the keyboard binding the
+Home feed, the Home right rail, the top bar notification dots, the top bar
+Premium link, the job posting promo sidebar, and the My Network puzzle, Premium,
+and suggestion sections are each blocked. It also holds the keyboard binding the
 browser resolved for the toggle command, so the in-page fallback matches the
 same keys. Written to storage.local. It is not used to collect or transmit
 browsing data.
@@ -76,9 +77,10 @@ browsing data.
 ### Host permission `*://*.linkedin.com/*`
 
 The content script must run on LinkedIn pages to find the Home feed, the Home
-right-rail widgets, and the My Network puzzle, Premium, and suggestion modules,
-and to hide or restore whichever of them the user has chosen to block. It runs
-on no other site.
+right-rail widgets, the top bar notification dots and Premium link, the promo
+sidebar on job postings, and the My Network puzzle, Premium, and suggestion
+modules, and to hide or restore whichever of them the user has chosen to block.
+It runs on no other site.
 
 ## Review process
 

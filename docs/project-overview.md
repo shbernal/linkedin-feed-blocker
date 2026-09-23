@@ -10,7 +10,7 @@ loops untouched. This repo is the experimental implementation of that idea.
 
 ## Current status
 
-Status: experimental published 0.3.0 extension.
+Status: experimental published 0.3.1 extension.
 
 It builds for Chromium and for Gecko from one source tree and publishes to both
 stores from published GitHub Releases. Treat it as an implementation sandbox

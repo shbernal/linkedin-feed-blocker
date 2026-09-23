@@ -2,7 +2,7 @@
   "slug": "quiet-linkedin",
   "default_locale": "en-US",
   "summary": {
-    "en-US": "Block LinkedIn's Home feed, its right-rail widgets, and the My Network puzzle, Premium, and suggestion modules. Toggle each one from the popup or a keyboard shortcut. Invitations, jobs, and messages stay. Nothing leaves your device."
+    "en-US": "Block LinkedIn's Home feed, right-rail widgets, top bar red dots and Premium link, the jobs promo sidebar, and My Network recommendation modules. Toggle each from the popup or a shortcut. Invitations and messages stay. Nothing leaves your device."
   },
   "categories": ["social-communication"],
   "tags": ["content blocker", "social media"],
