@@ -247,9 +247,13 @@ repositories in the condition when updating it.
 Chrome Web Store rejects reused extension versions, and so does AMO, so every
 release must bump `package.json` before publishing.
 
-Do not run `pnpm publish:amo --sync-previews` in the same hour as a release.
-Both draw on one AMO throttle budget and the sync is what will stall; see
-[AMO Listing](./amo-listing.md).
+Syncing previews between releases is
+`pnpm publish:amo --assets-only --sync-previews`. Without `--assets-only` the
+run submits a version first and answers `409 Version <version> already exists`,
+because the release has already created it.
+
+Do not run it in the same hour as a release. Both draw on one AMO throttle
+budget and the sync is what will stall; see [AMO Listing](./amo-listing.md).
 
 ## When a publish job fails
 
