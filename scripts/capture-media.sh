@@ -12,7 +12,7 @@
 # Without these, the same capture in tiktok-feed-blocker once exhausted memory
 # on a 15G machine, and Chromium processes orphaned by `timeout` kept running.
 #
-# Usage: scripts/capture-media.sh capture|encode [--help]
+# Usage: scripts/capture-media.sh capture|encode|store [--help]
 set -u
 
 stage=${1:-}
@@ -27,8 +27,12 @@ case $stage in
     script=scripts/capture-media-encode.mjs
     runtime=180
     ;;
+  store)
+    script=scripts/capture-store-shots.mjs
+    runtime=180
+    ;;
   *)
-    echo "Usage: scripts/capture-media.sh capture|encode [--help]" >&2
+    echo "Usage: scripts/capture-media.sh capture|encode|store [--help]" >&2
     exit 2
     ;;
 esac
@@ -48,7 +52,7 @@ fi
 
 leftovers() {
   echo "== leftovers ($1)"
-  pgrep -af 'ltfb-media-|capture-media(-encode)?\.mjs|gifski' |
+  pgrep -af 'ltfb-media-|capture-(media(-encode)?|store-shots)\.mjs|gifski' |
     grep -vE 'pgrep|capture-media\.sh' || echo "no leftover processes"
   if compgen -G '/tmp/ltfb-media-*' >/dev/null; then
     ls -d /tmp/ltfb-media-*
@@ -62,7 +66,7 @@ leftovers before
 unit=ltfb-media-$stage
 env_args=(--setenv=MEDIA_CAPTURE_CAPPED=1)
 for name in MEDIA_CAPTURE_DIR MEDIA_SNAPSHOT_DIR MEDIA_CAPTURE_WATCHDOG_MS \
-  PLAYWRIGHT_CHROMIUM_EXECUTABLE; do
+  STORE_SHOTS_DIR STORE_SHOTS_WATCHDOG_MS PLAYWRIGHT_CHROMIUM_EXECUTABLE; do
   if [ -n "${!name:-}" ]; then
     env_args+=("--setenv=$name=${!name}")
   fi

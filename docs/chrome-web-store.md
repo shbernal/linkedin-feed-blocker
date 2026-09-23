@@ -41,17 +41,34 @@ of the actual extension experience over mockups.
 
 The current set uses five 1280x800 PNG files, in this order:
 
-| Order | Filename                                           | Capture target                                                                 |
-| ----- | -------------------------------------------------- | ------------------------------------------------------------------------------ |
-| 1     | `linkedin-feedblocker-1-home-feed-blocked.png`     | `/feed/` with the main feed and right rail blocked.                            |
-| 2     | `linkedin-feedblocker-2-popup-controls.png`        | Popup open on a LinkedIn tab, showing the Home and My Network section toggles. |
-| 3     | `linkedin-feedblocker-3-my-network-blocked.png`    | `/mynetwork/grow/` with puzzle, Premium, and suggestions hidden.               |
-| 4     | `linkedin-feedblocker-4-invitations-preserved.png` | My Network invitations still visible while lower-value modules are blocked.    |
-| 5     | `linkedin-feedblocker-5-github-contribute.png`     | GitHub contribution callout for `shbernal/linkedin-feed-blocker`.              |
+| Order | Filename                                        | Capture target                                                         |
+| ----- | ----------------------------------------------- | ---------------------------------------------------------------------- |
+| 1     | `linkedin-feedblocker-1-before-after.png`       | `/feed/` unblocked above and blocked below, composited into one frame. |
+| 2     | `linkedin-feedblocker-2-home-feed-blocked.png`  | `/feed/` with the main feed and right rail blocked.                    |
+| 3     | `linkedin-feedblocker-3-popup-controls.png`     | The popup over `/feed/`, every section on, which is how it installs.   |
+| 4     | `linkedin-feedblocker-4-my-network-blocked.png` | `/mynetwork/grow/` with puzzle, Premium, and suggestions hidden.       |
+| 5     | `linkedin-feedblocker-5-github-contribute.png`  | GitHub contribution callout for `shbernal/linkedin-feed-blocker`.      |
 
-When replacing screenshots, remove or blur private LinkedIn account data, names,
-profile photos, messages, job recommendations, and notifications before
-committing the files.
+## Regenerating the screenshots
+
+`pnpm store:shots` writes shots 1 to 4 to `media-capture/store/`. It replays the
+pages saved by `pnpm media:snapshot` with `dist/` loaded, so it photographs the
+extension against real LinkedIn markup without contacting LinkedIn or needing a
+session; see [Media Capture](./media-capture.md) for the snapshot and the
+systemd caps it runs under. Shot 5 is a designed card rather than a capture and
+is not regenerated.
+
+The command copies nothing into `store/screenshots/`. Look at every image first
+and then copy what changed, because the blur is a selector list rather than a
+test: when LinkedIn rebuilds its markup a selector stops matching, and what
+that costs is a real person's name on two public listings. `BLUR_SELECTORS` in
+`scripts/snapshot-replay.mjs` is shared with the README capture so the two
+cannot drift apart.
+
+Before committing, confirm each image has no unblurred names, profile photos,
+messages, job recommendations, or notifications, and none of the member's own
+private analytics. Connection, group and page counts are deliberately left
+legible: those are on the profile for anyone who visits it.
 
 ## Packaging
 
@@ -73,8 +90,9 @@ Reference:
 
 Before submitting a release, review the listing copy and media against the
 current extension behavior. Keep claims narrow: the extension currently targets
-LinkedIn `/feed/` and `/mynetwork/grow/`, and uses local Chrome extension
-storage.
+the Home feed and its right rail, the My Network recommendation modules, the
+promo sidebar on job postings, and the top bar's notification dots and Premium
+link, and it uses local extension storage.
 
 ## Privacy form process
 

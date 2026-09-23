@@ -1,26 +1,26 @@
 [
   {
-    "file": "store/screenshots/linkedin-feedblocker-1-home-feed-blocked.png",
+    "file": "store/screenshots/linkedin-feedblocker-1-before-after.png",
     "caption": {
-      "en-US": "Blocking Home clears the main feed and the right-rail widgets beside it."
+      "en-US": "Home before and after: the feed, the right-rail widgets, and the top bar Premium link all go."
     }
   },
   {
-    "file": "store/screenshots/linkedin-feedblocker-2-popup-controls.png",
+    "file": "store/screenshots/linkedin-feedblocker-2-home-feed-blocked.png",
     "caption": {
-      "en-US": "The popup toggles every supported section at once or one at a time."
+      "en-US": "With Home blocked the feed and its right rail are gone, and the rest of LinkedIn is untouched."
     }
   },
   {
-    "file": "store/screenshots/linkedin-feedblocker-3-my-network-blocked.png",
+    "file": "store/screenshots/linkedin-feedblocker-3-popup-controls.png",
     "caption": {
-      "en-US": "On My Network the puzzle, Premium upsell, and suggestion modules go away."
+      "en-US": "Every supported section is its own toggle in the popup, or all of them at once."
     }
   },
   {
-    "file": "store/screenshots/linkedin-feedblocker-4-invitations-preserved.png",
+    "file": "store/screenshots/linkedin-feedblocker-4-my-network-blocked.png",
     "caption": {
-      "en-US": "Pending invitations stay visible; only the recommendation modules below them are blocked."
+      "en-US": "On My Network the puzzle, Premium upsell, and suggestion modules go, and pending invitations stay."
     }
   },
   {

@@ -46,6 +46,7 @@
     "media:snapshot": "node scripts/media-snapshot.mjs",
     "media:capture": "tsc -b && vite build && bash scripts/capture-media.sh capture",
     "media:encode": "bash scripts/capture-media.sh encode",
+    "store:shots": "tsc -b && vite build && bash scripts/capture-media.sh store",
     "format": "oxfmt --check .",
     "format:write": "oxfmt .",
     "preview": "vite preview"

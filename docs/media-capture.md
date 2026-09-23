@@ -15,7 +15,9 @@ you: look at the output, then copy what changed.
 | `feed-*.png`          | source stills for the composite   |
 | `network-blocked.png` | a still of My Network, blocked    |
 
-The store screenshots under `store/screenshots/` are not generated here.
+The store screenshots under `store/screenshots/` come from `pnpm store:shots`,
+which replays the same snapshot through the same blur selectors and is
+documented in [Chrome Web Store](./chrome-web-store.md).
 
 ## Why there is a snapshot
 
@@ -70,8 +72,8 @@ in a published image. The capture does not check this for you.
 
 ## Why it runs capped
 
-`scripts/capture-media.sh` runs capture and encode in a transient systemd user
-unit, which covers node and every process it starts. The same capture in
+`scripts/capture-media.sh` runs capture, encode and the store shots in a
+transient systemd user unit, which covers node and every process it starts. The same capture in
 `tiktok-feed-blocker` once exhausted memory system-wide and froze the desktop,
 and `timeout` had killed only `node`, leaving Chromium running.
 
@@ -80,7 +82,7 @@ and `timeout` had killed only `node`, leaving Chromium running.
 | `MemoryMax=3G`, `MemoryHigh=2G` | an overrun is OOM-killed inside the unit, not global |
 | `MemorySwapMax=0`               | the unit cannot push the machine into swap           |
 | `CPUQuota=400%`, `Nice=10`      | four cores at most, at low priority                  |
-| `RuntimeMaxSec`                 | 240s for capture, 180s for encode                    |
+| `RuntimeMaxSec`                 | 240s for capture, 180s for encode and store shots    |
 | `KillMode=control-group`        | no browser outlives the unit                         |
 
 The capture script adds its own guards: it will not start with less than 3G

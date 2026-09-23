@@ -11,9 +11,15 @@ import process from 'node:process'
 import { chromium } from '@playwright/test'
 import { printHelpAndExit } from './help.mjs'
 import { resolveChromiumExecutable } from './browsers.mjs'
+import {
+  defaultSnapshotDir,
+  FEED_URL,
+  installSnapshotRoutes,
+  NETWORK_URL,
+  resolveSnapshot,
+} from './snapshot-replay.mjs'
 
 const defaultOutDir = 'media-capture'
-const defaultSnapshotDir = '.e2e/media-snapshot'
 
 printHelpAndExit(`
 Usage: pnpm media:capture [--help]
@@ -38,17 +44,10 @@ const MEMORY_ABORT_BYTES = 2.2 * 1024 ** 3
 const MIN_AVAILABLE_BYTES = 3 * 1024 ** 3
 const MAX_FRAMES = 700
 
-const FEED_URL = 'https://www.linkedin.com/feed/'
-const NETWORK_URL = 'https://www.linkedin.com/mynetwork/grow/'
-
 const extensionPath = path.resolve(process.cwd(), 'dist')
 const outDir = path.resolve(
   process.cwd(),
   process.env.MEDIA_CAPTURE_DIR ?? defaultOutDir,
-)
-const snapshotDir = path.resolve(
-  process.cwd(),
-  process.env.MEDIA_SNAPSHOT_DIR ?? defaultSnapshotDir,
 )
 const log = (...args) =>
   console.log(new Date().toISOString().slice(11, 19), ...args)
@@ -60,16 +59,7 @@ if (!fs.existsSync(path.join(extensionPath, 'manifest.json'))) {
   )
 }
 
-const snapshotPages = {
-  [FEED_URL]: path.join(snapshotDir, 'feed.html'),
-  [NETWORK_URL]: path.join(snapshotDir, 'network.html'),
-}
-const harPath = path.join(snapshotDir, 'assets.har.zip')
-for (const file of [...Object.values(snapshotPages), harPath]) {
-  if (!fs.existsSync(file)) {
-    throw new Error(`Missing ${file}. Run pnpm media:snapshot first.`)
-  }
-}
+const { pages: snapshotPages, harPath } = resolveSnapshot()
 
 // Refuse to start on a machine that is already short on memory.
 const meminfo = fs.readFileSync('/proc/meminfo', 'utf8')
@@ -126,31 +116,11 @@ if (process.env.MEDIA_CAPTURE_CAPPED === '1') {
   setInterval(() => log(`memory peak ${(peak / 1024 ** 2).toFixed(0)}M`), 15000)
 }
 
-// Everything that identifies a person: the signed-in member's own card and
-// avatar, the authors and bodies of posts, and the people on My Network. These
-// images are published, and none of those people agreed to be in them.
-const BLUR_SELECTORS = [
-  'header img',
-  '#workspace img:not(#feedRightNavGamesComponentRef img)',
-  // The member's own card and company page on the Home sidebar.
-  'aside[aria-label="Sidebar"] a[href*="/in/"]',
-  'aside[aria-label="Sidebar"] a[href*="/admin/"]',
-  // Posts, and the composer with the member's avatar.
-  '[data-testid="mainFeed"] [role="listitem"]',
-  // "Add to your feed" people and companies.
-  'aside[aria-label="Aside"] a[href*="/in/"]',
-  'aside[aria-label="Aside"] a[href*="/company/"]',
-  // My Network: invitations, the puzzle card that greets the member by name,
-  // and "People who viewed your profile".
-  '[componentkey^="urn:li:invitation:"]',
-  'section[aria-label="Primary content"] a[href*="/games/"]',
-  '[data-testid="carousel"]',
-]
-
-// Runs in the page before the content script. It blurs personal content and
-// draws a cursor and a caption pill, since headless Chromium draws no pointer.
-// Nothing here ships.
-const demoInit = blurSelectors => {
+// Runs in the page before the content script, and draws a cursor and a caption
+// pill, since headless Chromium draws no pointer. Blurring is a separate init
+// script installed by installSnapshotRoutes, so the store capture gets it
+// without any of this. Nothing here ships.
+const demoInit = () => {
   const install = () => {
     if (document.getElementById('demo-style')) {
       return
@@ -159,7 +129,6 @@ const demoInit = blurSelectors => {
     const style = document.createElement('style')
     style.id = 'demo-style'
     style.textContent = `
-      ${blurSelectors.join(',\n')} { filter: blur(9px) !important; }
       #demo-cursor { position: fixed; z-index: 2147483647; left: 0; top: 0;
         width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%;
         background: rgba(255,255,255,.9); border: 2px solid #1d2226;
@@ -225,33 +194,8 @@ context = await chromium.launchPersistentContext(profile, {
 context.setDefaultTimeout(15_000)
 context.setDefaultNavigationTimeout(30_000)
 
-// The last route registered is consulted first. A saved page answers its own
-// URL, the HAR answers what the visit fetched, and anything else is refused.
-await context.route(/^https?:/, route => route.abort())
-await context.routeFromHAR(harPath, { url: /^https?:/, notFound: 'fallback' })
-await context.route(/^https:\/\/www\.linkedin\.com\//, route => {
-  const file = snapshotPages[route.request().url()]
-  if (!file) {
-    return route.fallback()
-  }
-  // pnpm media:snapshot drops the CSP meta tag; an older snapshot may have it.
-  // The nav bar links to /mynetwork, which live LinkedIn redirects to Grow.
-  // Linking to Grow directly keeps the redirect out of the HAR, which may hold
-  // a stale answer for it.
-  const body = fs
-    .readFileSync(file, 'utf8')
-    .replace(/<meta[^>]*http-equiv="Content-Security-Policy"[^>]*>/gi, '')
-    .replaceAll(
-      'href="https://www.linkedin.com/mynetwork"',
-      `href="${NETWORK_URL}"`,
-    )
-  return route.fulfill({
-    status: 200,
-    contentType: 'text/html; charset=utf-8',
-    body,
-  })
-})
-await context.addInitScript(demoInit, BLUR_SELECTORS)
+await installSnapshotRoutes(context, { pages: snapshotPages, harPath })
+await context.addInitScript(demoInit)
 
 // Read the id now: an idle MV3 worker can be gone by the end of the run.
 const worker =
