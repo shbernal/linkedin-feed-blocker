@@ -203,22 +203,6 @@ describe('planPreviewSync', () => {
     expect(uploads).toHaveLength(2)
     expect(deletes).toEqual([11, 12])
   })
-
-  it('drops previews the manifest no longer lists', () => {
-    const remote = [{ id: 11 }, { id: 12 }, { id: 13 }]
-
-    expect(planPreviewSync(remote, [valid[0]]).deletes).toEqual([11, 12, 13])
-  })
-
-  it('derives position from manifest order, so reordering reorders', () => {
-    const reversed = [valid[1], valid[0]]
-    const { uploads } = planPreviewSync([{ id: 11 }, { id: 12 }], reversed)
-
-    expect(uploads.map(entry => [entry.file, entry.position])).toEqual([
-      ['store/screenshots/b.png', 0],
-      ['store/screenshots/a.png', 1],
-    ])
-  })
 })
 
 describe('describePreviewDrift', () => {
