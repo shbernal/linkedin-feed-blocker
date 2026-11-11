@@ -8,8 +8,11 @@ source tree; see [Build Targets](./build-targets.md).
 
 `.github/workflows/ci.yml` runs on pull requests and pushes to `master`.
 
-It runs two jobs. They are split so a browser-level flake reddens only the
-end-to-end signal and leaves the unit-test result readable.
+It runs three jobs. `validate` and `e2e` are split so a browser-level flake
+reddens only the end-to-end signal and leaves the unit-test result readable.
+`commit-check` rejects commit messages that carry AI attribution, per
+`.github/cchk.toml`; the AI disclosure goes in the pull request description,
+which `.github/pull_request_template.md` asks for.
 
 The `validate` job:
 
@@ -43,7 +46,8 @@ that regression; see
 
 `.github/dependabot.yml` opens weekly update pull requests for npm dependencies
 and GitHub Actions. Development dependencies are grouped into a single pull
-request, with at most five open npm pull requests at a time. Both stores' review
+request, `react` and `react-dom` into another since React refuses to run when
+the two versions differ, with at most five open npm pull requests at a time. Both stores' review
 processes flag stale bundled dependencies, so this keeps the shipped tree moving
 even when nothing else changes.
 
