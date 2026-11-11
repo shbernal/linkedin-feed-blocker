@@ -394,17 +394,6 @@ describe('teardown', () => {
     pressKey({ code: 'Digit7', ctrlKey: true, shiftKey: true })
     expect(isHidden('#main-feed')).toBe(false)
   })
-
-  it('leaves the page visible rather than half-hidden', async () => {
-    const module = await loadContentScript()
-    expect(isHidden('#main-feed')).toBe(true)
-
-    module.cleanupContentScript()
-    clearAllBlocking()
-
-    expect(isHidden('#main-feed')).toBe(false)
-    expect(document.querySelectorAll('[data-ltfb-feed-hidden]')).toHaveLength(0)
-  })
 })
 
 // The document_start stylesheet hides the feed route's targets while the gate

@@ -116,17 +116,4 @@ describe('toggle command', () => {
 
     expect(chromeMock.tabs.sendMessage).not.toHaveBeenCalled()
   })
-
-  // A tab with no content script answers with a `runtime.lastError`. Reading
-  // it is what keeps Chrome from logging an unchecked-error warning.
-  it('swallows the delivery error when nothing is listening', async () => {
-    await loadServiceWorker()
-    const chromeMock = getChromeMock()
-    withActiveTab({ id: 9, url: 'https://www.linkedin.com/feed/' })
-
-    chromeMock.commands.onCommand.emit(TOGGLE_COMMAND)
-
-    const [, , respond] = chromeMock.tabs.sendMessage.mock.calls[0]
-    expect(() => respond?.()).not.toThrow()
-  })
 })

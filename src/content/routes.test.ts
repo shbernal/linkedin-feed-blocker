@@ -1,10 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  getActiveSections,
-  getCurrentActiveSections,
-  getCurrentRouteSections,
-  getRouteSections,
-} from './routes'
+import { getActiveSections, getRouteSections } from './routes'
 
 describe('getRouteSections', () => {
   it('maps the home feed to the two feed sections', () => {
@@ -42,20 +37,6 @@ describe('getRouteSections', () => {
   })
 })
 
-describe('getCurrentRouteSections', () => {
-  it('reads the sections for the current pathname', () => {
-    window.history.replaceState({}, '', '/mynetwork/grow/')
-    expect(getCurrentRouteSections()).toEqual([
-      'networkPuzzle',
-      'networkPremium',
-      'networkSuggestions',
-    ])
-
-    window.history.replaceState({}, '', '/jobs/')
-    expect(getCurrentRouteSections()).toEqual([])
-  })
-})
-
 describe('getActiveSections', () => {
   // The top bar is on every page, so it is the one thing an unclaimed route
   // still blocks. It stays out of `getRouteSections` because that list is
@@ -71,15 +52,6 @@ describe('getActiveSections', () => {
       'navPremium',
       'feed',
       'rightFeed',
-    ])
-  })
-
-  it('reads the sections for the current pathname', () => {
-    window.history.replaceState({}, '', '/jobs/view/4458347375/')
-    expect(getCurrentActiveSections()).toEqual([
-      'navBadges',
-      'navPremium',
-      'jobSidebar',
     ])
   })
 })

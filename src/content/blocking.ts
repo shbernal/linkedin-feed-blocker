@@ -38,7 +38,7 @@ const hideTargets = (targets: readonly SectionTarget[], hiddenAttr: string) => {
   })
 }
 
-export const showSection = (section: PageSection) => {
+const showSection = (section: PageSection) => {
   const hiddenAttr = HIDDEN_ATTR_BY_SECTION[section]
 
   document
@@ -49,13 +49,8 @@ export const showSection = (section: PageSection) => {
     })
 }
 
-export const applySectionBlocking = (section: PageSection) => {
-  const targets = SECTION_TARGETS[section]
-  if (targets.length === 0) {
-    return
-  }
-
-  hideTargets(targets, HIDDEN_ATTR_BY_SECTION[section])
+const applySectionBlocking = (section: PageSection) => {
+  hideTargets(SECTION_TARGETS[section], HIDDEN_ATTR_BY_SECTION[section])
 }
 
 export const clearAllBlocking = () => {

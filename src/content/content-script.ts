@@ -251,7 +251,6 @@ export const initContentScript = () => {
         result[SETTINGS_STORAGE_KEY],
         result[LEGACY_ACTIVE_STORAGE_KEY],
       )
-      settings = normalizeSettings(settings, DEFAULT_SETTINGS)
       saveSettings(settings)
       applyCurrentSettings()
       finishStartup()

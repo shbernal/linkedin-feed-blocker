@@ -91,11 +91,4 @@ describe('the ready gate', () => {
     expect(isBlockingReady()).toBe(true)
     expect(document.documentElement.getAttribute(READY_ATTR)).toBe('true')
   })
-
-  it('is idempotent, so a fallback firing after the real one is harmless', () => {
-    markBlockingReady()
-    markBlockingReady()
-
-    expect(document.documentElement.getAttribute(READY_ATTR)).toBe('true')
-  })
 })

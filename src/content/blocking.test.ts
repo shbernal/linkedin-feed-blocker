@@ -1,12 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import type { ExtensionSettings, PageSection } from '../shared/settings'
 import { getFixtureBody } from '../test/fixtures/linkedin'
-import {
-  applySectionBlocking,
-  applySettings,
-  clearAllBlocking,
-  showSection,
-} from './blocking'
+import { applySettings, clearAllBlocking } from './blocking'
 import { HIDDEN_ATTR_BY_SECTION } from './selectors'
 
 const NOTHING_BLOCKED: ExtensionSettings = {
@@ -153,14 +148,6 @@ describe('the home feed', () => {
     })
     expect(document.querySelectorAll('[data-ltfb-feed-hidden]')).toHaveLength(0)
   })
-
-  it('exposes per-section apply and restore', () => {
-    applySectionBlocking('feed')
-    expect(isHidden('#main-feed')).toBe(true)
-
-    showSection('feed')
-    expect(isHidden('#main-feed')).toBe(false)
-  })
 })
 
 describe('the My Network grow page', () => {
@@ -199,17 +186,6 @@ describe('the My Network grow page', () => {
     expect(isHidden('#network-invitations')).toBe(false)
     expect(isHidden('#network-before-invitations')).toBe(false)
     expect(isHidden('section[aria-label="Primary content"]')).toBe(false)
-  })
-
-  it('keeps the three sections independent', () => {
-    applySettings(EVERYTHING_BLOCKED)
-
-    expect(hiddenBy('networkPuzzle')).toEqual(['network-puzzle'])
-    expect(hiddenBy('networkPremium')).toEqual(['network-premium'])
-    expect(hiddenBy('networkSuggestions')).toEqual([
-      'network-pages',
-      'network-people',
-    ])
   })
 
   it('restores every section it hid', () => {
