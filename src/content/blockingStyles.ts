@@ -10,7 +10,7 @@ import { SECTION_TARGETS } from './selectors'
 export const READY_ATTR = 'data-ltfb-ready'
 
 /**
- * The sections the stylesheet can cover. Three of the six cannot be expressed
+ * The sections the stylesheet can cover. Three of the eight cannot be expressed
  * in CSS at all: `networkPuzzle` and `networkPremium` match on text content,
  * and `networkSuggestions` compares document position against the pending
  * invitations preview. They keep the JavaScript path and are unaffected by any
